@@ -1,0 +1,63 @@
+classDiagram
+    direction TB
+
+    class OrderController {
+        -OrderService _orderService
+        +PostOrder()
+        +DeleteOrder()
+        +GetOrder()
+    }
+
+    class OrderService {
+        +PlaceOrder()
+        +CancelOrder()
+        +GetOrder()
+    }
+
+    class IOrderRepository {
+        <<interface>>
+        +FindById()
+        +Save()
+    }
+
+    class IStockService {
+        <<interface>>
+        +HasStock()
+        +Reserve()
+        +Release()
+    }
+
+    class IPaymentService {
+        <<interface>>
+        +ProcessPayment()
+    }
+
+    class IEmailService {
+        <<interface>>
+        +SendOrderConfirmation()
+        +SendOrderCancellation()
+    }
+
+    class Order {
+        +CanBeCancelled()
+        +Confirm()
+        +Cancel()
+    }
+
+    class InMemoryOrderRepository
+    class InMemoryStockService
+    class PaymentGatewayService
+    class SmtpEmailService
+
+    OrderController --> OrderService
+    OrderService --> IOrderRepository
+    OrderService --> IStockService
+    OrderService --> IPaymentService
+    OrderService --> IEmailService
+    OrderService --> Order
+    InMemoryOrderRepository ..|> IOrderRepository
+    InMemoryStockService ..|> IStockService
+    PaymentGatewayService ..|> IPaymentService
+    SmtpEmailService ..|> IEmailService
+
+    note for OrderService "Coeziune mare, cuplare mica prin interfete"

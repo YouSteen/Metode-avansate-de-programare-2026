@@ -1,0 +1,44 @@
+@startuml use-case
+left to right direction
+skinparam backgroundColor #0d1117
+skinparam actorBorderColor #58a6ff
+skinparam usecaseBorderColor #30363d
+skinparam packageBorderColor #30363d
+skinparam packageFontColor #8b949e
+
+actor "Client" as Client
+actor "Admin" as Admin
+actor "Sistem\nPlati" as Payment
+
+rectangle "Sistem Gestiune Comenzi" {
+  usecase "Plaseaza comanda" as UC1
+  usecase "Anuleaza comanda" as UC2
+  usecase "Vizualizeaza comanda" as UC3
+  usecase "Actualizeaza status" as UC4
+  usecase "Genereaza raport vanzari" as UC5
+  usecase "Gestioneaza catalog produse" as UC6
+  usecase "Verifica stoc" as UC7
+  usecase "Proceseaza plata" as UC8
+  usecase "Trimite confirmare email" as UC9
+}
+
+Client --> UC1
+Client --> UC2
+Client --> UC3
+Admin --> UC4
+Admin --> UC5
+Admin --> UC6
+Payment --> UC8
+
+UC1 ..> UC7 : <<include>>
+UC1 ..> UC8 : <<include>>
+UC1 ..> UC9 : <<include>>
+UC2 ..> UC3 : <<extend>>
+
+note right of UC2
+  extend: anularea poate
+  necesita vizualizarea
+  comenzii in prealabil
+end note
+
+@enduml

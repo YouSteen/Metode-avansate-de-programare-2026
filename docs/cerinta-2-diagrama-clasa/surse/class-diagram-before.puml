@@ -1,0 +1,66 @@
+@startuml class-diagram-before
+skinparam backgroundColor #0d1117
+skinparam classBorderColor #f85149
+skinparam classBackgroundColor #2d0f0f
+
+title Diagrama de clasa - STARE ACTUALA (probleme de design)
+
+class OrderController {
+  - _manager : OrderManager
+  + PostOrder(...)
+  + DeleteOrder(...)
+  + GetOrder(...)
+}
+
+class OrderManager <<God Class>> #red {
+  - _sqlConnectionString : string
+  - _smtpHost : string
+  - _paymentApiUrl : string
+  - _orders : Dictionary
+  - _stock : Dictionary
+  + PlaceOrder(...)
+  + CancelOrder(...)
+  + GetOrder(...)
+  + UpdateOrderStatus(...)
+  + GenerateSalesReport()
+  - ProcessPaymentInternal(...)
+  - SaveOrderToDatabase(...)
+  - SendConfirmationEmail(...)
+  - SendCancellationEmail(...)
+}
+
+class Order {
+  + Id : Guid
+  + CustomerEmail : string
+  + Items : List<OrderItem>
+  + Status : OrderStatus
+  + TotalAmount : decimal
+}
+
+class OrderItem {
+  + ProductSku : string
+  + Quantity : int
+  + UnitPrice : decimal
+}
+
+enum OrderStatus {
+  Pending
+  Confirmed
+  Shipped
+  Cancelled
+}
+
+OrderController --> OrderManager : depinde direct
+OrderManager *-- Order : compozitie (in memorie)
+Order *-- OrderItem
+Order --> OrderStatus
+
+note bottom of OrderManager
+  PROBLEME:
+  - God Class (validare, stoc, plata, SQL, SMTP, raport)
+  - Cuplare mare la infrastructura concreta
+  - Coeziune mica (responsabilitati mixte)
+  - Netestabil fara refactor
+end note
+
+@enduml

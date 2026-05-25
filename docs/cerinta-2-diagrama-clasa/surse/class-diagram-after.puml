@@ -1,0 +1,77 @@
+@startuml class-diagram-after
+skinparam backgroundColor #0d1117
+skinparam interfaceBackgroundColor #1a0d2e
+skinparam interfaceBorderColor #3a1f5a
+
+title Diagrama de clasa - STRUCTURA PROPUSA (dupa refactorizare)
+
+interface IOrderRepository {
+  + FindById(id) : Order
+  + Save(order) : void
+}
+
+interface IStockService {
+  + HasStock(items) : bool
+  + Reserve(items) : void
+  + Release(items) : void
+}
+
+interface IPaymentService {
+  + ProcessPayment(email, amount) : PaymentResult
+}
+
+interface IEmailService {
+  + SendOrderConfirmation(order)
+  + SendOrderCancellation(order)
+}
+
+class OrderController {
+  - _orderService : OrderService
+  + PostOrder(...)
+  + DeleteOrder(...)
+  + GetOrder(...)
+}
+
+class OrderService {
+  - _repository : IOrderRepository
+  - _stockService : IStockService
+  - _paymentService : IPaymentService
+  - _emailService : IEmailService
+  + PlaceOrder(...)
+  + CancelOrder(...)
+  + GetOrder(...)
+}
+
+class Order {
+  + Id : Guid
+  + Status : OrderStatus
+  + CanBeCancelled() : bool
+  + Confirm()
+  + Cancel()
+}
+
+class InMemoryOrderRepository
+class InMemoryStockService
+class PaymentGatewayService
+class SmtpEmailService
+
+OrderController --> OrderService
+OrderService --> IOrderRepository
+OrderService --> IStockService
+OrderService --> IPaymentService
+OrderService --> IEmailService
+InMemoryOrderRepository ..|> IOrderRepository
+InMemoryStockService ..|> IStockService
+PaymentGatewayService ..|> IPaymentService
+SmtpEmailService ..|> IEmailService
+OrderService --> Order : asociere
+
+note right of OrderService
+  BENEFICII:
+  - Coeziune mare (orchestrare flux)
+  - Cuplare mica (interfete)
+  - Testabil cu mock-uri
+  - Pregatit pentru SOLID (Lab 1)
+end note
+
+@enduml

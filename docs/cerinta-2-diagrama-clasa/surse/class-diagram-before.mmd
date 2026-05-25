@@ -1,0 +1,52 @@
+classDiagram
+    direction TB
+
+    class OrderController {
+        -OrderManager _manager
+        +PostOrder()
+        +DeleteOrder()
+        +GetOrder()
+    }
+
+    class OrderManager {
+        <<God Class>>
+        -string _sqlConnectionString
+        -string _smtpHost
+        -string _paymentApiUrl
+        +PlaceOrder()
+        +CancelOrder()
+        +UpdateOrderStatus()
+        +GenerateSalesReport()
+        -ProcessPaymentInternal()
+        -SaveOrderToDatabase()
+        -SendConfirmationEmail()
+    }
+
+    class Order {
+        +Guid Id
+        +string CustomerEmail
+        +List~OrderItem~ Items
+        +OrderStatus Status
+        +decimal TotalAmount
+    }
+
+    class OrderItem {
+        +string ProductSku
+        +int Quantity
+        +decimal UnitPrice
+    }
+
+    class OrderStatus {
+        <<enumeration>>
+        Pending
+        Confirmed
+        Shipped
+        Cancelled
+    }
+
+    OrderController --> OrderManager : cuplare directa
+    OrderManager *-- Order
+    Order *-- OrderItem
+    Order --> OrderStatus
+
+    note for OrderManager "Probleme: God Class, SQL+SMTP+Plata in aceeasi clasa, coeziune mica"

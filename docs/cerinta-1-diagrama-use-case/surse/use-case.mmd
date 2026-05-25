@@ -1,0 +1,29 @@
+flowchart LR
+    subgraph Sistem["Sistem Gestiune Comenzi"]
+        UC1[Plaseaza comanda]
+        UC2[Anuleaza comanda]
+        UC3[Vizualizeaza comanda]
+        UC4[Actualizeaza status]
+        UC5[Genereaza raport vanzari]
+        UC6[Gestioneaza catalog produse]
+        UC7[Verifica stoc]
+        UC8[Proceseaza plata]
+        UC9[Trimite confirmare email]
+    end
+
+    Client((Client))
+    Admin((Admin))
+    Plati((Sistem Plati))
+
+    Client --> UC1
+    Client --> UC2
+    Client --> UC3
+    Admin --> UC4
+    Admin --> UC5
+    Admin --> UC6
+    Plati --> UC8
+
+    UC1 -.->|include| UC7
+    UC1 -.->|include| UC8
+    UC1 -.->|include| UC9
+    UC2 -.->|extend| UC3
