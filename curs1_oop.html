@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curs 1 — Recapitulare OOP | Metode Avansate de Programare</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #1c2128;
+    --bg4: #21262d;
+    --border: #30363d;
+    --border2: #3d4450;
+    --accent: #58a6ff;
+    --accent2: #79c0ff;
+    --accent3: #1f6feb;
+    --green: #3fb950;
+    --green-bg: #0d2a1a;
+    --green-border: #1a4731;
+    --yellow: #d29922;
+    --yellow-bg: #2a1f0a;
+    --yellow-border: #4a3400;
+    --purple: #bc8cff;
+    --purple-bg: #1a0d2e;
+    --purple-border: #3a1f5a;
+    --red: #f85149;
+    --red-bg: #2d0f0f;
+    --orange: #ffa657;
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --text3: #6e7681;
+    --code-bg: #161b22;
+    --code-border: #30363d;
+    --radius: 8px;
+    --radius2: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ── TOP NAV ── */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(13,17,23,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 1rem; }
+  .course-badge {
+    background: var(--accent3);
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px;
+    letter-spacing: 0.05em;
+  }
+  .course-title-nav {
+    font-size: 13px; color: var(--text2); font-weight: 500;
+  }
+  .topbar-right { display: flex; gap: 0.5rem; align-items: center; }
+  .nav-pill {
+    font-size: 11px; color: var(--text3); padding: 4px 10px;
+    border: 1px solid var(--border); border-radius: 20px;
+    text-decoration: none; font-family: 'JetBrains Mono', monospace;
+    transition: all 0.2s;
+  }
+  .nav-pill:hover { color: var(--accent); border-color: var(--accent3); background: rgba(31,111,235,0.08); }
+
+  /* ── LAYOUT ── */
+  .layout { display: flex; margin-top: 52px; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 260px; min-width: 260px;
+    height: calc(100vh - 52px);
+    position: sticky; top: 52px;
+    overflow-y: auto;
+    border-right: 1px solid var(--border);
+    padding: 1.5rem 0;
+    background: var(--bg);
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .sidebar-section { margin-bottom: 0.25rem; }
+  .sidebar-heading {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+    color: var(--text3); text-transform: uppercase;
+    padding: 0.75rem 1.5rem 0.25rem;
+  }
+  .sidebar-link {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.45rem 1.5rem;
+    color: var(--text2); text-decoration: none;
+    font-size: 13px; font-weight: 400;
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+  }
+  .sidebar-link:hover { color: var(--text); background: var(--bg2); border-left-color: var(--border2); }
+  .sidebar-link.active { color: var(--accent); background: rgba(88,166,255,0.06); border-left-color: var(--accent); font-weight: 500; }
+  .sidebar-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text3); min-width: 18px;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    flex: 1; max-width: 860px;
+    padding: 3rem 3.5rem 6rem;
+    min-width: 0;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-meta {
+    display: flex; align-items: center; gap: 0.75rem;
+    margin-bottom: 1.25rem; flex-wrap: wrap;
+  }
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; padding: 3px 10px; border-radius: 20px;
+    font-weight: 500;
+  }
+  .tag-module { background: rgba(88,166,255,0.12); color: var(--accent2); border: 1px solid rgba(88,166,255,0.2); }
+  .tag-lang { background: rgba(63,185,80,0.1); color: var(--green); border: 1px solid rgba(63,185,80,0.2); }
+  .tag-dur { background: var(--bg3); color: var(--text2); border: 1px solid var(--border); }
+
+  .hero h1 {
+    font-size: 2.4rem; font-weight: 800; line-height: 1.2;
+    color: var(--text); margin-bottom: 0.75rem;
+    letter-spacing: -0.02em;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero-desc { font-size: 16px; color: var(--text2); line-height: 1.6; max-width: 620px; }
+
+  /* ── OBJECTIVES BOX ── */
+  .objectives {
+    background: rgba(88,166,255,0.05);
+    border: 1px solid rgba(88,166,255,0.15);
+    border-radius: var(--radius2);
+    padding: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  .objectives-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    color: var(--accent); text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .objectives ul { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .objectives li {
+    display: flex; align-items: flex-start; gap: 0.75rem;
+    font-size: 14px; color: var(--text2);
+  }
+  .objectives li::before {
+    content: '→'; color: var(--accent); font-weight: 700;
+    flex-shrink: 0; margin-top: 1px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── SECTIONS ── */
+  .section { margin-bottom: 3rem; }
+
+  h2.section-title {
+    font-size: 1.4rem; font-weight: 700;
+    color: var(--text); margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  h2.section-title .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--accent3);
+    background: rgba(31,111,235,0.15);
+    padding: 2px 8px; border-radius: 4px;
+  }
+
+  h3.subsection {
+    font-size: 1.05rem; font-weight: 600;
+    color: var(--text); margin: 2rem 0 0.75rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  h3.subsection .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent); flex-shrink: 0;
+  }
+
+  p { color: var(--text2); margin-bottom: 0.85rem; }
+  p:last-child { margin-bottom: 0; }
+  strong { color: var(--text); font-weight: 600; }
+  em { color: var(--orange); font-style: italic; }
+
+  /* ── PILLAR CARDS ── */
+  .pillars-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1rem; margin: 1.5rem 0;
+  }
+  .pillar-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius2);
+    padding: 1.25rem;
+    transition: border-color 0.2s, transform 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .pillar-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .pillar-card.blue::before { background: linear-gradient(90deg, var(--accent), var(--accent3)); }
+  .pillar-card.green::before { background: linear-gradient(90deg, var(--green), #2ea043); }
+  .pillar-card.purple::before { background: linear-gradient(90deg, var(--purple), #7a4fcf); }
+  .pillar-card.orange::before { background: linear-gradient(90deg, var(--orange), #da8000); }
+  .pillar-card:hover { border-color: var(--border2); transform: translateY(-1px); }
+
+  .pillar-icon { font-size: 1.4rem; margin-bottom: 0.5rem; }
+  .pillar-name {
+    font-size: 13px; font-weight: 700; color: var(--text);
+    margin-bottom: 0.5rem; letter-spacing: 0.02em; text-transform: uppercase;
+  }
+  .pillar-desc { font-size: 13px; color: var(--text2); line-height: 1.5; margin: 0; }
+  .pillar-rule {
+    margin-top: 0.75rem; padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+    font-size: 12px; font-family: 'JetBrains Mono', monospace;
+    color: var(--accent2);
+  }
+
+  /* ── CODE BLOCKS ── */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: var(--radius2);
+    margin: 1.25rem 0;
+    overflow: hidden;
+  }
+  .code-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--code-border);
+    background: var(--bg3);
+  }
+  .code-filename {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--text2);
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .code-filename .ext { color: var(--green); }
+  .code-lang {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text3);
+    background: var(--bg4); padding: 2px 8px; border-radius: 4px;
+  }
+  pre {
+    padding: 1.25rem 1.5rem;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; line-height: 1.6;
+  }
+  pre::-webkit-scrollbar { height: 4px; }
+  pre::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* syntax highlight */
+  .kw { color: #ff7b72; }       /* keyword */
+  .kw2 { color: #f0883e; }      /* keyword2 (var, new) */
+  .type { color: #79c0ff; }     /* type */
+  .iface { color: #d2a8ff; }    /* interface */
+  .method { color: #d2a8ff; }   /* method */
+  .prop { color: #e6edf3; }     /* property */
+  .str { color: #a5d6ff; }      /* string */
+  .num { color: #79c0ff; }      /* number */
+  .cmt { color: #6e7681; font-style: italic; } /* comment */
+  .dec { color: #ffa657; }      /* decorator/attribute */
+  .lit { color: #e6edf3; }      /* literal */
+
+  /* ── CALLOUT BOXES ── */
+  .callout {
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin: 1.25rem 0;
+    display: flex; gap: 0.85rem; align-items: flex-start;
+  }
+  .callout-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+  .callout-body { flex: 1; }
+  .callout-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.35rem; }
+  .callout p { font-size: 13.5px; margin-bottom: 0; }
+
+  .callout.info { background: rgba(88,166,255,0.06); border: 1px solid rgba(88,166,255,0.15); }
+  .callout.info .callout-title { color: var(--accent); }
+  .callout.warning { background: var(--yellow-bg); border: 1px solid var(--yellow-border); }
+  .callout.warning .callout-title { color: var(--yellow); }
+  .callout.success { background: var(--green-bg); border: 1px solid var(--green-border); }
+  .callout.success .callout-title { color: var(--green); }
+  .callout.danger { background: var(--red-bg); border: 1px solid #5a1e1e; }
+  .callout.danger .callout-title { color: var(--red); }
+  .callout.purple { background: var(--purple-bg); border: 1px solid var(--purple-border); }
+  .callout.purple .callout-title { color: var(--purple); }
+
+  /* ── COMPARISON TABLE ── */
+  .compare-table {
+    width: 100%; border-collapse: collapse; margin: 1.25rem 0;
+    font-size: 13.5px;
+  }
+  .compare-table th {
+    background: var(--bg3); color: var(--text); font-weight: 600;
+    padding: 0.7rem 1rem; text-align: left;
+    border-bottom: 2px solid var(--accent3);
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .compare-table td {
+    padding: 0.7rem 1rem; border-bottom: 1px solid var(--border);
+    color: var(--text2); vertical-align: top;
+  }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table tr:hover td { background: var(--bg2); }
+  .compare-table .good { color: var(--green); }
+  .compare-table .bad { color: var(--red); }
+  .compare-table .label { color: var(--text); font-weight: 600; }
+
+  /* ── INLINE CODE ── */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--accent2);
+    background: rgba(88,166,255,0.08);
+    padding: 1px 6px; border-radius: 4px;
+    border: 1px solid rgba(88,166,255,0.12);
+  }
+
+  /* ── DEFINITION LIST ── */
+  .def-list { display: flex; flex-direction: column; gap: 0.85rem; margin: 1rem 0; }
+  .def-item { display: flex; gap: 1rem; align-items: flex-start; }
+  .def-term {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: var(--orange); background: rgba(255,166,87,0.08);
+    border: 1px solid rgba(255,166,87,0.15);
+    padding: 2px 10px; border-radius: 4px;
+    min-width: 140px; text-align: center; flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .def-body { font-size: 13.5px; color: var(--text2); }
+
+  /* ── RELATIONS DIAGRAM ── */
+  .relations { display: flex; flex-direction: column; gap: 0.6rem; margin: 1rem 0; }
+  .relation-row {
+    display: flex; align-items: center; gap: 0.75rem;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 0.7rem 1rem;
+    font-size: 13px;
+  }
+  .rel-type {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    padding: 2px 8px; border-radius: 4px; min-width: 110px;
+    text-align: center; font-weight: 600;
+  }
+  .rel-arrow { color: var(--text3); font-size: 1rem; }
+  .rel-example { color: var(--text2); }
+  .rel-keyword { color: var(--accent); font-weight: 600; }
+  .rel-type.comp { background: rgba(63,185,80,0.1); color: var(--green); border: 1px solid rgba(63,185,80,0.2); }
+  .rel-type.agg { background: rgba(255,166,87,0.1); color: var(--orange); border: 1px solid rgba(255,166,87,0.2); }
+  .rel-type.assoc { background: rgba(88,166,255,0.1); color: var(--accent); border: 1px solid rgba(88,166,255,0.2); }
+  .rel-type.dep { background: rgba(188,140,255,0.1); color: var(--purple); border: 1px solid rgba(188,140,255,0.2); }
+  .rel-type.inh { background: rgba(248,81,73,0.1); color: var(--red); border: 1px solid rgba(248,81,73,0.2); }
+
+  /* ── KEY CONCEPT HIGHLIGHT ── */
+  .concept-highlight {
+    border-left: 3px solid var(--accent);
+    padding: 0.75rem 1.25rem;
+    background: rgba(88,166,255,0.04);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    margin: 1rem 0;
+    font-size: 14.5px; color: var(--text); font-style: italic; line-height: 1.6;
+  }
+
+  /* ── SMELL TABLE ── */
+  .smell-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0.75rem; margin: 1rem 0;
+  }
+  .smell-item {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 0.9rem 1rem;
+  }
+  .smell-name { font-size: 13px; font-weight: 600; color: var(--red); margin-bottom: 0.25rem; }
+  .smell-desc { font-size: 12.5px; color: var(--text2); }
+
+  /* ── FINAL EXAMPLE SECTION ── */
+  .final-example {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius2);
+    overflow: hidden;
+    margin: 1.5rem 0;
+  }
+  .final-example-header {
+    background: linear-gradient(135deg, rgba(31,111,235,0.3), rgba(188,140,255,0.15));
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.5rem;
+  }
+  .final-example-header h4 {
+    font-size: 14px; font-weight: 700; color: var(--text);
+    margin-bottom: 0.25rem;
+  }
+  .final-example-header p { font-size: 12.5px; color: var(--text2); margin: 0; }
+
+  /* ── QUESTIONS ── */
+  .questions-box {
+    background: var(--purple-bg);
+    border: 1px solid var(--purple-border);
+    border-radius: var(--radius2);
+    padding: 1.5rem;
+    margin-top: 2rem;
+  }
+  .questions-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    color: var(--purple); text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .questions-box ol { padding-left: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
+  .questions-box li { color: var(--text2); font-size: 14px; }
+
+  /* ── RESOURCES ── */
+  .resources {
+    border-top: 1px solid var(--border);
+    padding-top: 1.5rem; margin-top: 2rem;
+  }
+  .resources-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: var(--text3); text-transform: uppercase; margin-bottom: 1rem; }
+  .resource-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .resource-item {
+    display: flex; align-items: center; gap: 0.75rem;
+    font-size: 13px; color: var(--text2);
+  }
+  .resource-item::before { content: '📖'; font-size: 14px; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar {
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent3), var(--accent), var(--purple));
+    border-radius: 2px;
+    margin-bottom: 2.5rem;
+    width: calc(1/14 * 100%);
+    opacity: 0.8;
+  }
+
+  /* ── SCROLL INDICATOR ── */
+  #scroll-progress {
+    position: fixed; top: 52px; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent3), var(--accent));
+    transform-origin: left;
+    transform: scaleX(0);
+    z-index: 99;
+    transition: transform 0.1s;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { padding: 2rem 1.5rem 4rem; }
+    .pillars-grid { grid-template-columns: 1fr; }
+    .smell-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<!-- TOP NAV -->
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="course-badge">MAP</span>
+    <span class="course-title-nav">Curs 1 — Recapitulare OOP</span>
+  </div>
+  <div class="topbar-right">
+    <a href="#piloni" class="nav-pill">Piloni</a>
+    <a href="#coeziune" class="nav-pill">Coeziune</a>
+    <a href="#relatii" class="nav-pill">Relații</a>
+    <a href="#exemplu" class="nav-pill">Exemplu</a>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Conținut</div>
+      <a href="#intro" class="sidebar-link active"><span class="sidebar-num">01</span>De ce OOP?</a>
+      <a href="#piloni" class="sidebar-link"><span class="sidebar-num">02</span>Cei 4 Piloni</a>
+      <a href="#encapsulare" class="sidebar-link"><span class="sidebar-num">↳</span>Încapsularea</a>
+      <a href="#mostenire" class="sidebar-link"><span class="sidebar-num">↳</span>Moștenirea</a>
+      <a href="#polimorfism" class="sidebar-link"><span class="sidebar-num">↳</span>Polimorfismul</a>
+      <a href="#abstractizare" class="sidebar-link"><span class="sidebar-num">↳</span>Abstractizarea</a>
+      <a href="#coeziune" class="sidebar-link"><span class="sidebar-num">03</span>Coeziune & Cuplare</a>
+      <a href="#relatii" class="sidebar-link"><span class="sidebar-num">04</span>Relații între Clase</a>
+      <a href="#statice" class="sidebar-link"><span class="sidebar-num">05</span>Clase Statice</a>
+      <a href="#limite" class="sidebar-link"><span class="sidebar-num">06</span>Limitele OOP</a>
+      <a href="#exemplu" class="sidebar-link"><span class="sidebar-num">07</span>Exemplu Complet</a>
+    </div>
+    <div class="sidebar-section" style="margin-top:1.5rem;">
+      <div class="sidebar-heading">Curs</div>
+      <a href="#" class="sidebar-link active"><span class="sidebar-num">01</span>Recapitulare OOP</a>
+      <a href="#" class="sidebar-link" style="opacity:0.4;pointer-events:none"><span class="sidebar-num">02</span>UML</a>
+      <a href="#" class="sidebar-link" style="opacity:0.4;pointer-events:none"><span class="sidebar-num">03</span>SOLID I</a>
+      <a href="#" class="sidebar-link" style="opacity:0.4;pointer-events:none"><span class="sidebar-num">04</span>SOLID II</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- PROGRESS -->
+    <div class="progress-bar" title="1 din 14 cursuri"></div>
+
+    <!-- HERO -->
+    <header class="hero">
+      <div class="hero-meta">
+        <span class="tag tag-module">Modul: Fundamente</span>
+        <span class="tag tag-lang">C#</span>
+        <span class="tag tag-dur">Curs 1 din 14</span>
+      </div>
+      <h1>Recapitulare <span>Programare Orientată</span> pe Obiecte</h1>
+      <p class="hero-desc">O privire critică asupra conceptelor OOP — nu ce sunt, ci de ce există și când devin o problemă. Firul roșu al acestui curs: coeziunea și cuplarea.</p>
+    </header>
+
+    <!-- OBJECTIVES -->
+    <div class="objectives">
+      <div class="objectives-title">🎯 Obiective</div>
+      <ul>
+        <li>Consolidarea conceptelor OOP cu accent pe <strong>motivul</strong> existenței lor, nu pe sintaxă</li>
+        <li>Înțelegerea <strong>coeziunii</strong> și <strong>cuplării</strong> ca metrici centrale ale calității proiectării</li>
+        <li>Distingerea clară între relațiile dintre clase: asociere, agregare, compoziție, moștenire</li>
+        <li>Identificarea problemelor tipice de proiectare OOP care vor fi rezolvate pe parcursul cursului</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 1 -->
+    <section class="section" id="intro">
+      <h2 class="section-title"><span class="num">01</span>De ce OOP?</h2>
+
+      <p>Înainte să recapitulăm <em>ce</em> este OOP, merită să înțelegem <em>de ce</em> a apărut. Programarea procedurală funcționează bine la scară mică. Când sistemul crește — sute de funcții, mii de variabile globale, module care se cheamă haotic unele pe altele — mentenanța devine imposibilă.</p>
+
+      <div class="callout info">
+        <span class="callout-icon">💡</span>
+        <div class="callout-body">
+          <div class="callout-title">Problema rezolvată</div>
+          <p>OOP nu a apărut pentru că cineva a vrut să scrie mai mult cod. A apărut pentru că codul procedural la scară mare <strong>nu poate fi menținut</strong> — o modificare într-un loc sparge lucruri în 10 alte locuri neașteptate.</p>
+        </div>
+      </div>
+
+      <p>OOP propune o soluție: <strong>organizarea codului în jurul obiectelor</strong> — unități care combină date (stare) cu comportament (metode) și care interacționează prin contracte bine definite. Fiecare obiect are o responsabilitate clară și comunică cu restul sistemului printr-o interfață publică.</p>
+
+      <div class="concept-highlight">
+        Întrebarea fundamentală în OOP — și în tot cursul de față — este:<br>
+        <strong>Cui aparține această responsabilitate?</strong>
+      </div>
+
+      <p>Această întrebare este mai valoroasă decât orice regulă sintactică. O vei auzi repetat în fiecare curs, de la principiile SOLID până la arhitecturi software.</p>
+    </section>
+
+    <!-- SECTION 2 -->
+    <section class="section" id="piloni">
+      <h2 class="section-title"><span class="num">02</span>Cei 4 Piloni OOP — O Privire Critică</h2>
+
+      <p>Toți știm definiția manualului. Scopul acestei secțiuni nu este să le redefinim, ci să înțelegem <strong>limitele</strong> fiecărui pilon și <strong>când devin o problemă</strong>.</p>
+
+      <div class="pillars-grid">
+        <div class="pillar-card blue">
+          <div class="pillar-icon">🔒</div>
+          <div class="pillar-name">Încapsularea</div>
+          <p class="pillar-desc">Ascunderea stării interne. Obiectul își gestionează singur datele.</p>
+          <div class="pillar-rule">→ Nu e doar „câmpuri private"</div>
+        </div>
+        <div class="pillar-card green">
+          <div class="pillar-icon">🧬</div>
+          <div class="pillar-name">Moștenirea</div>
+          <p class="pillar-desc">Reutilizarea comportamentului. Specializarea tipurilor.</p>
+          <div class="pillar-rule">→ Preferă compoziția (GoF)</div>
+        </div>
+        <div class="pillar-card purple">
+          <div class="pillar-icon">🔄</div>
+          <div class="pillar-name">Polimorfismul</div>
+          <p class="pillar-desc">Același apel, comportamente diferite. Fundamentul extensibilității.</p>
+          <div class="pillar-rule">→ Interfețele &gt; moștenire</div>
+        </div>
+        <div class="pillar-card orange">
+          <div class="pillar-icon">🎭</div>
+          <div class="pillar-name">Abstractizarea</div>
+          <p class="pillar-desc">Contracte fără detalii de implementare. Separarea CE de CUM.</p>
+          <div class="pillar-rule">→ Abstracte vs. interfețe</div>
+        </div>
+      </div>
+
+      <!-- ENCAPSULARE -->
+      <h3 class="subsection" id="encapsulare"><span class="dot"></span>Încapsularea</h3>
+
+      <p>Înțelegerea superficială: „câmpuri <code>private</code>, proprietăți <code>public</code>". Înțelegerea corectă: <strong>un obiect își gestionează singur starea internă și nu lasă alte componente să o corupă.</strong></p>
+
+      <p>Diferența este subtilă dar esențială. Un câmp privat cu un setter public care acceptă orice valoare nu oferă nicio protecție reală. Încapsularea înseamnă că <em>toate regulile de validare și tranziții de stare</em> sunt controlate de obiect.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename"><span class="ext">❌</span> Encapsulare falsă — starea este vulnerabilă</span>
+          <span class="code-lang">C#</span>
+        </div>
+        <pre><span class="kw">public class</span> <span class="type">BankAccount</span>
+{
+    <span class="kw">public</span> <span class="type">decimal</span> <span class="prop">Balance</span> { <span class="kw">get</span>; <span class="kw">set</span>; } <span class="cmt">// oricine poate seta orice valoare</span>
+    <span class="kw">public</span> <span class="type">bool</span> <span class="prop">IsActive</span> { <span class="kw">get</span>; <span class="kw">set</span>; }
+}
+
+<span class="cmt">// În altă parte a codului:</span>
+account.Balance = <span class="num">-9999</span>;   <span class="cmt">// nimeni nu te oprește</span>
+account.IsActive = <span class="kw">false</span>;  <span class="cmt">// fără nicio verificare</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename"><span class="ext">✅</span> Encapsulare reală — obiectul este responsabil de starea sa</span>
+          <span class="code-lang">C#</span>
+        </div>
+        <pre><span class="kw">public class</span> <span class="type">BankAccount</span>
+{
+    <span class="kw">public</span> <span class="type">decimal</span> <span class="prop">Balance</span> { <span class="kw">get</span>; <span class="kw">private set</span>; }
+    <span class="kw">public</span> <span class="type">bool</span> <span class="prop">IsActive</span> { <span class="kw">get</span>; <span class="kw">private set</span>; }
+
+    <span class="kw">public void</span> <span class="method">Deposit</span>(<span class="type">decimal</span> amount)
+    {
+        <span class="kw">if</span> (amount &lt;= <span class="num">0</span>) <span class="kw">throw new</span> <span class="type">ArgumentException</span>(<span class="str">"Suma trebuie să fie pozitivă"</span>);
+        <span class="kw">if</span> (!IsActive) <span class="kw">throw new</span> <span class="type">InvalidOperationException</span>(<span class="str">"Cont inactiv"</span>);
+        Balance += amount;
+    }
+
+    <span class="kw">public void</span> <span class="method">Withdraw</span>(<span class="type">decimal</span> amount)
+    {
+        <span class="kw">if</span> (amount &gt; Balance) <span class="kw">throw new</span> <span class="type">InvalidOperationException</span>(<span class="str">"Fonduri insuficiente"</span>);
+        Balance -= amount;
+    }
+}</pre>
+      </div>
+
+      <div class="callout success">
+        <span class="callout-icon">✓</span>
+        <div class="callout-body">
+          <div class="callout-title">Regula de aur</div>
+          <p>Dacă starea unui obiect poate fi coruptă din exterior, nu ai încapsulare — ai doar sintaxă privată.</p>
+        </div>
+      </div>
+
+      <!-- MOSTENIRE -->
+      <h3 class="subsection" id="mostenire"><span class="dot"></span>Moștenirea</h3>
+
+      <p>Moștenirea permite reutilizarea comportamentului și specializarea tipurilor. Este un instrument puternic, dar <strong>cel mai adesea abuzat</strong> în OOP.</p>
+
+      <div class="callout warning">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-body">
+          <div class="callout-title">Avertisment</div>
+          <p>Moștenirea profundă (<code>A → B → C → D → E</code>) creează cod fragil: o modificare în clasa de bază poate sparge toate subclasele. Gang of Four spuneau deja în 1994: <strong>„Preferă compoziția în fața moștenirii."</strong></p>
+        </div>
+      </div>
+
+      <p>Regula practică: folosești moștenirea când relația este cu adevărat <em>IS-A</em> semantic, nu doar structural. Un <code>Square</code> este matematic un <code>Rectangle</code>, dar <strong>din perspectiva comportamentului OOP nu este</strong> — vom vedea de ce la cursul SOLID (LSP).</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename">Moștenire → Compoziție</span>
+          <span class="code-lang">C#</span>
+        </div>
+        <pre><span class="cmt">// ❌ Moștenire forțată — Employee "este" DatabaseConnection?</span>
+<span class="kw">public class</span> <span class="type">Employee</span> : <span class="type">DatabaseConnection</span> { ... }
+
+<span class="cmt">// ✅ Compoziție — Employee "are" un repository</span>
+<span class="kw">public class</span> <span class="type">Employee</span>
+{
+    <span class="kw">private readonly</span> <span class="iface">IEmployeeRepository</span> _repository;
+
+    <span class="kw">public</span> <span class="method">Employee</span>(<span class="iface">IEmployeeRepository</span> repository)
+        => _repository = repository;
+}</pre>
+      </div>
+
+      <!-- POLIMORFISM -->
+      <h3 class="subsection" id="polimorfism"><span class="dot"></span>Polimorfismul</h3>
+
+      <p>Polimorfismul înseamnă că același apel produce comportamente diferite în funcție de tipul real al obiectului. Este fundamentul extensibilității în OOP.</p>
+
+      <p>Există două forme principale în C#: prin moștenire (<code>virtual</code>/<code>override</code>) și prin interfețe. În practica modernă, <strong>polimorfismul prin interfețe este preferat</strong> — nu creează dependențe de ierarhie și permite unui obiect să implementeze mai multe contracte.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename">Polimorfism prin interfețe</span>
+          <span class="code-lang">C#</span>
+        </div>
+        <pre><span class="kw">public interface</span> <span class="iface">IShape</span>
+{
+    <span class="type">double</span> <span class="method">Area</span>();
+    <span class="type">string</span> <span class="method">Describe</span>();
+}
+
+<span class="kw">public class</span> <span class="type">Circle</span> : <span class="iface">IShape</span>
+{
+    <span class="kw">private readonly</span> <span class="type">double</span> _radius;
+    <span class="kw">public</span> <span class="method">Circle</span>(<span class="type">double</span> radius) => _radius = radius;
+
+    <span class="kw">public</span> <span class="type">double</span> <span class="method">Area</span>() => Math.PI * _radius * _radius;
+    <span class="kw">public</span> <span class="type">string</span> <span class="method">Describe</span>() => <span class="str">$"Cerc cu raza {_radius:F2}"</span>;
+}
+
+<span class="kw">public class</span> <span class="type">Rectangle</span> : <span class="iface">IShape</span>
+{
+    <span class="kw">private readonly</span> <span class="type">double</span> _w, _h;
+    <span class="kw">public</span> <span class="method">Rectangle</span>(<span class="type">double</span> w, <span class="type">double</span> h) => (_w, _h) = (w, h);
+
+    <span class="kw">public</span> <span class="type">double</span> <span class="method">Area</span>() => _w * _h;
+    <span class="kw">public</span> <span class="type">string</span> <span class="method">Describe</span>() => <span class="str">$"Dreptunghi {_w}×{_h}"</span>;
+}
+
+<span class="cmt">// Clientul lucrează cu IShape — nu știe ce tip concret primește</span>
+<span class="type">List</span>&lt;<span class="iface">IShape</span>&gt; shapes = <span class="kw">new</span>() { <span class="kw">new</span> <span class="type">Circle</span>(<span class="num">5</span>), <span class="kw">new</span> <span class="type">Rectangle</span>(<span class="num">3</span>, <span class="num">4</span>) };
+<span class="type">double</span> total = shapes.<span class="method">Sum</span>(s => s.<span class="method">Area</span>()); <span class="cmt">// adaugă orice IShape fără a modifica această linie</span></pre>
+      </div>
+
+      <!-- ABSTRACTIZARE -->
+      <h3 class="subsection" id="abstractizare"><span class="dot"></span>Abstractizarea</h3>
+
+      <p>Abstractizarea înseamnă expunerea unui contract fără detalii de implementare. În C# avem două mecanisme: <strong>interfețe</strong> și <strong>clase abstracte</strong>. Nu sunt interschimbabile.</p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Criteriu</th>
+            <th>Interfață (<code>interface</code>)</th>
+            <th>Clasă abstractă (<code>abstract class</code>)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="label">Scop principal</td>
+            <td>Contract pur — CE face</td>
+            <td>Implementare parțială + contract</td>
+          </tr>
+          <tr>
+            <td class="label">Implementare implicită</td>
+            <td class="good">Da (C# 8+, rar recomandat)</td>
+            <td class="good">Da, pentru metode comune</td>
+          </tr>
+          <tr>
+            <td class="label">Multiple implementări</td>
+            <td class="good">Da — o clasă poate implementa N interfețe</td>
+            <td class="bad">Nu — o clasă moștenește o singură clasă</td>
+          </tr>
+          <tr>
+            <td class="label">Stare (câmpuri)</td>
+            <td class="bad">Nu</td>
+            <td class="good">Da</td>
+          </tr>
+          <tr>
+            <td class="label">Când folosești</td>
+            <td>Contracte pentru comportament. Injecție dependențe.</td>
+            <td>Logică comună + pași variabili (Template Method)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout info">
+        <span class="callout-icon">💡</span>
+        <div class="callout-body">
+          <div class="callout-title">Regula practică</div>
+          <p>Dacă nu ai logică comună de împărtășit între implementări, folosește interfața. Clasa abstractă este justificată când există comportament comun real care nu aparține niciunei subclase.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3 -->
+    <section class="section" id="coeziune">
+      <h2 class="section-title"><span class="num">03</span>Coeziune & Cuplare — Firul Roșu al Cursului</h2>
+
+      <p>Dacă ar trebui să alegi două metrici pentru a evalua calitatea unui design OOP, acestea sunt <strong>coeziunea</strong> și <strong>cuplarea</strong>. Le vei regăsi implicit în toate principiile SOLID, în design patterns și în arhitecturi software.</p>
+
+      <div class="def-list">
+        <div class="def-item">
+          <span class="def-term">Coeziune Mare</span>
+          <span class="def-body">O clasă / metodă face <strong>un singur lucru</strong> și îl face bine. Toate elementele ei contribuie la un scop comun. Semnale: numele clasei este precis, metodele lucrează cu aceleași date.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">Coeziune Mică</span>
+          <span class="def-body">Clasa face lucruri neînrudite. Conține metode care nu au nimic în comun. Semnale: nume vagi (<code>Manager</code>, <code>Helper</code>, <code>Util</code>), clase cu 500+ linii.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">Cuplare Mică</span>
+          <span class="def-body">Componentele depind cât mai puțin unele de altele. O schimbare într-un loc nu propagă schimbări în tot sistemul. Dependen­țele sunt prin abstracții (interfețe), nu prin tipuri concrete.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">Cuplare Mare</span>
+          <span class="def-body">Clasele se cunosc direct unele pe altele. <code>new SqlOrderRepository()</code> în interiorul unui serviciu de business creează cuplare concretă. Testarea și înlocuirea componentelor devine imposibilă.</span>
+        </div>
+      </div>
+
+      <div class="concept-highlight">
+        <strong>Obiectivul:</strong> coeziune mare + cuplare mică.<br>
+        Acesta este, în esență, scopul tuturor principiilor și pattern-urilor din restul cursului.
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename">Cuplare mare — un serviciu știe prea multe</span>
+          <span class="code-lang">C#</span>
+        </div>
+        <pre><span class="kw">public class</span> <span class="type">OrderService</span>
+{
+    <span class="kw">public void</span> <span class="method">PlaceOrder</span>(<span class="type">Order</span> order)
+    {
+        <span class="cmt">// cuplare concretă: știe că există SQL Server</span>
+        <span class="kw">var</span> db = <span class="kw">new</span> <span class="type">SqlOrderRepository</span>(<span class="str">"Server=..."</span>);
+
+        <span class="cmt">// cuplare concretă: știe că există SMTP</span>
+        <span class="kw">var</span> mailer = <span class="kw">new</span> <span class="type">SmtpEmailService</span>(<span class="str">"smtp.company.com"</span>);
+
+        db.<span class="method">Save</span>(order);
+        mailer.<span class="method">SendConfirmation</span>(order);
+    }
+}</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename">Cuplare mică — serviciul depinde de abstracții</span>
+          <span class="code-lang">C#</span>
+        </div>
+        <pre><span class="kw">public class</span> <span class="type">OrderService</span>
+{
+    <span class="kw">private readonly</span> <span class="iface">IOrderRepository</span> _repository;
+    <span class="kw">private readonly</span> <span class="iface">IEmailService</span> _emailService;
+
+    <span class="kw">public</span> <span class="method">OrderService</span>(<span class="iface">IOrderRepository</span> repository, <span class="iface">IEmailService</span> emailService)
+    {
+        _repository = repository;
+        _emailService = emailService;
+    }
+
+    <span class="kw">public void</span> <span class="method">PlaceOrder</span>(<span class="type">Order</span> order)
+    {
+        _repository.<span class="method">Save</span>(order);         <span class="cmt">// nu știe ce DB</span>
+        _emailService.<span class="method">SendConfirmation</span>(order); <span class="cmt">// nu știe ce provider</span>
+    }
+}
+<span class="cmt">// Schimbi baza de date sau provider-ul de email? OrderService rămâne neatins.</span></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 4 -->
+    <section class="section" id="relatii">
+      <h2 class="section-title"><span class="num">04</span>Relații între Clase</h2>
+
+      <p>Un aspect adesea superficial tratat este diferența dintre tipurile de relații. Nu sunt echivalente — exprimă <strong>semantici diferite</strong> despre ownership și ciclul de viață al obiectelor.</p>
+
+      <div class="relations">
+        <div class="relation-row">
+          <span class="rel-type comp">Compoziție</span>
+          <span class="rel-arrow">→</span>
+          <span class="rel-example"><span class="rel-keyword">„parte exclusivă"</span> — <code>Order</code> conține <code>OrderLine</code>. Dacă comanda dispare, dispar și liniile. Cicluri de viață comune.</span>
+        </div>
+        <div class="relation-row">
+          <span class="rel-type agg">Agregare</span>
+          <span class="rel-arrow">→</span>
+          <span class="rel-example"><span class="rel-keyword">„parte partajată"</span> — <code>Team</code> conține <code>Employee</code>. Dacă echipa se desființează, angajații există în continuare.</span>
+        </div>
+        <div class="relation-row">
+          <span class="rel-type assoc">Asociere</span>
+          <span class="rel-arrow">→</span>
+          <span class="rel-example"><span class="rel-keyword">„cunoaște"</span> — <code>Order</code> referențiază <code>Customer</code>. Nu există ownership. Ambele există independent.</span>
+        </div>
+        <div class="relation-row">
+          <span class="rel-type dep">Dependență</span>
+          <span class="rel-arrow">→</span>
+          <span class="rel-example"><span class="rel-keyword">„folosește temporar"</span> — o metodă primește un parametru de tip <code>ILogger</code>. Relația există doar pe durata apelului.</span>
+        </div>
+        <div class="relation-row">
+          <span class="rel-type inh">Moștenire / Realizare</span>
+          <span class="rel-arrow">→</span>
+          <span class="rel-example"><span class="rel-keyword">„este un"</span> — <code>SavingsAccount</code> moștenește <code>BankAccount</code>. <code>SqlRepository</code> implementează <code>IRepository</code>.</span>
+        </div>
+      </div>
+
+      <div class="callout warning">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-body">
+          <div class="callout-title">Greșeala comună</div>
+          <p>Confundarea compoziției cu agregarea duce la bug-uri subtile. Dacă <code>Order</code> ar fi agregare față de <code>OrderLine</code>, liniile ar putea fi partajate între comenzi — ceea ce semantic nu are sens. Alege relația care reflectă corect domeniul.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5 -->
+    <section class="section" id="statice">
+      <h2 class="section-title"><span class="num">05</span>Clase și Metode Statice</h2>
+
+      <p>Clasele și metodele statice sunt convenabile, dar creează <strong>cuplare ascunsă</strong>. Orice cod care apelează o metodă statică devine direct dependent de clasa respectivă — fără posibilitate de substituire sau testare.</p>
+
+      <div class="smell-grid">
+        <div class="smell-item">
+          <div class="smell-name">❌ Cuplare ascunsă</div>
+          <div class="smell-desc"><code>DateTime.Now</code> în interiorul logicii de business face codul netestabil — nu poți controla timpul în teste.</div>
+        </div>
+        <div class="smell-item">
+          <div class="smell-name">❌ Stare globală</div>
+          <div class="smell-desc">Câmpuri statice mutable sunt stare globală — probleme cu concurența și cu izolarea testelor.</div>
+        </div>
+        <div class="smell-item">
+          <div class="smell-name">✅ Utilitare pure</div>
+          <div class="smell-desc">Metode statice fără efecte secundare (<code>Math.Abs</code>, <code>string.IsNullOrEmpty</code>) sunt perfect acceptabile.</div>
+        </div>
+        <div class="smell-item">
+          <div class="smell-name">✅ Factory methods</div>
+          <div class="smell-desc">Metode statice de creare (<code>Order.CreateNew()</code>) pot fi o interfață curată pentru construcție.</div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename">Înlocuirea dependenței statice cu abstracție</span>
+          <span class="code-lang">C#</span>
+        </div>
+        <pre><span class="cmt">// ❌ Netestabil — cum simulezi că e după ora 22:00?</span>
+<span class="kw">public bool</span> <span class="method">IsAfterHours</span>() => <span class="type">DateTime</span>.Now.Hour >= <span class="num">22</span>;
+
+<span class="cmt">// ✅ Testabil — injectezi un IDateTimeProvider mock în teste</span>
+<span class="kw">public interface</span> <span class="iface">IDateTimeProvider</span>
+{
+    <span class="type">DateTime</span> <span class="prop">Now</span> { <span class="kw">get</span>; }
+}
+
+<span class="kw">public bool</span> <span class="method">IsAfterHours</span>(<span class="iface">IDateTimeProvider</span> clock)
+    => clock.Now.Hour >= <span class="num">22</span>;</pre>
+      </div>
+    </section>
+
+    <!-- SECTION 6 -->
+    <section class="section" id="limite">
+      <h2 class="section-title"><span class="num">06</span>Limitele OOP</h2>
+
+      <p>OOP este un instrument excelent, dar nu singurul. Înainte de a continua cursul, este important să recunoaștem situațiile în care OOP poate deveni o problemă.</p>
+
+      <div class="def-list">
+        <div class="def-item">
+          <span class="def-term">God Class</span>
+          <span class="def-body">O clasă care știe și face totul. <code>OrderManager</code> cu 800 de linii care validează, calculează, salvează în DB, trimite emailuri și generează rapoarte. Simptom: coeziune zero.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">Anemic Domain</span>
+          <span class="def-body">Entitățile sunt simple structuri de date (doar proprietăți, fără comportament), iar toată logica stă în servicii externe. OOP formal, dar procedural în practică.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">Over-engineering</span>
+          <span class="def-body">Ierarhii de 6 niveluri, interfețe pentru orice, abstractizări pentru cazuri ipotetice. YAGNI (You Aren't Gonna Need It) este un principiu, nu o slăbiciune.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">Feature Envy</span>
+          <span class="def-body">O metodă care folosește mai mult datele altei clase decât ale clasei proprii. Semnalează că metoda ar trebui mutată în cealaltă clasă.</span>
+        </div>
+      </div>
+
+      <div class="callout purple">
+        <span class="callout-icon">🧭</span>
+        <div class="callout-body">
+          <div class="callout-title">De reținut</div>
+          <p>OOP este mijlocul, nu scopul. Scopul este cod <strong>ușor de înțeles, de modificat și de testat</strong>. Dacă o soluție procedurală simplă rezolvă problema mai clar decât o ierarhie OOP complexă, soluția procedurală este mai bună.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 7 — EXEMPLU COMPLET -->
+    <section class="section" id="exemplu">
+      <h2 class="section-title"><span class="num">07</span>Exemplu Complet — Sistemul de Notificări</h2>
+
+      <p>Un sistem care trimite notificări prin canale multiple (email, SMS, push). Vom aplica toți pilonii OOP și vom demonstra coeziunea și cuplarea mică.</p>
+
+      <div class="final-example">
+        <div class="final-example-header">
+          <h4>NotificationSystem — toți pilonii OOP în acțiune</h4>
+          <p>Abstractizare prin interfețe · Encapsulare a stării · Polimorfism la runtime · Compoziție în loc de moștenire</p>
+        </div>
+        <div class="code-block" style="margin:0;border:none;border-radius:0;">
+          <div class="code-header" style="border-top:none;">
+            <span class="code-filename">NotificationSystem.cs</span>
+            <span class="code-lang">C#</span>
+          </div>
+          <pre><span class="cmt">// ── Abstractizare: contracte clare, fără detalii de implementare ──</span>
+<span class="kw">public interface</span> <span class="iface">INotificationChannel</span>
+{
+    <span class="type">string</span> <span class="prop">Name</span> { <span class="kw">get</span>; }
+    <span class="type">bool</span> <span class="method">CanSend</span>(<span class="type">Notification</span> notification);
+    <span class="type">Task</span> <span class="method">SendAsync</span>(<span class="type">Notification</span> notification);
+}
+
+<span class="kw">public interface</span> <span class="iface">INotificationLogger</span>
+{
+    <span class="type">Task</span> <span class="method">LogAsync</span>(<span class="type">string</span> channel, <span class="type">Notification</span> notification, <span class="type">bool</span> success);
+}
+
+<span class="cmt">// ── Value Object: imutabil, egalitate prin valoare ──</span>
+<span class="kw">public record</span> <span class="type">Notification</span>(
+    <span class="type">string</span> <span class="prop">RecipientEmail</span>,
+    <span class="type">string</span> <span class="prop">RecipientPhone</span>,
+    <span class="type">string</span> <span class="prop">Subject</span>,
+    <span class="type">string</span> <span class="prop">Body</span>,
+    <span class="type">NotificationPriority</span> <span class="prop">Priority</span>
+);
+
+<span class="kw">public enum</span> <span class="type">NotificationPriority</span> { Low, Normal, High, Critical }
+
+<span class="cmt">// ── Encapsulare: stare internă protejată, logică de business în clasă ──</span>
+<span class="kw">public class</span> <span class="type">EmailChannel</span> : <span class="iface">INotificationChannel</span>
+{
+    <span class="kw">private readonly</span> <span class="iface">IEmailProvider</span> _provider; <span class="cmt">// dependență prin abstracție</span>
+    <span class="kw">private</span> <span class="type">int</span> _sentCount = <span class="num">0</span>;              <span class="cmt">// stare internă, nu expusă direct</span>
+
+    <span class="kw">public</span> <span class="type">string</span> <span class="prop">Name</span> => <span class="str">"Email"</span>;
+
+    <span class="kw">public</span> <span class="method">EmailChannel</span>(<span class="iface">IEmailProvider</span> provider)
+        => _provider = provider ?? <span class="kw">throw new</span> <span class="type">ArgumentNullException</span>(<span class="kw">nameof</span>(provider));
+
+    <span class="kw">public bool</span> <span class="method">CanSend</span>(<span class="type">Notification</span> n)
+        => !<span class="type">string</span>.<span class="method">IsNullOrWhiteSpace</span>(n.RecipientEmail);
+
+    <span class="kw">public async</span> <span class="type">Task</span> <span class="method">SendAsync</span>(<span class="type">Notification</span> n)
+    {
+        <span class="kw">await</span> _provider.<span class="method">SendEmailAsync</span>(n.RecipientEmail, n.Subject, n.Body);
+        _sentCount++; <span class="cmt">// starea se actualizează doar intern</span>
+    }
+
+    <span class="kw">public</span> <span class="type">int</span> <span class="method">GetSentCount</span>() => _sentCount; <span class="cmt">// acces read-only controlat</span>
+}
+
+<span class="kw">public class</span> <span class="type">SmsChannel</span> : <span class="iface">INotificationChannel</span>
+{
+    <span class="kw">private readonly</span> <span class="iface">ISmsProvider</span> _provider;
+    <span class="kw">public</span> <span class="type">string</span> <span class="prop">Name</span> => <span class="str">"SMS"</span>;
+
+    <span class="kw">public</span> <span class="method">SmsChannel</span>(<span class="iface">ISmsProvider</span> provider) => _provider = provider;
+
+    <span class="kw">public bool</span> <span class="method">CanSend</span>(<span class="type">Notification</span> n)
+        => !<span class="type">string</span>.<span class="method">IsNullOrWhiteSpace</span>(n.RecipientPhone)
+        &amp;&amp; n.Priority >= <span class="type">NotificationPriority</span>.High; <span class="cmt">// SMS doar pentru urgențe</span>
+
+    <span class="kw">public async</span> <span class="type">Task</span> <span class="method">SendAsync</span>(<span class="type">Notification</span> n)
+        => <span class="kw">await</span> _provider.<span class="method">SendSmsAsync</span>(n.RecipientPhone, n.Body);
+}
+
+<span class="cmt">// ── Coeziune mare: NotificationDispatcher face un singur lucru ──
+// ── Cuplare mică: depinde doar de interfețe, nu de tipuri concrete ──</span>
+<span class="kw">public class</span> <span class="type">NotificationDispatcher</span>
+{
+    <span class="kw">private readonly</span> <span class="type">IReadOnlyList</span>&lt;<span class="iface">INotificationChannel</span>&gt; _channels;
+    <span class="kw">private readonly</span> <span class="iface">INotificationLogger</span> _logger;
+
+    <span class="kw">public</span> <span class="method">NotificationDispatcher</span>(
+        <span class="type">IEnumerable</span>&lt;<span class="iface">INotificationChannel</span>&gt; channels,
+        <span class="iface">INotificationLogger</span> logger)
+    {
+        _channels = channels.<span class="method">ToList</span>().<span class="method">AsReadOnly</span>();
+        _logger = logger;
+    }
+
+    <span class="kw">public async</span> <span class="type">Task</span> <span class="method">DispatchAsync</span>(<span class="type">Notification</span> notification)
+    {
+        <span class="cmt">// Polimorfism: iterăm canale, fiecare știe singur dacă poate trimite</span>
+        <span class="kw">var</span> eligibleChannels = _channels.<span class="method">Where</span>(c => c.<span class="method">CanSend</span>(notification));
+
+        <span class="kw">foreach</span> (<span class="kw">var</span> channel <span class="kw">in</span> eligibleChannels)
+        {
+            <span class="type">bool</span> success = <span class="kw">false</span>;
+            <span class="kw">try</span>
+            {
+                <span class="kw">await</span> channel.<span class="method">SendAsync</span>(notification);
+                success = <span class="kw">true</span>;
+            }
+            <span class="kw">catch</span> (<span class="type">Exception</span> ex)
+            {
+                <span class="cmt">// izolarea erorilor: un canal căzut nu blochează celelalte</span>
+                <span class="kw">await</span> _logger.<span class="method">LogAsync</span>(channel.Name, notification, <span class="kw">false</span>);
+                <span class="kw">continue</span>;
+            }
+            <span class="kw">await</span> _logger.<span class="method">LogAsync</span>(channel.Name, notification, success);
+        }
+    }
+}
+
+<span class="cmt">// ── Utilizare — cu DI container (ASP.NET Core) ──</span>
+<span class="cmt">// services.AddScoped&lt;INotificationChannel, EmailChannel&gt;();</span>
+<span class="cmt">// services.AddScoped&lt;INotificationChannel, SmsChannel&gt;();</span>
+<span class="cmt">// services.AddScoped&lt;INotificationLogger, DatabaseNotificationLogger&gt;();</span>
+<span class="cmt">// services.AddScoped&lt;NotificationDispatcher&gt;();</span></pre>
+        </div>
+      </div>
+
+      <div class="callout success">
+        <span class="callout-icon">✓</span>
+        <div class="callout-body">
+          <div class="callout-title">Ce demonstrează acest exemplu</div>
+          <p><strong>Abstractizare</strong> — interfețe pentru canale, provider-i, logger. <strong>Encapsulare</strong> — fiecare canal gestionează propriul contor și logica sa de eligibilitate. <strong>Polimorfism</strong> — <code>CanSend</code> și <code>SendAsync</code> funcționează diferit pentru fiecare canal. <strong>Compoziție</strong> — dispatcher-ul <em>are</em> canale, nu <em>este</em> un canal. <strong>Cuplare mică</strong> — toate dependențele sunt prin interfețe.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUESTIONS -->
+    <div class="questions-box">
+      <div class="questions-title">💬 Teme de Discuție</div>
+      <ol>
+        <li>Care este diferența reală între o clasă abstractă și o interfață în C# modern (.NET 8+)? Când interfețele cu implementare implicită schimbă ecuația?</li>
+        <li>Moștenirea vs. compoziție — găsiți un exemplu din codul la care lucrați (sau ați lucrat) unde moștenirea ar putea fi înlocuită cu compoziție.</li>
+        <li>Poate exista OOP bun fără polimorfism? Ce ar rămâne din cele 4 principii?</li>
+        <li>Anemic Domain Model este întotdeauna un anti-pattern? Există scenarii în care este justificat?</li>
+      </ol>
+    </div>
+
+    <!-- RESOURCES -->
+    <div class="resources">
+      <div class="resources-title">Resurse</div>
+      <div class="resource-list">
+        <div class="resource-item">Clean Code — Robert C. Martin (cap. 1–3, 10)</div>
+        <div class="resource-item">Head First Object-Oriented Analysis and Design — cap. 1–2</div>
+        <div class="resource-item">Refactoring — Martin Fowler (cap. 3 — Code Smells)</div>
+        <div class="resource-item">docs.microsoft.com — C# Programming Guide: Interfaces, Abstract Classes</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // Scroll progress bar
+  window.addEventListener('scroll', () => {
+    const doc = document.documentElement;
+    const scrollTop = doc.scrollTop || document.body.scrollTop;
+    const scrollHeight = doc.scrollHeight - doc.clientHeight;
+    const progress = scrollTop / scrollHeight;
+    document.getElementById('scroll-progress').style.transform = `scaleX(${progress})`;
+  });
+
+  // Active sidebar link on scroll
+  const sections = document.querySelectorAll('section[id], header[id]');
+  const links = document.querySelectorAll('.sidebar-link[href^="#"]');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.sidebar-link[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

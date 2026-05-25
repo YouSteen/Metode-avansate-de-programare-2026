@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curs 2 — UML: Instrument de Comunicare | Metode Avansate de Programare</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0d1117; --bg2:#161b22; --bg3:#1c2128; --bg4:#21262d;
+    --border:#30363d; --border2:#3d4450;
+    --accent:#58a6ff; --accent2:#79c0ff; --accent3:#1f6feb;
+    --green:#3fb950; --green-bg:#0d2a1a; --green-border:#1a4731;
+    --yellow:#d29922; --yellow-bg:#2a1f0a; --yellow-border:#4a3400;
+    --purple:#bc8cff; --purple-bg:#1a0d2e; --purple-border:#3a1f5a;
+    --red:#f85149; --red-bg:#2d0f0f; --orange:#ffa657;
+    --text:#e6edf3; --text2:#8b949e; --text3:#6e7681;
+    --radius:8px; --radius2:12px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;font-size:15px;line-height:1.75;}
+
+  /* TOPBAR */
+  .topbar{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    background:rgba(13,17,23,.93);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+    padding:0 2rem;height:52px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .topbar-left{display:flex;align-items:center;gap:1rem;}
+  .course-badge{
+    background:var(--accent3);color:#fff;
+    font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:.05em;
+  }
+  .course-title-nav{font-size:13px;color:var(--text2);font-weight:500;}
+  .topbar-right{display:flex;gap:.5rem;}
+  .nav-pill{
+    font-size:11px;color:var(--text3);padding:4px 10px;
+    border:1px solid var(--border);border-radius:20px;
+    text-decoration:none;font-family:'JetBrains Mono',monospace;transition:all .2s;
+  }
+  .nav-pill:hover{color:var(--accent);border-color:var(--accent3);background:rgba(31,111,235,.08);}
+
+  /* LAYOUT */
+  .layout{display:flex;margin-top:52px;}
+
+  /* SIDEBAR */
+  .sidebar{
+    width:255px;min-width:255px;height:calc(100vh - 52px);
+    position:sticky;top:52px;overflow-y:auto;
+    border-right:1px solid var(--border);padding:1.5rem 0;background:var(--bg);
+  }
+  .sidebar::-webkit-scrollbar{width:3px;}
+  .sidebar::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+  .sidebar-heading{
+    font-size:10px;font-weight:700;letter-spacing:.12em;
+    color:var(--text3);text-transform:uppercase;padding:.75rem 1.5rem .25rem;
+  }
+  .sidebar-link{
+    display:flex;align-items:center;gap:.6rem;padding:.42rem 1.5rem;
+    color:var(--text2);text-decoration:none;font-size:13px;
+    border-left:2px solid transparent;transition:all .15s;
+  }
+  .sidebar-link:hover{color:var(--text);background:var(--bg2);border-left-color:var(--border2);}
+  .sidebar-link.active{color:var(--accent);background:rgba(88,166,255,.06);border-left-color:var(--accent);font-weight:500;}
+  .sidebar-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);min-width:18px;}
+  .sidebar-divider{border:none;border-top:1px solid var(--border);margin:.75rem 1.5rem;}
+
+  /* MAIN */
+  .main{flex:1;max-width:860px;padding:3rem 3.5rem 6rem;min-width:0;}
+
+  /* SCROLL PROGRESS */
+  #scroll-prog{
+    position:fixed;top:52px;left:0;right:0;height:2px;
+    background:linear-gradient(90deg,var(--accent3),var(--accent),var(--purple));
+    transform-origin:left;transform:scaleX(0);z-index:99;transition:transform .1s;
+  }
+
+  /* HERO */
+  .hero{margin-bottom:2.5rem;padding-bottom:2rem;border-bottom:1px solid var(--border);}
+  .hero-meta{display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;flex-wrap:wrap;}
+  .tag{font-family:'JetBrains Mono',monospace;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;}
+  .tag-mod{background:rgba(88,166,255,.12);color:var(--accent2);border:1px solid rgba(88,166,255,.2);}
+  .tag-lang{background:rgba(63,185,80,.1);color:var(--green);border:1px solid rgba(63,185,80,.2);}
+  .tag-n{background:var(--bg3);color:var(--text2);border:1px solid var(--border);}
+  .hero h1{font-size:2.2rem;font-weight:800;line-height:1.2;letter-spacing:-.02em;margin-bottom:.75rem;}
+  .hero h1 span{color:var(--accent);}
+  .hero-desc{font-size:15.5px;color:var(--text2);max-width:640px;}
+
+  /* OBJECTIVES */
+  .objectives{
+    background:rgba(88,166,255,.05);border:1px solid rgba(88,166,255,.15);
+    border-radius:var(--radius2);padding:1.5rem;margin-bottom:2.5rem;
+  }
+  .objectives-title{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--accent);text-transform:uppercase;margin-bottom:1rem;}
+  .objectives ul{list-style:none;display:flex;flex-direction:column;gap:.5rem;}
+  .objectives li{display:flex;align-items:flex-start;gap:.75rem;font-size:14px;color:var(--text2);}
+  .objectives li::before{content:'→';color:var(--accent);font-weight:700;flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+
+  /* SECTIONS */
+  .section{margin-bottom:3rem;}
+  h2.stitle{
+    font-size:1.35rem;font-weight:700;color:var(--text);
+    margin-bottom:1.5rem;padding-bottom:.75rem;border-bottom:1px solid var(--border);
+    display:flex;align-items:center;gap:.75rem;letter-spacing:-.01em;
+  }
+  h2.stitle .num{
+    font-family:'JetBrains Mono',monospace;font-size:12px;
+    color:var(--accent3);background:rgba(31,111,235,.15);padding:2px 8px;border-radius:4px;
+  }
+  h3.sub{font-size:1.05rem;font-weight:600;color:var(--text);margin:2rem 0 .75rem;display:flex;align-items:center;gap:.5rem;}
+  h3.sub .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+
+  p{color:var(--text2);margin-bottom:.85rem;}
+  p:last-child{margin-bottom:0;}
+  strong{color:var(--text);font-weight:600;}
+  em{color:var(--orange);font-style:normal;font-weight:500;}
+  code{
+    font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--accent2);
+    background:rgba(88,166,255,.08);padding:1px 6px;border-radius:4px;
+    border:1px solid rgba(88,166,255,.12);
+  }
+
+  /* CODE BLOCK */
+  .code-block{background:#161b22;border:1px solid var(--border);border-radius:var(--radius2);margin:1.25rem 0;overflow:hidden;}
+  .code-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:.55rem 1rem;border-bottom:1px solid var(--border);background:var(--bg3);
+  }
+  .code-fname{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2);}
+  .code-lang-tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);background:var(--bg4);padding:2px 8px;border-radius:4px;}
+  pre{padding:1.25rem 1.5rem;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.65;}
+  pre::-webkit-scrollbar{height:4px;}
+  pre::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+  /* syntax */
+  .kw{color:#ff7b72;} .kw2{color:#f0883e;} .tp{color:#79c0ff;} .ifc{color:#d2a8ff;}
+  .mth{color:#d2a8ff;} .str{color:#a5d6ff;} .num{color:#79c0ff;} .cmt{color:#6e7681;font-style:italic;}
+
+  /* CALLOUT */
+  .callout{border-radius:var(--radius);padding:1rem 1.25rem;margin:1.25rem 0;display:flex;gap:.85rem;align-items:flex-start;}
+  .callout-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
+  .callout-body{flex:1;}
+  .callout-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem;}
+  .callout p{font-size:13.5px;margin-bottom:0;}
+  .callout.info{background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.15);}
+  .callout.info .callout-title{color:var(--accent);}
+  .callout.warn{background:var(--yellow-bg);border:1px solid var(--yellow-border);}
+  .callout.warn .callout-title{color:var(--yellow);}
+  .callout.ok{background:var(--green-bg);border:1px solid var(--green-border);}
+  .callout.ok .callout-title{color:var(--green);}
+  .callout.note{background:var(--purple-bg);border:1px solid var(--purple-border);}
+  .callout.note .callout-title{color:var(--purple);}
+
+  /* CONCEPT QUOTE */
+  .cquote{
+    border-left:3px solid var(--accent);padding:.75rem 1.25rem;
+    background:rgba(88,166,255,.04);border-radius:0 var(--radius) var(--radius) 0;
+    margin:1rem 0;font-size:15px;color:var(--text);line-height:1.6;
+  }
+
+  /* UML DIAGRAM CONTAINERS */
+  .uml-diagram{
+    background:var(--bg2);border:1px solid var(--border);
+    border-radius:var(--radius2);overflow:hidden;margin:1.5rem 0;
+  }
+  .uml-diagram-header{
+    padding:.6rem 1rem;border-bottom:1px solid var(--border);
+    background:var(--bg3);display:flex;align-items:center;justify-content:space-between;
+  }
+  .uml-diagram-title{font-size:12px;font-weight:600;color:var(--text2);font-family:'JetBrains Mono',monospace;}
+  .uml-diagram-type{
+    font-size:10px;color:var(--purple);background:rgba(188,140,255,.1);
+    border:1px solid rgba(188,140,255,.2);padding:2px 8px;border-radius:4px;
+    font-family:'JetBrains Mono',monospace;font-weight:600;
+  }
+  .uml-body{padding:1.5rem;}
+
+  /* SVG UML STYLES */
+  .uml-svg{width:100%;height:auto;display:block;}
+  .uml-note{
+    background:rgba(210,153,34,.07);border:1px solid var(--yellow-border);
+    border-radius:var(--radius);padding:.75rem 1rem;margin-top:1rem;
+    font-size:13px;color:var(--text2);
+  }
+  .uml-note strong{color:var(--yellow);}
+
+  /* DIAGRAM TYPE CARDS */
+  .diag-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.5rem 0;}
+  .diag-card{
+    background:var(--bg2);border:1px solid var(--border);
+    border-radius:var(--radius2);padding:1.25rem;
+    transition:border-color .2s;position:relative;overflow:hidden;
+  }
+  .diag-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+  .diag-card.uc::before{background:linear-gradient(90deg,var(--accent),var(--accent3));}
+  .diag-card.cls::before{background:linear-gradient(90deg,var(--green),#2ea043);}
+  .diag-card.seq::before{background:linear-gradient(90deg,var(--purple),#7a4fcf);}
+  .diag-card:hover{border-color:var(--border2);}
+  .diag-card-icon{font-size:1.5rem;margin-bottom:.5rem;}
+  .diag-card-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em;}
+  .diag-card-desc{font-size:12.5px;color:var(--text2);line-height:1.5;margin:0;}
+  .diag-card-when{
+    margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border);
+    font-size:11.5px;font-family:'JetBrains Mono',monospace;
+  }
+  .diag-card.uc .diag-card-when{color:var(--accent2);}
+  .diag-card.cls .diag-card-when{color:var(--green);}
+  .diag-card.seq .diag-card-when{color:var(--purple);}
+
+  /* SEQUENCE DIAGRAM VISUAL */
+  .seq-visual{
+    background:var(--bg);border:1px solid var(--border);
+    border-radius:var(--radius);padding:1.5rem;margin:1rem 0;
+    overflow-x:auto;
+  }
+
+  /* NOTATIONS TABLE */
+  .ntable{width:100%;border-collapse:collapse;margin:1.25rem 0;font-size:13.5px;}
+  .ntable th{
+    background:var(--bg3);color:var(--text);font-weight:600;
+    padding:.65rem 1rem;text-align:left;border-bottom:2px solid var(--accent3);
+    font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;
+  }
+  .ntable td{padding:.6rem 1rem;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle;}
+  .ntable tr:last-child td{border-bottom:none;}
+  .ntable tr:hover td{background:var(--bg2);}
+  .ntable .sym{font-family:'JetBrains Mono',monospace;color:var(--accent2);font-size:13px;}
+  .ntable .lbl{color:var(--text);font-weight:600;}
+
+  /* TOOL PILLS */
+  .tools-row{display:flex;flex-wrap:wrap;gap:.75rem;margin:1rem 0;}
+  .tool-pill{
+    display:flex;align-items:center;gap:.5rem;
+    background:var(--bg2);border:1px solid var(--border);
+    border-radius:var(--radius);padding:.6rem 1rem;
+    font-size:13px;color:var(--text2);text-decoration:none;transition:all .2s;
+  }
+  .tool-pill:hover{border-color:var(--accent3);color:var(--accent);}
+  .tool-pill .tool-icon{font-size:1rem;}
+  .tool-pill .tool-name{font-weight:600;color:var(--text);}
+  .tool-pill .tool-desc{font-size:11.5px;color:var(--text3);}
+
+  /* MERMAID CODE */
+  .mermaid-block{
+    background:#0d1117;border:1px solid var(--border);
+    border-radius:var(--radius2);overflow:hidden;margin:1.25rem 0;
+  }
+  .mermaid-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:.55rem 1rem;border-bottom:1px solid var(--border);background:var(--bg3);
+  }
+  .mermaid-fname{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--purple);}
+  .mermaid-tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);background:var(--bg4);padding:2px 8px;border-radius:4px;}
+
+  /* LAB BOX */
+  .lab-box{
+    background:var(--green-bg);border:1px solid var(--green-border);
+    border-radius:var(--radius2);overflow:hidden;margin:2rem 0;
+  }
+  .lab-header{
+    background:rgba(63,185,80,.12);border-bottom:1px solid var(--green-border);
+    padding:1rem 1.5rem;display:flex;align-items:center;gap:.75rem;
+  }
+  .lab-header-icon{font-size:1.3rem;}
+  .lab-header-text h4{font-size:14px;font-weight:700;color:var(--green);margin-bottom:.1rem;}
+  .lab-header-text p{font-size:12px;color:var(--text2);margin:0;}
+  .lab-body{padding:1.5rem;}
+  .lab-body p{color:var(--text2);font-size:14px;}
+  .lab-section{margin-top:1.25rem;}
+  .lab-section-title{
+    font-size:11px;font-weight:700;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--green);margin-bottom:.6rem;
+  }
+  .lab-list{list-style:none;display:flex;flex-direction:column;gap:.4rem;}
+  .lab-list li{
+    display:flex;align-items:flex-start;gap:.6rem;
+    font-size:13.5px;color:var(--text2);padding:.35rem 0;
+    border-bottom:1px solid rgba(63,185,80,.08);
+  }
+  .lab-list li:last-child{border-bottom:none;}
+  .lab-list li::before{content:'▸';color:var(--green);flex-shrink:0;margin-top:1px;font-size:11px;}
+  .lab-deliverable{
+    margin-top:1.25rem;padding:1rem;
+    background:rgba(63,185,80,.06);border:1px solid rgba(63,185,80,.15);
+    border-radius:var(--radius);
+  }
+  .lab-deliverable-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green);margin-bottom:.5rem;}
+  .lab-deliverable p{font-size:13px;color:var(--text2);margin:0;}
+
+  /* QUESTIONS */
+  .questions-box{
+    background:var(--purple-bg);border:1px solid var(--purple-border);
+    border-radius:var(--radius2);padding:1.5rem;margin-top:2rem;
+  }
+  .questions-title{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--purple);text-transform:uppercase;margin-bottom:1rem;}
+  .questions-box ol{padding-left:1.5rem;display:flex;flex-direction:column;gap:.6rem;}
+  .questions-box li{color:var(--text2);font-size:14px;}
+
+  /* RESOURCES */
+  .resources{border-top:1px solid var(--border);padding-top:1.5rem;margin-top:2rem;}
+  .resources-title{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:1rem;}
+  .resource-list{display:flex;flex-direction:column;gap:.5rem;}
+  .resource-item{display:flex;align-items:center;gap:.75rem;font-size:13px;color:var(--text2);}
+  .resource-item::before{content:'📖';font-size:14px;}
+  .resource-item a{color:var(--accent);text-decoration:none;}
+  .resource-item a:hover{text-decoration:underline;}
+
+  /* PROGRESS BAR CURS */
+  .progress-bar{
+    height:3px;background:linear-gradient(90deg,var(--accent3),var(--accent),var(--purple));
+    border-radius:2px;margin-bottom:2.5rem;
+    width:calc(2/14*100%);opacity:.8;
+  }
+
+  @media(max-width:900px){
+    .sidebar{display:none;}
+    .main{padding:2rem 1.5rem 4rem;}
+    .diag-cards{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div id="scroll-prog"></div>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="course-badge">MAP</span>
+    <span class="course-title-nav">Curs 2 — UML: Instrument de Comunicare</span>
+  </div>
+  <div class="topbar-right">
+    <a href="#intro" class="nav-pill">Intro</a>
+    <a href="#usecase" class="nav-pill">Use Case</a>
+    <a href="#clasa" class="nav-pill">Clasă</a>
+    <a href="#secventa" class="nav-pill">Secvență</a>
+    <a href="#lab" class="nav-pill">Laborator</a>
+  </div>
+</nav>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div>
+    <div class="sidebar-heading">Conținut</div>
+    <a href="#intro"    class="sidebar-link active"><span class="sidebar-num">01</span>Ce este UML?</a>
+    <a href="#tipuri"   class="sidebar-link"><span class="sidebar-num">02</span>Cele 3 Diagrame</a>
+    <a href="#usecase"  class="sidebar-link"><span class="sidebar-num">03</span>Use Case</a>
+    <a href="#clasa"    class="sidebar-link"><span class="sidebar-num">04</span>Diagramă de Clasă</a>
+    <a href="#secventa" class="sidebar-link"><span class="sidebar-num">05</span>Diagramă de Secvență</a>
+    <a href="#mermaid"  class="sidebar-link"><span class="sidebar-num">06</span>UML as Code</a>
+    <a href="#cand"     class="sidebar-link"><span class="sidebar-num">07</span>Când Folosești UML</a>
+    <a href="#lab"      class="sidebar-link"><span class="sidebar-num">08</span>Laborator</a>
+  </div>
+  <hr class="sidebar-divider">
+  <div>
+    <div class="sidebar-heading">Cursul curent</div>
+    <a href="curs1_oop.html" class="sidebar-link"><span class="sidebar-num">01</span>Recapitulare OOP</a>
+    <a href="curs2_uml.html" class="sidebar-link active"><span class="sidebar-num">02</span>UML</a>
+    <a href="#" class="sidebar-link" style="opacity:.4;pointer-events:none"><span class="sidebar-num">03</span>SOLID I</a>
+    <a href="#" class="sidebar-link" style="opacity:.4;pointer-events:none"><span class="sidebar-num">04</span>SOLID II</a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <div class="progress-bar" title="2 din 14 cursuri"></div>
+
+  <!-- HERO -->
+  <header class="hero" id="top">
+    <div class="hero-meta">
+      <span class="tag tag-mod">Modul: Fundamente</span>
+      <span class="tag tag-lang">Instrument vizual</span>
+      <span class="tag tag-n">Curs 2 din 14</span>
+    </div>
+    <h1>UML — <span>Instrument</span> de Comunicare</h1>
+    <p class="hero-desc">UML nu este un scop în sine. Este un limbaj vizual care ajută echipele să discute, să documenteze și să analizeze sisteme software. În acest curs îl tratăm ca atare: minimal, practic, suficient.</p>
+  </header>
+
+  <!-- OBJECTIVES -->
+  <div class="objectives">
+    <div class="objectives-title">🎯 Obiective</div>
+    <ul>
+      <li>Înțelegerea rolului UML ca <strong>instrument de comunicare</strong>, nu ca cerință formală</li>
+      <li>Citirea și producerea <strong>diagramelor de cazuri de utilizare</strong> pentru capturarea cerințelor</li>
+      <li>Citirea și producerea <strong>diagramelor de clasă</strong> la nivel minimal — relații și structură</li>
+      <li>Stăpânirea <strong>diagramelor de secvență</strong> — cel mai folosit instrument din restul cursului</li>
+      <li>Cunoașterea alternativelor moderne: <strong>diagrame-as-code</strong> cu Mermaid și PlantUML</li>
+    </ul>
+  </div>
+
+  <!-- SECTION 1: CE ESTE UML -->
+  <section class="section" id="intro">
+    <h2 class="stitle"><span class="num">01</span>Ce este UML și de ce îl folosim</h2>
+
+    <p>UML (Unified Modeling Language) este un standard de vizualizare a sistemelor software. A apărut în anii '90 din fuziunea mai multor metode de modelare și a devenit repede omniprezent în industrie și academie.</p>
+
+    <p>Există 14 tipuri de diagrame UML. În practică, <strong>mai puțin de 5 sunt folosite regulat</strong>. Scopul acestui curs nu este să le memorezi pe toate — ci să înțelegi și să folosești cele care ajută efectiv comunicarea.</p>
+
+    <div class="cquote">
+      O diagramă UML bună răspunde la o întrebare pe care textul nu o poate răspunde clar.<br>
+      O diagramă UML rea există pentru că „trebuia să existe".
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <div class="callout-title">Regula practică</div>
+        <p>Fă UML când ajută o conversație sau o decizie. Nu face UML pentru documentație care nu va fi citită. În acest curs vom folosi diagramele ca <strong>instrument de gândire și comunicare</strong>, nu ca livrabil final în sine.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: CELE 3 DIAGRAME -->
+  <section class="section" id="tipuri">
+    <h2 class="stitle"><span class="num">02</span>Cele 3 Diagrame pe care le folosim</h2>
+
+    <p>Din toată familia UML, vom lucra cu trei diagrame. Fiecare are un rol precis și un moment potrivit de utilizare.</p>
+
+    <div class="diag-cards">
+      <div class="diag-card uc">
+        <div class="diag-card-icon">👥</div>
+        <div class="diag-card-name">Use Case</div>
+        <p class="diag-card-desc">Ce face sistemul din perspectiva utilizatorilor. Fără detalii tehnice.</p>
+        <div class="diag-card-when">→ Faza de analiză a cerințelor</div>
+      </div>
+      <div class="diag-card cls">
+        <div class="diag-card-icon">🧩</div>
+        <div class="diag-card-name">Diagramă de Clasă</div>
+        <p class="diag-card-desc">Structura sistemului: clase, atribute, metode, relații.</p>
+        <div class="diag-card-when">→ Discuții de design, documentare</div>
+      </div>
+      <div class="diag-card seq">
+        <div class="diag-card-icon">⏱</div>
+        <div class="diag-card-name">Diagramă de Secvență</div>
+        <p class="diag-card-desc">Cum comunică obiectele în timp pentru un flux specific.</p>
+        <div class="diag-card-when">→ Documentarea fluxurilor complexe</div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        <div class="callout-title">Atenție la nivel de detaliu</div>
+        <p>Diagramele de clasă și use case sunt tratate <strong>minimal</strong> în acest curs — știm să le citim și să le producem la nivel de bază. <strong>Diagrama de secvență</strong> primește atenție mai mare pentru că o vom folosi în toate proiectele de laborator.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3: USE CASE -->
+  <section class="section" id="usecase">
+    <h2 class="stitle"><span class="num">03</span>Diagrama de Cazuri de Utilizare</h2>
+
+    <p>Diagrama de cazuri de utilizare răspunde la întrebarea: <strong>ce poate face utilizatorul cu sistemul?</strong> Nu ne interesează CUM funcționează sistemul intern — ci CE oferă el utilizatorilor săi.</p>
+
+    <h3 class="sub"><span class="dot"></span>Elemente de bază</h3>
+
+    <table class="ntable">
+      <thead>
+        <tr><th>Element</th><th>Simbol</th><th>Semnificație</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="lbl">Actor</td><td class="sym">«om» sau dreptunghi cu «actor»</td><td>Entitate externă care interacționează cu sistemul (utilizator, sistem extern)</td></tr>
+        <tr><td class="lbl">Caz de utilizare</td><td class="sym">Elipsă</td><td>O funcționalitate pe care sistemul o oferă unui actor</td></tr>
+        <tr><td class="lbl">Asociere</td><td class="sym">——</td><td>Actorul participă la cazul de utilizare</td></tr>
+        <tr><td class="lbl">&laquo;include&raquo;</td><td class="sym">- - ▶</td><td>Un caz de utilizare include obligatoriu un altul (comportament comun)</td></tr>
+        <tr><td class="lbl">&laquo;extend&raquo;</td><td class="sym">- - ▶</td><td>Un caz de utilizare extinde opțional un altul (comportament condițional)</td></tr>
+        <tr><td class="lbl">Limita sistemului</td><td class="sym">Dreptunghi</td><td>Granița sistemului — ce e înăuntru și ce e afară</td></tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub"><span class="dot"></span>Exemplu: Sistem de Rezervări Online</h3>
+
+    <div class="uml-diagram">
+      <div class="uml-diagram-header">
+        <span class="uml-diagram-title">Sistem de Rezervări — Use Case Diagram</span>
+        <span class="uml-diagram-type">Use Case</span>
+      </div>
+      <div class="uml-body">
+        <svg class="uml-svg" viewBox="0 0 720 400" xmlns="http://www.w3.org/2000/svg" style="max-height:400px;">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#6e7681"/>
+            </marker>
+            <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#3d4450"/>
+            </marker>
+          </defs>
+
+          <!-- System boundary -->
+          <rect x="160" y="30" width="420" height="340" rx="4"
+                fill="none" stroke="#30363d" stroke-width="1.5" stroke-dasharray="6,3"/>
+          <text x="370" y="22" fill="#6e7681" font-size="11" font-family="JetBrains Mono" text-anchor="middle">Sistem de Rezervări Online</text>
+
+          <!-- Actor: Client -->
+          <circle cx="75" cy="130" r="16" fill="none" stroke="#58a6ff" stroke-width="1.5"/>
+          <line x1="75" y1="146" x2="75" y2="185" stroke="#58a6ff" stroke-width="1.5"/>
+          <line x1="50" y1="162" x2="100" y2="162" stroke="#58a6ff" stroke-width="1.5"/>
+          <line x1="75" y1="185" x2="55" y2="210" stroke="#58a6ff" stroke-width="1.5"/>
+          <line x1="75" y1="185" x2="95" y2="210" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="75" y="228" fill="#8b949e" font-size="12" font-family="Sora" text-anchor="middle">Client</text>
+
+          <!-- Actor: Admin -->
+          <circle cx="75" cy="310" r="16" fill="none" stroke="#79c0ff" stroke-width="1.5"/>
+          <line x1="75" y1="326" x2="75" y2="365" stroke="#79c0ff" stroke-width="1.5"/>
+          <line x1="50" y1="342" x2="100" y2="342" stroke="#79c0ff" stroke-width="1.5"/>
+          <line x1="75" y1="365" x2="55" y2="390" stroke="#79c0ff" stroke-width="1.5"/>
+          <line x1="75" y1="365" x2="95" y2="390" stroke="#79c0ff" stroke-width="1.5"/>
+          <text x="75" y="405" fill="#8b949e" font-size="12" font-family="Sora" text-anchor="middle">Admin</text>
+
+          <!-- Actor: Sistem Plăți -->
+          <circle cx="645" cy="190" r="16" fill="none" stroke="#d2a8ff" stroke-width="1.5"/>
+          <line x1="645" y1="206" x2="645" y2="245" stroke="#d2a8ff" stroke-width="1.5"/>
+          <line x1="620" y1="222" x2="670" y2="222" stroke="#d2a8ff" stroke-width="1.5"/>
+          <line x1="645" y1="245" x2="625" y2="270" stroke="#d2a8ff" stroke-width="1.5"/>
+          <line x1="645" y1="245" x2="665" y2="270" stroke="#d2a8ff" stroke-width="1.5"/>
+          <text x="645" y="288" fill="#8b949e" font-size="11" font-family="Sora" text-anchor="middle">Sistem</text>
+          <text x="645" y="302" fill="#8b949e" font-size="11" font-family="Sora" text-anchor="middle">Plăți</text>
+
+          <!-- Use Cases -->
+          <ellipse cx="300" cy="90" rx="110" ry="26" fill="#161b22" stroke="#3d4450" stroke-width="1.5"/>
+          <text x="300" y="95" fill="#e6edf3" font-size="12.5" font-family="Sora" text-anchor="middle">Caută disponibilitate</text>
+
+          <ellipse cx="300" cy="170" rx="90" ry="26" fill="#161b22" stroke="#3d4450" stroke-width="1.5"/>
+          <text x="300" y="175" fill="#e6edf3" font-size="12.5" font-family="Sora" text-anchor="middle">Rezervă cameră</text>
+
+          <ellipse cx="300" cy="250" rx="90" ry="26" fill="#161b22" stroke="#3d4450" stroke-width="1.5"/>
+          <text x="300" y="255" fill="#e6edf3" font-size="12.5" font-family="Sora" text-anchor="middle">Anulează rezervare</text>
+
+          <ellipse cx="480" cy="170" rx="80" ry="26" fill="#1a0d2e" stroke="#3a1f5a" stroke-width="1.5"/>
+          <text x="480" y="175" fill="#d2a8ff" font-size="12.5" font-family="Sora" text-anchor="middle">Procesează plata</text>
+
+          <ellipse cx="300" cy="330" rx="105" ry="26" fill="#161b22" stroke="#3d4450" stroke-width="1.5"/>
+          <text x="300" y="335" fill="#e6edf3" font-size="12.5" font-family="Sora" text-anchor="middle">Gestionează camere</text>
+
+          <!-- Associations: Client -->
+          <line x1="91" y1="130" x2="190" y2="100" stroke="#58a6ff" stroke-width="1" opacity=".6"/>
+          <line x1="91" y1="145" x2="210" y2="170" stroke="#58a6ff" stroke-width="1" opacity=".6"/>
+          <line x1="91" y1="158" x2="210" y2="243" stroke="#58a6ff" stroke-width="1" opacity=".6"/>
+
+          <!-- Association: Admin -->
+          <line x1="91" y1="315" x2="195" y2="330" stroke="#79c0ff" stroke-width="1" opacity=".6"/>
+
+          <!-- Association: Sistem Plăți -->
+          <line x1="629" y1="190" x2="560" y2="178" stroke="#d2a8ff" stroke-width="1" opacity=".6"/>
+
+          <!-- include: Rezervă → Procesează -->
+          <line x1="390" y1="170" x2="400" y2="170" stroke="#6e7681" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+          <text x="393" y="158" fill="#6e7681" font-size="10" font-family="JetBrains Mono" text-anchor="middle">«include»</text>
+
+          <!-- extend: Anulare → Rezervă (opțional, condiționat) -->
+          <line x1="300" y1="224" x2="300" y2="196" stroke="#6e7681" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arr2)"/>
+          <text x="340" y="213" fill="#6e7681" font-size="10" font-family="JetBrains Mono">«extend»</text>
+        </svg>
+
+        <div class="uml-note">
+          <strong>De reținut:</strong> Diagrama spune <em>ce face sistemul</em>, nu cum. „Rezervă cameră" nu implică niciun detaliu despre baze de date, validări sau API-uri. &laquo;include&raquo; înseamnă că procesarea plății este <em>obligatorie</em> în fluxul de rezervare. &laquo;extend&raquo; înseamnă că anularea poate <em>opțional</em> implica rezervarea (ex: rebooking).
+        </div>
+      </div>
+    </div>
+
+    <div class="callout ok">
+      <span class="callout-icon">✓</span>
+      <div class="callout-body">
+        <div class="callout-title">Când este utilă</div>
+        <p>Diagrama de use case este ceam mai valoroasă <strong>la întâlnirile cu potentiali utilizatori non-tehnici</strong>. Le arăți ce face sistemul fără să îi pierzi în detalii de implementare. Este un instrument de aliniere, nu de specificare tehnică.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4: DIAGRAMA DE CLASĂ -->
+  <section class="section" id="clasa">
+    <h2 class="stitle"><span class="num">04</span>Diagrama de Clasă</h2>
+
+    <p>Diagrama de clasă arată <strong>structura statică</strong> a sistemului: ce clase există, ce conțin și cum sunt conectate. Este cea mai folosită diagramă UML în discuțiile tehnice.</p>
+
+    <h3 class="sub"><span class="dot"></span>Notații esențiale</h3>
+
+    <table class="ntable">
+      <thead>
+        <tr><th>Notație</th><th>Simbol</th><th>Semnificație</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="lbl">Vizibilitate publică</td><td class="sym">+</td><td>Accesibil din exterior</td></tr>
+        <tr><td class="lbl">Vizibilitate privată</td><td class="sym">-</td><td>Accesibil doar în cadrul clasei</td></tr>
+        <tr><td class="lbl">Vizibilitate protejată</td><td class="sym">#</td><td>Accesibil în clasă și subclase</td></tr>
+        <tr><td class="lbl">Atribut</td><td class="sym">- nume : Tip</td><td>Câmp/proprietate a clasei</td></tr>
+        <tr><td class="lbl">Metodă</td><td class="sym">+ Metoda(param : Tip) : ReturnTip</td><td>Operație a clasei</td></tr>
+        <tr><td class="lbl">Interfață</td><td class="sym">&laquo;interface&raquo;</td><td>Contract fără implementare</td></tr>
+        <tr><td class="lbl">Clasă abstractă</td><td class="sym">&laquo;abstract&raquo; sau italic</td><td>Nu poate fi instanțiată direct</td></tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub"><span class="dot"></span>Relații între Clase</h3>
+
+    <table class="ntable">
+      <thead>
+        <tr><th>Relație</th><th>Simbol</th><th>Semnificație în cod</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="lbl">Moștenire</td>
+          <td class="sym">——▷ (săgeată plină, goală)</td>
+          <td><code>class Dog : Animal</code> — IS-A</td>
+        </tr>
+        <tr>
+          <td class="lbl">Realizare (interfață)</td>
+          <td class="sym">- -▷ (săgeată întreruptă, goală)</td>
+          <td><code>class SqlRepo : IRepository</code></td>
+        </tr>
+        <tr>
+          <td class="lbl">Compoziție</td>
+          <td class="sym">◆—— (romb plin)</td>
+          <td>Owner controlează ciclul de viață. <code>Order</code> conține <code>OrderLine</code></td>
+        </tr>
+        <tr>
+          <td class="lbl">Agregare</td>
+          <td class="sym">◇—— (romb gol)</td>
+          <td>Fără ownership. <code>Team</code> conține <code>Employee</code> (există independent)</td>
+        </tr>
+        <tr>
+          <td class="lbl">Asociere</td>
+          <td class="sym">——</td>
+          <td>Referință simplă. <code>Order</code> referențiază <code>Customer</code></td>
+        </tr>
+        <tr>
+          <td class="lbl">Dependență</td>
+          <td class="sym">- -▶ (săgeată întreruptă, plină)</td>
+          <td>Folosit temporar, de ex. ca parametru de metodă</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub"><span class="dot"></span>Exemplu: Model de Domeniu pentru Rezervări</h3>
+
+    <div class="uml-diagram">
+      <div class="uml-diagram-header">
+        <span class="uml-diagram-title">ReservationSystem — Class Diagram (minimal)</span>
+        <span class="uml-diagram-type">Class Diagram</span>
+      </div>
+      <div class="uml-body">
+        <svg class="uml-svg" viewBox="0 0 740 440" xmlns="http://www.w3.org/2000/svg" style="max-height:440px;">
+          <defs>
+            <marker id="inh" markerWidth="12" markerHeight="12" refX="10" refY="5" orient="auto">
+              <polygon points="0,0 10,5 0,10" fill="#0d1117" stroke="#6e7681" stroke-width="1.2"/>
+            </marker>
+            <marker id="impl" markerWidth="12" markerHeight="12" refX="10" refY="5" orient="auto">
+              <polygon points="0,0 10,5 0,10" fill="#0d1117" stroke="#6e7681" stroke-width="1.2"/>
+            </marker>
+            <marker id="comp-end" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+              <polygon points="0,5 5,0 10,5 5,10" fill="#3fb950"/>
+            </marker>
+            <marker id="assoc-end" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6" fill="none" stroke="#6e7681" stroke-width="1.2"/>
+            </marker>
+          </defs>
+
+          <!-- IRepository interface -->
+          <rect x="260" y="15" width="200" height="75" rx="3" fill="#1a0d2e" stroke="#3a1f5a" stroke-width="1.5"/>
+          <text x="360" y="32" fill="#bc8cff" font-size="10" font-family="JetBrains Mono" text-anchor="middle">«interface»</text>
+          <text x="360" y="48" fill="#d2a8ff" font-size="13" font-family="Sora" font-weight="600" text-anchor="middle">IReservationRepository</text>
+          <line x1="260" y1="55" x2="460" y2="55" stroke="#3a1f5a" stroke-width="1"/>
+          <text x="270" y="70" fill="#8b949e" font-size="11" font-family="JetBrains Mono">+ FindById(id) : Reservation</text>
+          <text x="270" y="84" fill="#8b949e" font-size="11" font-family="JetBrains Mono">+ Save(r : Reservation)</text>
+
+          <!-- Reservation class -->
+          <rect x="30" y="165" width="230" height="155" rx="3" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+          <rect x="30" y="165" width="230" height="28" rx="3" fill="#1c2128"/>
+          <text x="145" y="184" fill="#e6edf3" font-size="13" font-family="Sora" font-weight="700" text-anchor="middle">Reservation</text>
+          <line x1="30" y1="193" x2="260" y2="193" stroke="#30363d" stroke-width="1"/>
+          <text x="40" y="210" fill="#8b949e" font-size="11" font-family="JetBrains Mono">- id : Guid</text>
+          <text x="40" y="225" fill="#8b949e" font-size="11" font-family="JetBrains Mono">- checkIn : DateTime</text>
+          <text x="40" y="240" fill="#8b949e" font-size="11" font-family="JetBrains Mono">- checkOut : DateTime</text>
+          <text x="40" y="255" fill="#8b949e" font-size="11" font-family="JetBrains Mono">- status : Status</text>
+          <line x1="30" y1="263" x2="260" y2="263" stroke="#30363d" stroke-width="1"/>
+          <text x="40" y="280" fill="#d2a8ff" font-size="11" font-family="JetBrains Mono">+ Confirm()</text>
+          <text x="40" y="295" fill="#d2a8ff" font-size="11" font-family="JetBrains Mono">+ Cancel()</text>
+          <text x="40" y="310" fill="#d2a8ff" font-size="11" font-family="JetBrains Mono">+ CheckIn()</text>
+
+          <!-- Guest class -->
+          <rect x="30" y="380" width="180" height="50" rx="3" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+          <rect x="30" y="380" width="180" height="28" rx="3" fill="#1c2128"/>
+          <text x="120" y="399" fill="#e6edf3" font-size="13" font-family="Sora" font-weight="700" text-anchor="middle">Guest</text>
+          <line x1="30" y1="408" x2="210" y2="408" stroke="#30363d" stroke-width="1"/>
+          <text x="40" y="422" fill="#8b949e" font-size="11" font-family="JetBrains Mono">- name, email, phone</text>
+
+          <!-- Room class -->
+          <rect x="310" y="165" width="185" height="130" rx="3" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+          <rect x="310" y="165" width="185" height="28" rx="3" fill="#1c2128"/>
+          <text x="402" y="184" fill="#e6edf3" font-size="13" font-family="Sora" font-weight="700" text-anchor="middle">Room</text>
+          <line x1="310" y1="193" x2="495" y2="193" stroke="#30363d" stroke-width="1"/>
+          <text x="320" y="210" fill="#8b949e" font-size="11" font-family="JetBrains Mono">- number : string</text>
+          <text x="320" y="225" fill="#8b949e" font-size="11" font-family="JetBrains Mono">- type : RoomType</text>
+          <text x="320" y="240" fill="#8b949e" font-size="11" font-family="JetBrains Mono">- pricePerNight : decimal</text>
+          <line x1="310" y1="248" x2="495" y2="248" stroke="#30363d" stroke-width="1"/>
+          <text x="320" y="265" fill="#d2a8ff" font-size="11" font-family="JetBrains Mono">+ IsAvailable(from, to)</text>
+          <text x="320" y="280" fill="#d2a8ff" font-size="11" font-family="JetBrains Mono">+ GetPrice(nights)</text>
+
+          <!-- SqlReservationRepository -->
+          <rect x="530" y="165" width="195" height="70" rx="3" fill="#0d2a1a" stroke="#1a4731" stroke-width="1.5"/>
+          <rect x="530" y="165" width="195" height="28" rx="3" fill="#0d2a1a"/>
+          <text x="627" y="184" fill="#3fb950" font-size="12" font-family="Sora" font-weight="600" text-anchor="middle">SqlReservationRepository</text>
+          <line x1="530" y1="193" x2="725" y2="193" stroke="#1a4731" stroke-width="1"/>
+          <text x="540" y="210" fill="#6e7681" font-size="11" font-family="JetBrains Mono">+ FindById(id)</text>
+          <text x="540" y="225" fill="#6e7681" font-size="11" font-family="JetBrains Mono">+ Save(r)</text>
+
+          <!-- Relatie: SqlRepo implements IRepository -->
+          <line x1="627" y1="165" x2="430" y2="90" stroke="#6e7681" stroke-width="1.2" stroke-dasharray="6,3" marker-end="url(#impl)"/>
+
+          <!-- Relatie: Reservation → IRepository (dependinta) -->
+          <line x1="260" y1="220" x2="260" y2="90" stroke="#6e7681" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#assoc-end)"/>
+
+          <!-- Compoziție: Reservation ◆— Guest -->
+          <line x1="120" y1="320" x2="120" y2="380" stroke="#3fb950" stroke-width="1.5" marker-start="url(#comp-end)"/>
+          <text x="130" y="355" fill="#6e7681" font-size="10" font-family="JetBrains Mono">1</text>
+          <text x="130" y="375" fill="#6e7681" font-size="10" font-family="JetBrains Mono">1</text>
+
+          <!-- Asociere: Reservation — Room -->
+          <line x1="260" y1="230" x2="310" y2="220" stroke="#6e7681" stroke-width="1.2" marker-end="url(#assoc-end)"/>
+          <text x="265" y="218" fill="#6e7681" font-size="10" font-family="JetBrains Mono">1..1</text>
+        </svg>
+
+        <div class="uml-note">
+          <strong>Observații cheie:</strong> <code>SqlReservationRepository</code> implementează <code>IReservationRepository</code> (relație de realizare, linie întreruptă). <code>Reservation</code> conține un <code>Guest</code> prin <strong>compoziție</strong> (romb plin) — guest-ul nu există fără rezervare. <code>Reservation</code> referențiază o <code>Room</code> prin <strong>asociere</strong> — camera există independent de rezervare.
+        </div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <div class="callout-title">Nivel de detaliu recomandat</div>
+        <p>Nu trebuie să pui <em>toate</em> atributele și metodele în diagramă. Pune ce este relevant pentru discuția curentă. O diagramă de clasă care încearcă să fie codul este inutilă — codul este deja codul.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 5: DIAGRAMA DE SECVENTA -->
+  <section class="section" id="secventa">
+    <h2 class="stitle"><span class="num">05</span>Diagrama de Secvență</h2>
+
+    <p>Diagrama de secvență arată <strong>cum comunică obiectele în timp</strong> pentru a realiza un flux specific. Este cel mai practic instrument UML pentru documentarea interacțiunilor complexe</p>
+
+    <h3 class="sub"><span class="dot"></span>Elemente de bază</h3>
+
+    <table class="ntable">
+      <thead>
+        <tr><th>Element</th><th>Simbol</th><th>Semnificație</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="lbl">Lifeline</td><td class="sym">Dreptunghi + linie verticală punctată</td><td>Un participant (obiect, actor, sistem)</td></tr>
+        <tr><td class="lbl">Mesaj sincron</td><td class="sym">——▶ (săgeată plină)</td><td>Apel care blochează apelantul până primește răspuns</td></tr>
+        <tr><td class="lbl">Mesaj asincron</td><td class="sym">——▷ (săgeată goală)</td><td>Apel care nu blochează — fire &amp; forget</td></tr>
+        <tr><td class="lbl">Răspuns</td><td class="sym">- -▶ (linie întreruptă)</td><td>Valoarea returnată după un mesaj sincron</td></tr>
+        <tr><td class="lbl">Activare</td><td class="sym">Dreptunghi subțire pe lifeline</td><td>Perioada în care un obiect execută ceva</td></tr>
+        <tr><td class="lbl">alt</td><td class="sym">Fragment cu <code>alt</code></td><td>Ramuri condiționale (if/else)</td></tr>
+        <tr><td class="lbl">loop</td><td class="sym">Fragment cu <code>loop</code></td><td>Repetare</td></tr>
+        <tr><td class="lbl">opt</td><td class="sym">Fragment cu <code>opt</code></td><td>Bloc opțional (if fără else)</td></tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub"><span class="dot"></span>Exemplu 1: Flux de Autentificare</h3>
+
+    <div class="uml-diagram">
+      <div class="uml-diagram-header">
+        <span class="uml-diagram-title">Login Flow — Sequence Diagram</span>
+        <span class="uml-diagram-type">Sequence</span>
+      </div>
+      <div class="uml-body">
+        <svg class="uml-svg" viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" style="max-height:420px;">
+          <defs>
+            <marker id="sync" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L7,3 L0,6 Z" fill="#e6edf3"/>
+            </marker>
+            <marker id="ret" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L7,3 L0,6 Z" fill="#6e7681"/>
+            </marker>
+          </defs>
+
+          <!-- Lifelines headers -->
+          <rect x="40"  y="15" width="90"  height="32" rx="3" fill="#1c2128" stroke="#30363d" stroke-width="1.5"/>
+          <text x="85"  y="36" fill="#e6edf3" font-size="12" font-family="Sora" font-weight="600" text-anchor="middle">Client</text>
+
+          <rect x="190" y="15" width="110" height="32" rx="3" fill="#1c2128" stroke="#1f6feb" stroke-width="1.5"/>
+          <text x="245" y="36" fill="#79c0ff" font-size="12" font-family="Sora" font-weight="600" text-anchor="middle">AuthController</text>
+
+          <rect x="370" y="15" width="100" height="32" rx="3" fill="#1c2128" stroke="#30363d" stroke-width="1.5"/>
+          <text x="420" y="36" fill="#e6edf3" font-size="12" font-family="Sora" font-weight="600" text-anchor="middle">UserService</text>
+
+          <rect x="535" y="15" width="120" height="32" rx="3" fill="#1c2128" stroke="#30363d" stroke-width="1.5"/>
+          <text x="595" y="36" fill="#e6edf3" font-size="12" font-family="Sora" font-weight="600" text-anchor="middle">UserRepository</text>
+
+          <!-- Lifeline verticals -->
+          <line x1="85"  y1="47" x2="85"  y2="410" stroke="#30363d" stroke-width="1" stroke-dasharray="4,3"/>
+          <line x1="245" y1="47" x2="245" y2="410" stroke="#1f6feb" stroke-width="1" stroke-dasharray="4,3" opacity=".5"/>
+          <line x1="420" y1="47" x2="420" y2="410" stroke="#30363d" stroke-width="1" stroke-dasharray="4,3"/>
+          <line x1="595" y1="47" x2="595" y2="410" stroke="#30363d" stroke-width="1" stroke-dasharray="4,3"/>
+
+          <!-- Activation boxes -->
+          <rect x="240" y="80"  width="10" height="270" fill="#1f6feb" opacity=".3"/>
+          <rect x="415" y="110" width="10" height="170" fill="#30363d" opacity=".6"/>
+          <rect x="590" y="135" width="10" height="80"  fill="#30363d" opacity=".6"/>
+          <rect x="80"  y="80"  width="10" height="320" fill="#30363d" opacity=".3"/>
+
+          <!-- MSG 1: POST /login -->
+          <line x1="90"  y1="90" x2="240" y2="90" stroke="#e6edf3" stroke-width="1.5" marker-end="url(#sync)"/>
+          <text x="160" y="83" fill="#e6edf3" font-size="11.5" font-family="JetBrains Mono" text-anchor="middle">POST /login(email, password)</text>
+
+          <!-- MSG 2: ValidateCredentials -->
+          <line x1="250" y1="120" x2="415" y2="120" stroke="#e6edf3" stroke-width="1.5" marker-end="url(#sync)"/>
+          <text x="332" y="113" fill="#e6edf3" font-size="11.5" font-family="JetBrains Mono" text-anchor="middle">ValidateCredentials(email, pwd)</text>
+
+          <!-- MSG 3: FindByEmail -->
+          <line x1="425" y1="145" x2="590" y2="145" stroke="#e6edf3" stroke-width="1.5" marker-end="url(#sync)"/>
+          <text x="507" y="138" fill="#e6edf3" font-size="11.5" font-family="JetBrains Mono" text-anchor="middle">FindByEmail(email)</text>
+
+          <!-- ALT fragment -->
+          <rect x="90" y="160" width="560" height="120" rx="3" fill="none" stroke="#3d4450" stroke-width="1.2" stroke-dasharray="4,2"/>
+          <rect x="90" y="160" width="38"  height="18"  rx="2" fill="#3d4450"/>
+          <text x="109" y="173" fill="#e6edf3" font-size="10" font-family="JetBrains Mono" text-anchor="middle">alt</text>
+          <text x="130" y="173" fill="#6e7681" font-size="10" font-family="JetBrains Mono">[user found &amp;&amp; password valid]</text>
+
+          <!-- MSG 4: user -->
+          <line x1="600" y1="185" x2="425" y2="185" stroke="#6e7681" stroke-width="1" stroke-dasharray="5,3" marker-end="url(#ret)"/>
+          <text x="512" y="178" fill="#6e7681" font-size="11" font-family="JetBrains Mono" text-anchor="middle">User</text>
+
+          <!-- MSG 5: JWT token -->
+          <line x1="420" y1="210" x2="250" y2="210" stroke="#6e7681" stroke-width="1" stroke-dasharray="5,3" marker-end="url(#ret)"/>
+          <text x="335" y="203" fill="#6e7681" font-size="11" font-family="JetBrains Mono" text-anchor="middle">JWT token</text>
+
+          <!-- ELSE branch -->
+          <line x1="90" y1="235" x2="650" y2="235" stroke="#3d4450" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="115" y="248" fill="#6e7681" font-size="10" font-family="JetBrains Mono">[else — invalid credentials]</text>
+          <text x="115" y="265" fill="#f85149" font-size="11" font-family="JetBrains Mono">throw UnauthorizedException()</text>
+
+          <!-- MSG 6: 200 OK sau 401 -->
+          <line x1="240" y1="310" x2="90" y2="310" stroke="#6e7681" stroke-width="1" stroke-dasharray="5,3" marker-end="url(#ret)"/>
+          <text x="165" y="303" fill="#6e7681" font-size="11" font-family="JetBrains Mono" text-anchor="middle">200 OK / 401 Unauthorized</text>
+        </svg>
+
+        <div class="uml-note">
+          <strong>Cum se citește:</strong> timpul curge de sus în jos. Fiecare săgeată plină este un apel; fiecare linie întreruptă este un răspuns. Blocul <code>alt</code> este echivalentul unui if/else. Dreptunghiurile subțiri de pe lifelines (activation boxes) arată când un obiect este activ.
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub"><span class="dot"></span>Exemplu 2: Procesarea unei Comenzi</h3>
+
+    <div class="uml-diagram">
+      <div class="uml-diagram-header">
+        <span class="uml-diagram-title">PlaceOrder Flow — Sequence Diagram</span>
+        <span class="uml-diagram-type">Sequence</span>
+      </div>
+      <div class="uml-body">
+        <svg class="uml-svg" viewBox="0 0 760 460" xmlns="http://www.w3.org/2000/svg" style="max-height:460px;">
+          <defs>
+            <marker id="s2" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L7,3 L0,6 Z" fill="#e6edf3"/>
+            </marker>
+            <marker id="r2" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L7,3 L0,6 Z" fill="#6e7681"/>
+            </marker>
+          </defs>
+
+          <!-- Headers -->
+          <rect x="15"  y="15" width="80"  height="32" rx="3" fill="#1c2128" stroke="#30363d" stroke-width="1.5"/>
+          <text x="55"  y="36" fill="#e6edf3" font-size="11" font-family="Sora" font-weight="600" text-anchor="middle">Client</text>
+
+          <rect x="140" y="15" width="105" height="32" rx="3" fill="#1c2128" stroke="#1f6feb" stroke-width="1.5"/>
+          <text x="192" y="36" fill="#79c0ff" font-size="11" font-family="Sora" font-weight="600" text-anchor="middle">OrderController</text>
+
+          <rect x="295" y="15" width="100" height="32" rx="3" fill="#1c2128" stroke="#30363d" stroke-width="1.5"/>
+          <text x="345" y="36" fill="#e6edf3" font-size="11" font-family="Sora" font-weight="600" text-anchor="middle">OrderService</text>
+
+          <rect x="445" y="15" width="100" height="32" rx="3" fill="#1c2128" stroke="#30363d" stroke-width="1.5"/>
+          <text x="495" y="36" fill="#e6edf3" font-size="11" font-family="Sora" font-weight="600" text-anchor="middle">StockService</text>
+
+          <rect x="595" y="15" width="110" height="32" rx="3" fill="#1c2128" stroke="#30363d" stroke-width="1.5"/>
+          <text x="650" y="36" fill="#e6edf3" font-size="11" font-family="Sora" font-weight="600" text-anchor="middle">PaymentService</text>
+
+          <!-- Lifeline verticals -->
+          <line x1="55"  y1="47" x2="55"  y2="450" stroke="#30363d" stroke-width="1" stroke-dasharray="4,3"/>
+          <line x1="192" y1="47" x2="192" y2="450" stroke="#1f6feb" stroke-width="1" stroke-dasharray="4,3" opacity=".5"/>
+          <line x1="345" y1="47" x2="345" y2="450" stroke="#30363d" stroke-width="1" stroke-dasharray="4,3"/>
+          <line x1="495" y1="47" x2="495" y2="450" stroke="#30363d" stroke-width="1" stroke-dasharray="4,3"/>
+          <line x1="650" y1="47" x2="650" y2="450" stroke="#30363d" stroke-width="1" stroke-dasharray="4,3"/>
+
+          <!-- Activation boxes -->
+          <rect x="187" y="75"  width="10" height="340" fill="#1f6feb" opacity=".25"/>
+          <rect x="340" y="105" width="10" height="250" fill="#30363d" opacity=".5"/>
+          <rect x="490" y="135" width="10" height="80"  fill="#30363d" opacity=".5"/>
+          <rect x="645" y="230" width="10" height="80"  fill="#30363d" opacity=".5"/>
+          <rect x="50"  y="75"  width="10" height="340" fill="#30363d" opacity=".25"/>
+
+          <!-- MSG 1 -->
+          <line x1="60" y1="85" x2="187" y2="85" stroke="#e6edf3" stroke-width="1.5" marker-end="url(#s2)"/>
+          <text x="123" y="78" fill="#e6edf3" font-size="11" font-family="JetBrains Mono" text-anchor="middle">POST /orders</text>
+
+          <!-- MSG 2 -->
+          <line x1="197" y1="115" x2="340" y2="115" stroke="#e6edf3" stroke-width="1.5" marker-end="url(#s2)"/>
+          <text x="268" y="108" fill="#e6edf3" font-size="11" font-family="JetBrains Mono" text-anchor="middle">PlaceOrder(orderDto)</text>
+
+          <!-- MSG 3: CheckStock -->
+          <line x1="350" y1="145" x2="490" y2="145" stroke="#e6edf3" stroke-width="1.5" marker-end="url(#s2)"/>
+          <text x="420" y="138" fill="#e6edf3" font-size="11" font-family="JetBrains Mono" text-anchor="middle">CheckStock(items)</text>
+
+          <!-- ALT: stoc -->
+          <rect x="60" y="160" width="690" height="90" rx="3" fill="none" stroke="#3d4450" stroke-width="1.2" stroke-dasharray="4,2"/>
+          <rect x="60" y="160" width="38"  height="18" rx="2" fill="#3d4450"/>
+          <text x="79"  y="173" fill="#e6edf3" font-size="10" font-family="JetBrains Mono" text-anchor="middle">alt</text>
+          <text x="108" y="173" fill="#6e7681" font-size="10" font-family="JetBrains Mono">[stoc disponibil]</text>
+
+          <line x1="500" y1="190" x2="350" y2="190" stroke="#6e7681" stroke-width="1" stroke-dasharray="5,3" marker-end="url(#r2)"/>
+          <text x="425" y="183" fill="#6e7681" font-size="11" font-family="JetBrains Mono" text-anchor="middle">true</text>
+
+          <line x1="60" y1="213" x2="750" y2="213" stroke="#3d4450" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="90"  y="228" fill="#f85149" font-size="10.5" font-family="JetBrains Mono">[stoc insuficient] throw OutOfStockException()</text>
+
+          <!-- MSG 5: ProcessPayment -->
+          <line x1="350" y1="260" x2="645" y2="260" stroke="#e6edf3" stroke-width="1.5" marker-end="url(#s2)"/>
+          <text x="497" y="253" fill="#e6edf3" font-size="11" font-family="JetBrains Mono" text-anchor="middle">ProcessPayment(amount)</text>
+
+          <!-- opt: trimitere email -->
+          <rect x="60" y="275" width="690" height="70" rx="3" fill="none" stroke="#3d4450" stroke-width="1.2" stroke-dasharray="4,2"/>
+          <rect x="60" y="275" width="34"  height="18" rx="2" fill="#3d4450"/>
+          <text x="77"  y="288" fill="#e6edf3" font-size="10" font-family="JetBrains Mono" text-anchor="middle">opt</text>
+          <text x="104" y="288" fill="#6e7681" font-size="10" font-family="JetBrains Mono">[plată reușită]</text>
+
+          <line x1="655" y1="305" x2="350" y2="305" stroke="#6e7681" stroke-width="1" stroke-dasharray="5,3" marker-end="url(#r2)"/>
+          <text x="502" y="298" fill="#6e7681" font-size="11" font-family="JetBrains Mono" text-anchor="middle">PaymentResult(transactionId)</text>
+
+          <!-- MSG 7: return orderId -->
+          <line x1="345" y1="360" x2="197" y2="360" stroke="#6e7681" stroke-width="1" stroke-dasharray="5,3" marker-end="url(#r2)"/>
+          <text x="271" y="353" fill="#6e7681" font-size="11" font-family="JetBrains Mono" text-anchor="middle">OrderId</text>
+
+          <!-- MSG 8: 201 Created -->
+          <line x1="192" y1="390" x2="60"  y2="390" stroke="#6e7681" stroke-width="1" stroke-dasharray="5,3" marker-end="url(#r2)"/>
+          <text x="126" y="383" fill="#6e7681" font-size="11" font-family="JetBrains Mono" text-anchor="middle">201 Created</text>
+        </svg>
+
+        <div class="uml-note">
+          <strong>Ce demonstrează această diagramă:</strong> ordinea exactă a apelurilor, momentele de decizie (alt), comportamentul opțional (opt) și modul în care o excepție (stoc insuficient) oprește fluxul. Încearcă să reproduci această diagramă în draw.io sau Mermaid.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 6: UML AS CODE -->
+  <section class="section" id="mermaid">
+    <h2 class="stitle"><span class="num">06</span>UML as Code — Mermaid &amp; PlantUML</h2>
+
+    <p>În proiectele reale, diagramele vizuale create cu mouse-ul devin rapid neactualizate. O alternativă modernă: <strong>diagrame definite în text</strong>, versionabile cu Git, generate automat.</p>
+
+    <div class="tools-row">
+      <div class="tool-pill">
+        <span class="tool-icon">🧜</span>
+        <div>
+          <div class="tool-name">Mermaid</div>
+          <div class="tool-desc">Integrat în GitHub, GitLab, Notion, Obsidian</div>
+        </div>
+      </div>
+      <div class="tool-pill">
+        <span class="tool-icon">🌱</span>
+        <div>
+          <div class="tool-name">PlantUML</div>
+          <div class="tool-desc">Mai complet, plugin IntelliJ/VS Code</div>
+        </div>
+      </div>
+      <div class="tool-pill">
+        <span class="tool-icon">✏️</span>
+        <div>
+          <div class="tool-name">draw.io</div>
+          <div class="tool-desc">Visual, gratuit, în browser</div>
+        </div>
+      </div>
+    </div>
+
+    <p>Exemplul de mai jos reproduce diagrama de secvență pentru login în sintaxă Mermaid. Același fișier <code>.md</code> cu acest cod se randează automat pe GitHub:</p>
+
+    <div class="mermaid-block">
+      <div class="mermaid-header">
+        <span class="mermaid-fname">login-flow.md</span>
+        <span class="mermaid-tag">Mermaid</span>
+      </div>
+      <pre style="color:#e6edf3;"><span style="color:#d2a8ff;">```mermaid</span>
+<span style="color:#ff7b72;">sequenceDiagram</span>
+    <span style="color:#ff7b72;">participant</span> C <span style="color:#ff7b72;">as</span> <span style="color:#a5d6ff;">Client</span>
+    <span style="color:#ff7b72;">participant</span> A <span style="color:#ff7b72;">as</span> <span style="color:#a5d6ff;">AuthController</span>
+    <span style="color:#ff7b72;">participant</span> U <span style="color:#ff7b72;">as</span> <span style="color:#a5d6ff;">UserService</span>
+    <span style="color:#ff7b72;">participant</span> R <span style="color:#ff7b72;">as</span> <span style="color:#a5d6ff;">UserRepository</span>
+
+    C->>A: POST /login(email, password)
+    A->>U: ValidateCredentials(email, pwd)
+    U->>R: FindByEmail(email)
+
+    <span style="color:#ff7b72;">alt</span> <span style="color:#6e7681;">user found &amp;&amp; password valid</span>
+        R-->>U: User
+        U-->>A: JWT token
+    <span style="color:#ff7b72;">else</span> <span style="color:#6e7681;">invalid credentials</span>
+        U-->>A: throw UnauthorizedException()
+    <span style="color:#ff7b72;">end</span>
+
+    A-->>C: 200 OK / 401 Unauthorized
+<span style="color:#d2a8ff;">```</span></pre>
+    </div>
+
+    <div class="callout note">
+      <span class="callout-icon">🧭</span>
+      <div class="callout-body">
+        <div class="callout-title">Recomandare pentru proiecte</div>
+        <p>Folosiți Mermaid pentru diagramele de secvență din proiectele de laborator — sunt ușor de scris, de modificat și se integrează direct în fișierele README.md din repository. Nu necesită tool extern.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 7: CAND FOLOSESTI UML -->
+  <section class="section" id="cand">
+    <h2 class="stitle"><span class="num">07</span>Când Folosești UML — și Când Nu</h2>
+
+    <table class="ntable">
+      <thead>
+        <tr><th>Situație</th><th>Diagramă potrivită</th><th>Alternativă acceptabilă</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Prezentare cerințe cu stakeholderi non-tehnici</td>
+          <td>Use Case</td>
+          <td>Listă de user stories</td>
+        </tr>
+        <tr>
+          <td>Discuție de design în echipă</td>
+          <td>Diagramă de clasă (simplificată)</td>
+          <td>Schiță pe tablă, fotografiată</td>
+        </tr>
+        <tr>
+          <td>Documentarea unui flux complex</td>
+          <td>Diagramă de secvență</td>
+          <td>Pseudocod structurat</td>
+        </tr>
+        <tr>
+          <td>Code review pentru interacțiuni</td>
+          <td>Diagramă de secvență</td>
+          <td>Comentarii în cod</td>
+        </tr>
+        <tr>
+          <td>Onboarding developer nou</td>
+          <td>Diagramă de clasă + secvență</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>CRUD simplu, fără logică complexă</td>
+          <td colspan="2" style="color:var(--red);">Nu face UML — codul este suficient de clar</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="cquote">
+      Diagrama perfectă nu există. Există diagrama care rezolvă problema de comunicare pe care o ai acum.
+    </div>
+  </section>
+
+  <!-- SECTION 8: LABORATOR -->
+  <section class="section" id="lab">
+    <h2 class="stitle"><span class="num">08</span>Proiect de Laborator</h2>
+
+    <p>Acest laborator nu este evaluat separat — produce artefactele UML care vor fi folosite ca punct de plecare pentru <strong>Lab 1</strong> (refactorizare SOLID, după Cursul 4). Cu cât diagramele sunt mai clare acum, cu atât refactorizarea va fi mai bine documentată.</p>
+
+    <div class="lab-box">
+      <div class="lab-header">
+        <span class="lab-header-icon">🔬</span>
+        <div class="lab-header-text">
+          <h4>Laborator Curs 2 — Modelare UML pentru un Sistem de Gestiune Comenzi</h4>
+          <p>Producerea diagramelor UML pentru un sistem care va fi refactorizat în laboratoarele următoare</p>
+        </div>
+      </div>
+      <div class="lab-body">
+        <p>Vi se furnizează descrierea unui sistem de gestiune comenzi cu probleme de design (God Class, cuplare mare, responsabilități mixte). Înainte de a scrie o linie de cod, trebuie să îl <strong>modelați vizual</strong> ca să înțelegeți ce face și cum ar trebui să arate.</p>
+
+        <div class="lab-section">
+          <div class="lab-section-title">Cerința 1 — Diagramă de Cazuri de Utilizare</div>
+          <ul class="lab-list">
+            <li>Identificați actorii sistemului (Client, Admin, Sistem de plată)</li>
+            <li>Identificați cel puțin 6 cazuri de utilizare relevante</li>
+            <li>Marcați relațiile «include» și «extend» acolo unde există</li>
+            <li>Trasați granița sistemului</li>
+          </ul>
+        </div>
+
+        <div class="lab-section">
+          <div class="lab-section-title">Cerința 2 — Diagramă de Clasă (starea actuală)</div>
+          <ul class="lab-list">
+            <li>Modelați structura codului furnizat <em>așa cum este</em>, cu toate problemele sale</li>
+            <li>Evidențiați în diagramă problemele de design: clase cu prea multe responsabilități, cuplare directă cu baza de date, etc.</li>
+            <li>Adăugați o a doua versiune a diagramei cu structura <em>propusă</em> după refactorizare</li>
+          </ul>
+        </div>
+
+        <div class="lab-section">
+          <div class="lab-section-title">Cerința 3 — Diagrame de Secvență (2 fluxuri)</div>
+          <ul class="lab-list">
+            <li><strong>Flux 1:</strong> Plasarea unei comenzi — de la cererea HTTP până la confirmarea comenzii și trimiterea email-ului</li>
+            <li><strong>Flux 2:</strong> Anularea unei comenzi — inclusiv ramura în care anularea nu este permisă (comandă deja expediată)</li>
+            <li>Folosiți blocuri <code>alt</code> pentru fluxurile alternative și <code>opt</code> pentru comportamentul opțional</li>
+          </ul>
+        </div>
+
+        <div class="lab-section">
+          <div class="lab-section-title">Tool recomandat</div>
+          <ul class="lab-list">
+            <li>Diagramele de secvență: <strong>Mermaid</strong> (în fișiere .md, vizualizare directă pe GitHub)</li>
+            <li>Diagramele de clasă și use case: <strong>draw.io</strong> (diagrams.net) sau <strong>PlantUML</strong></li>
+          </ul>
+        </div>
+
+        <div class="lab-deliverable">
+          <div class="lab-deliverable-title">📦 Livrabil</div>
+          <p>Repository GitHub cu: <code>docs/use-case.png</code>, <code>docs/class-diagram-before.png</code>, <code>docs/class-diagram-after.png</code>, <code>docs/sequence-place-order.md</code> (Mermaid), <code>docs/sequence-cancel-order.md</code> (Mermaid). Un fișier <code>README.md</code> cu o scurtă descriere a deciziilor de modelare luate.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        <div class="callout-title">Atenție</div>
+        <p>Scopul nu este diagrama perfectă din punct de vedere UML formal. Scopul este să înțelegeți sistemul și să puteți discuta deciziile de design. O diagramă care ajută conversația este mai valoroasă decât una corectă formal dar neinteligibilă.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUESTIONS -->
+  <div class="questions-box">
+    <div class="questions-title">💬 Teme de Discuție</div>
+    <ol>
+      <li>Ați lucrat vreodată pe un proiect unde UML a ajutat sau, dimpotrivă, a fost o piedică? Ce a făcut diferența?</li>
+      <li>Diagrama de clasă vs. codul sursă: care este mai ușor de citit pentru a înțelege un sistem nou? Depinde de context?</li>
+      <li>Mermaid vs. draw.io — când preferați text față de vizual? Ce constrângeri vin din fiecare abordare?</li>
+      <li>Unde trageți linia între „documentație necesară" și „documentație de dragul documentației"?</li>
+    </ol>
+  </div>
+
+  <!-- RESOURCES -->
+  <div class="resources">
+    <div class="resources-title">Resurse</div>
+    <div class="resource-list">
+      <div class="resource-item"><a href="https://mermaid.js.org" target="_blank">mermaid.js.org</a> — documentație completă și editor online</div>
+      <div class="resource-item"><a href="https://diagrams.net" target="_blank">diagrams.net (draw.io)</a> — editor vizual gratuit, în browser</div>
+      <div class="resource-item"><a href="https://plantuml.com" target="_blank">plantuml.com</a> — PlantUML, alternativă text-based completă</div>
+      <div class="resource-item">UML Distilled — Martin Fowler (ed. 3) — cea mai concisă introducere în UML practic</div>
+      <div class="resource-item">docs.github.com — Mermaid diagrams in Markdown (suport nativ GitHub)</div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+  // Scroll progress
+  window.addEventListener('scroll', () => {
+    const el = document.documentElement;
+    const prog = el.scrollTop / (el.scrollHeight - el.clientHeight);
+    document.getElementById('scroll-prog').style.transform = `scaleX(${prog})`;
+  });
+
+  // Active sidebar link
+  const sections = document.querySelectorAll('section[id]');
+  const links = document.querySelectorAll('.sidebar-link[href^="#"]');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector(`.sidebar-link[href="#${e.target.id}"]`);
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
