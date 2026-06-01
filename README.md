@@ -9,6 +9,7 @@ Repository pentru cursurile MAP: materiale HTML + laboratoare grupate pe foldere
 | [**Lab1-2/**](Lab1-2/) | Curs 2 — UML | Diagrame + `OrderManagement.Before` / `.After` |
 | [**Lab3/**](Lab3/) | Curs 3 — SOLID I | Task Manager: SRP, OCP, LSP |
 | [**Lab4/**](Lab4/) | Curs 4 — SOLID II | Task Manager: ISP, DIP, IoC (extinde Lab 3) |
+| [**Lab5/**](Lab5/) | Curs 5 — Pattern-uri creationale | Generator documente (Factory, Builder, Prototype, Singleton) |
 
 ## Materiale curs
 
@@ -18,6 +19,7 @@ Repository pentru cursurile MAP: materiale HTML + laboratoare grupate pe foldere
 | [curs2_uml.html](curs2_uml.html) | UML → **Lab1-2** |
 | [curs3_solid1.html](curs3_solid1.html) | SOLID I → **Lab3** |
 | [curs4_solid2.html](curs4_solid2.html) | SOLID II → **Lab4** |
+| [curs5_patterns_creational.html](curs5_patterns_creational.html) | Pattern-uri creationale → **Lab5** |
 
 ## Quick start
 
@@ -35,4 +37,11 @@ dotnet test TaskManager.sln
 dotnet run --project src/TaskManager.UI
 ```
 
-Documentatie: [Lab1-2/README.md](Lab1-2/README.md) · [Lab3/README.md](Lab3/README.md) · [Lab4/README.md](Lab4/README.md)
+**Lab 5 (Generator documente):**
+```bash
+cd Lab5
+dotnet test DocumentGenerator.sln
+dotnet run --project src/DocumentGenerator.App
+```
+
+Documentatie: [Lab1-2/README.md](Lab1-2/README.md) · [Lab3/README.md](Lab3/README.md) · [Lab4/README.md](Lab4/README.md) · [Lab5/README.md](Lab5/README.md)
