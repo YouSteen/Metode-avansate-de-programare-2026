@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curs 4 — SOLID II: ISP, DIP + DRY/KISS/YAGNI | MAP</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;--bg4:#21262d;
+    --border:#30363d;--border2:#3d4450;
+    --accent:#58a6ff;--accent2:#79c0ff;--accent3:#1f6feb;
+    --green:#3fb950;--green-bg:#0d2a1a;--green-border:#1a4731;
+    --yellow:#d29922;--yellow-bg:#2a1f0a;--yellow-border:#4a3400;
+    --purple:#bc8cff;--purple-bg:#1a0d2e;--purple-border:#3a1f5a;
+    --red:#f85149;--red-bg:#2d0f0f;--red-border:#5a1e1e;--orange:#ffa657;
+    --text:#e6edf3;--text2:#8b949e;--text3:#6e7681;
+    --radius:8px;--radius2:12px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;font-size:15px;line-height:1.75;}
+
+  .topbar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,17,23,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 2rem;height:52px;display:flex;align-items:center;justify-content:space-between;}
+  .topbar-left{display:flex;align-items:center;gap:1rem;}
+  .course-badge{background:var(--accent3);color:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.05em;}
+  .course-title-nav{font-size:13px;color:var(--text2);font-weight:500;}
+  .topbar-right{display:flex;gap:.5rem;}
+  .nav-pill{font-size:11px;color:var(--text3);padding:4px 10px;border:1px solid var(--border);border-radius:20px;text-decoration:none;font-family:'JetBrains Mono',monospace;transition:all .2s;}
+  .nav-pill:hover{color:var(--accent);border-color:var(--accent3);background:rgba(31,111,235,.08);}
+
+  .layout{display:flex;margin-top:52px;}
+  .sidebar{width:255px;min-width:255px;height:calc(100vh - 52px);position:sticky;top:52px;overflow-y:auto;border-right:1px solid var(--border);padding:1.5rem 0;background:var(--bg);}
+  .sidebar::-webkit-scrollbar{width:3px;}
+  .sidebar::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+  .sidebar-heading{font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--text3);text-transform:uppercase;padding:.75rem 1.5rem .25rem;}
+  .sidebar-link{display:flex;align-items:center;gap:.6rem;padding:.42rem 1.5rem;color:var(--text2);text-decoration:none;font-size:13px;border-left:2px solid transparent;transition:all .15s;}
+  .sidebar-link:hover{color:var(--text);background:var(--bg2);border-left-color:var(--border2);}
+  .sidebar-link.active{color:var(--accent);background:rgba(88,166,255,.06);border-left-color:var(--accent);font-weight:500;}
+  .sidebar-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);min-width:18px;}
+  .sidebar-divider{border:none;border-top:1px solid var(--border);margin:.75rem 1.5rem;}
+
+  .main{flex:1;max-width:860px;padding:3rem 3.5rem 6rem;min-width:0;}
+  #scroll-prog{position:fixed;top:52px;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent3),var(--accent),var(--purple));transform-origin:left;transform:scaleX(0);z-index:99;transition:transform .1s;}
+
+  .hero{margin-bottom:2.5rem;padding-bottom:2rem;border-bottom:1px solid var(--border);}
+  .hero-meta{display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;flex-wrap:wrap;}
+  .tag{font-family:'JetBrains Mono',monospace;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;}
+  .tag-mod{background:rgba(255,166,87,.1);color:var(--orange);border:1px solid rgba(255,166,87,.2);}
+  .tag-lang{background:rgba(63,185,80,.1);color:var(--green);border:1px solid rgba(63,185,80,.2);}
+  .tag-n{background:var(--bg3);color:var(--text2);border:1px solid var(--border);}
+  .hero h1{font-size:2.2rem;font-weight:800;line-height:1.2;letter-spacing:-.02em;margin-bottom:.75rem;}
+  .hero h1 span{color:var(--orange);}
+  .hero-desc{font-size:15.5px;color:var(--text2);max-width:640px;}
+
+  .objectives{background:rgba(255,166,87,.05);border:1px solid rgba(255,166,87,.15);border-radius:var(--radius2);padding:1.5rem;margin-bottom:2.5rem;}
+  .objectives-title{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--orange);text-transform:uppercase;margin-bottom:1rem;}
+  .objectives ul{list-style:none;display:flex;flex-direction:column;gap:.5rem;}
+  .objectives li{display:flex;align-items:flex-start;gap:.75rem;font-size:14px;color:var(--text2);}
+  .objectives li::before{content:'→';color:var(--orange);font-weight:700;flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+
+  .section{margin-bottom:3rem;}
+  h2.stitle{font-size:1.35rem;font-weight:700;color:var(--text);margin-bottom:1.5rem;padding-bottom:.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem;letter-spacing:-.01em;}
+  h2.stitle .num{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--orange);background:rgba(255,166,87,.12);padding:2px 8px;border-radius:4px;}
+  h3.sub{font-size:1.05rem;font-weight:600;color:var(--text);margin:2rem 0 .75rem;display:flex;align-items:center;gap:.5rem;}
+  h3.sub .dot{width:6px;height:6px;border-radius:50%;background:var(--orange);flex-shrink:0;}
+
+  p{color:var(--text2);margin-bottom:.85rem;}
+  p:last-child{margin-bottom:0;}
+  strong{color:var(--text);font-weight:600;}
+  em{color:var(--orange);font-style:normal;font-weight:500;}
+  code{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--accent2);background:rgba(88,166,255,.08);padding:1px 6px;border-radius:4px;border:1px solid rgba(88,166,255,.12);}
+
+  .principle-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;margin-bottom:2.5rem;}
+  .principle-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1rem;}
+  .principle-letter{font-family:'JetBrains Mono',monospace;font-size:2.8rem;font-weight:700;line-height:1;min-width:52px;}
+  .principle-header.isp .principle-letter{color:var(--yellow);}
+  .principle-header.dip .principle-letter{color:var(--green);}
+  .principle-name{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:.2rem;}
+  .principle-tagline{font-size:13px;color:var(--text2);}
+  .principle-body{padding:1.5rem;}
+
+  .code-block{background:#0d1117;border:1px solid var(--border);border-radius:var(--radius2);margin:1.25rem 0;overflow:hidden;}
+  .code-header{display:flex;align-items:center;justify-content:space-between;padding:.55rem 1rem;border-bottom:1px solid var(--border);background:var(--bg3);}
+  .code-fname{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2);display:flex;align-items:center;gap:.5rem;}
+  .code-fname .ok{color:var(--green);}
+  .code-fname .bad{color:var(--red);}
+  .code-lang-tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);background:var(--bg4);padding:2px 8px;border-radius:4px;}
+  pre{padding:1.25rem 1.5rem;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.65;}
+  pre::-webkit-scrollbar{height:4px;}
+  pre::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+  .kw{color:#ff7b72;}.tp{color:#79c0ff;}.ifc{color:#d2a8ff;}.mth{color:#d2a8ff;}
+  .str{color:#a5d6ff;}.num{color:#79c0ff;}.cmt{color:#6e7681;font-style:italic;}.prp{color:#e6edf3;}
+
+  .callout{border-radius:var(--radius);padding:1rem 1.25rem;margin:1.25rem 0;display:flex;gap:.85rem;align-items:flex-start;}
+  .callout-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
+  .callout-body{flex:1;}
+  .callout-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem;}
+  .callout p{font-size:13.5px;margin-bottom:0;}
+  .callout.info{background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.15);}
+  .callout.info .callout-title{color:var(--accent);}
+  .callout.warn{background:var(--yellow-bg);border:1px solid var(--yellow-border);}
+  .callout.warn .callout-title{color:var(--yellow);}
+  .callout.ok{background:var(--green-bg);border:1px solid var(--green-border);}
+  .callout.ok .callout-title{color:var(--green);}
+  .callout.danger{background:var(--red-bg);border:1px solid var(--red-border);}
+  .callout.danger .callout-title{color:var(--red);}
+  .callout.note{background:var(--purple-bg);border:1px solid var(--purple-border);}
+  .callout.note .callout-title{color:var(--purple);}
+
+  .compare{display:flex;flex-direction:column;gap:1rem;margin:1.25rem 0;}
+  .compare-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:.35rem .75rem;border-radius:var(--radius) var(--radius) 0 0;display:flex;align-items:center;gap:.4rem;}
+  .compare-label.before{background:rgba(248,81,73,.12);color:var(--red);border:1px solid var(--red-border);border-bottom:none;}
+  .compare-label.after{background:rgba(63,185,80,.12);color:var(--green);border:1px solid var(--green-border);border-bottom:none;}
+  .compare-col .code-block{margin:0;border-radius:0 0 var(--radius2) var(--radius2);}
+  .compare-col.before .code-block{border-color:var(--red-border);}
+  .compare-col.after .code-block{border-color:var(--green-border);}
+
+  .cquote{border-left:3px solid var(--orange);padding:.75rem 1.25rem;background:rgba(255,166,87,.04);border-radius:0 var(--radius) var(--radius) 0;margin:1rem 0;font-size:15px;color:var(--text);line-height:1.6;}
+
+  .solid-bar{display:flex;gap:.5rem;margin:1.5rem 0;flex-wrap:wrap;}
+  .solid-pill{display:flex;align-items:center;gap:.5rem;padding:.6rem 1rem;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg2);font-size:13px;flex:1;min-width:140px;transition:border-color .2s;}
+  .solid-pill.active-pill{border-color:var(--orange);background:rgba(255,166,87,.06);}
+  .solid-pill.done-pill{border-color:var(--green-border);background:var(--green-bg);}
+  .solid-pill-letter{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;min-width:22px;}
+  .solid-pill.active-pill .solid-pill-letter{color:var(--orange);}
+  .solid-pill.done-pill .solid-pill-letter{color:var(--green);}
+  .solid-pill:not(.active-pill):not(.done-pill) .solid-pill-letter{color:var(--text3);}
+  .solid-pill-name{font-size:12px;color:var(--text2);}
+  .solid-pill.active-pill .solid-pill-name{color:var(--text);}
+
+  .steps{display:flex;flex-direction:column;gap:0;margin:1.25rem 0;}
+  .step{display:flex;gap:1rem;position:relative;}
+  .step:not(:last-child)::before{content:'';position:absolute;left:15px;top:34px;bottom:-4px;width:1px;background:var(--border2);}
+  .step-num{width:32px;height:32px;border-radius:50%;background:var(--bg3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--orange);flex-shrink:0;margin-top:2px;}
+  .step-body{flex:1;padding-bottom:1.5rem;}
+  .step-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:.4rem;}
+  .step-desc{font-size:13.5px;color:var(--text2);}
+
+  /* PRINCIPLE PILL ROW — for DRY/KISS/YAGNI */
+  .heuristic-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin:1.5rem 0;}
+  .heuristic-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;}
+  .heuristic-header{padding:.75rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem;}
+  .heuristic-acronym{font-family:'JetBrains Mono',monospace;font-size:1.3rem;font-weight:700;}
+  .heuristic-header.dry .heuristic-acronym{color:var(--accent);}
+  .heuristic-header.kiss .heuristic-acronym{color:var(--green);}
+  .heuristic-header.yagni .heuristic-acronym{color:var(--purple);}
+  .heuristic-full{font-size:11px;color:var(--text2);}
+  .heuristic-body{padding:1rem;}
+  .heuristic-body p{font-size:13px;color:var(--text2);margin-bottom:.5rem;}
+  .heuristic-body p:last-child{margin-bottom:0;}
+  @media(max-width:700px){.heuristic-row{grid-template-columns:1fr;}}
+
+  /* SMELL LIST */
+  .smell-list{display:flex;flex-direction:column;gap:.5rem;margin:1rem 0;}
+  .smell-item{display:flex;align-items:flex-start;gap:.75rem;background:var(--red-bg);border:1px solid var(--red-border);border-radius:var(--radius);padding:.7rem 1rem;}
+  .smell-item-icon{color:var(--red);font-size:1rem;flex-shrink:0;margin-top:1px;}
+  .smell-item-text{font-size:13.5px;color:var(--text2);}
+  .smell-item-text strong{color:var(--red);}
+
+  /* LAB BOX */
+  .lab-box{background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius2);margin:2rem 0;}
+  .lab-header{background:rgba(63,185,80,.12);border-bottom:1px solid var(--green-border);padding:1rem 1.5rem;display:flex;align-items:center;gap:.75rem;}
+  .lab-header-icon{font-size:1.3rem;}
+  .lab-header-text h4{font-size:14px;font-weight:700;color:var(--green);margin-bottom:.1rem;}
+  .lab-header-text p{font-size:12px;color:var(--text2);margin:0;}
+  .lab-body{padding:1.25rem 1.25rem 1.5rem;}
+  .lab-body p{color:var(--text2);font-size:14px;}
+  .lab-section{margin-top:1.25rem;}
+  .lab-section-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:.6rem;}
+  .lab-req{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;margin:.75rem 0;}
+  .lab-req-header{padding:.6rem 1rem;background:var(--bg4);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.65rem;}
+  .lab-req-badge{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;flex-shrink:0;}
+  .lab-req-badge.isp{background:rgba(210,153,34,.15);color:var(--yellow);}
+  .lab-req-badge.dip{background:rgba(63,185,80,.12);color:var(--green);}
+  .lab-req-badge.test{background:rgba(248,81,73,.1);color:var(--red);}
+  .lab-req-badge.solid{background:rgba(88,166,255,.1);color:var(--accent2);}
+  .lab-req-title{font-size:13.5px;font-weight:600;color:var(--text);}
+  .lab-req-body{padding:.9rem 1.1rem;overflow:hidden;}
+  .lab-req-body ul{list-style:none;display:block;margin:0;padding:0;}
+  .lab-req-body li{font-size:13px;color:var(--text2);line-height:1.6;min-width:0;padding-left:1.2rem;position:relative;word-break:normal;overflow-wrap:break-word;margin-bottom:.45rem;}
+  .lab-req-body li:last-child{margin-bottom:0;}
+  .lab-req-body li::before{content:'▸';color:var(--green);font-size:11px;position:absolute;left:0;top:3px;}
+  .lab-deliverable{margin-top:1.25rem;padding:1rem;background:rgba(63,185,80,.06);border:1px solid rgba(63,185,80,.15);border-radius:var(--radius);}
+  .lab-deliverable-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green);margin-bottom:.5rem;}
+  .lab-deliverable p{font-size:13px;color:var(--text2);margin:0;}
+
+  .structure-tree{font-family:'JetBrains Mono',monospace;font-size:12.5px;background:#0d1117;border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;line-height:2;margin:.75rem 0;overflow-x:auto;white-space:pre;}
+  .st-folder{color:var(--accent2);}
+  .st-file{color:var(--text2);}
+  .st-comment{color:var(--text3);font-size:11.5px;}
+
+  .questions-box{background:var(--purple-bg);border:1px solid var(--purple-border);border-radius:var(--radius2);padding:1.5rem;margin-top:2rem;}
+  .questions-title{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--purple);text-transform:uppercase;margin-bottom:1rem;}
+  .questions-box ol{padding-left:1.5rem;display:flex;flex-direction:column;gap:.6rem;}
+  .questions-box li{color:var(--text2);font-size:14px;}
+
+  .resources{border-top:1px solid var(--border);padding-top:1.5rem;margin-top:2rem;}
+  .resources-title{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:1rem;}
+  .resource-list{display:flex;flex-direction:column;gap:.5rem;}
+  .resource-item{display:flex;align-items:center;gap:.75rem;font-size:13px;color:var(--text2);}
+  .resource-item::before{content:'📖';font-size:14px;}
+
+  .progress-bar{height:3px;background:linear-gradient(90deg,var(--accent3),var(--orange),var(--purple));border-radius:2px;margin-bottom:2.5rem;width:calc(4/14*100%);opacity:.8;}
+
+  @media(max-width:900px){.sidebar{display:none;}.main{padding:2rem 1.5rem 4rem;}}
+</style>
+</head>
+<body>
+<div id="scroll-prog"></div>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="course-badge">MAP</span>
+    <span class="course-title-nav">Metode Avansate de Programare</span>
+  </div>
+  <div class="topbar-right">
+    <a href="curs3_solid1.html" class="nav-pill">← Curs 3</a>
+    <a href="curs5_patterns_creational.html" class="nav-pill">Curs 5 →</a>
+  </div>
+</div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div>
+    <div class="sidebar-heading">Conținut</div>
+    <a href="#intro"   class="sidebar-link active"><span class="sidebar-num">01</span>Recapitulare & Context</a>
+    <a href="#isp"     class="sidebar-link"><span class="sidebar-num">02</span>ISP</a>
+    <a href="#dip"     class="sidebar-link"><span class="sidebar-num">03</span>DIP</a>
+    <a href="#heuristics" class="sidebar-link"><span class="sidebar-num">04</span>DRY / KISS / YAGNI</a>
+    <a href="#relatie" class="sidebar-link"><span class="sidebar-num">05</span>SOLID complet</a>
+    <a href="#lab"     class="sidebar-link"><span class="sidebar-num">06</span>Laborator 4</a>
+  </div>
+  <hr class="sidebar-divider">
+  <div>
+    <div class="sidebar-heading">Cursurile MAP</div>
+    <a href="curs1_oop.html"    class="sidebar-link"><span class="sidebar-num">01</span>Recapitulare OOP</a>
+    <a href="curs2_uml.html"    class="sidebar-link"><span class="sidebar-num">02</span>UML</a>
+    <a href="curs3_solid1.html" class="sidebar-link"><span class="sidebar-num">03</span>SOLID I</a>
+    <a href="curs4_solid2.html" class="sidebar-link active"><span class="sidebar-num">04</span>SOLID II</a>
+    <a href="#" class="sidebar-link" style="opacity:.4;pointer-events:none"><span class="sidebar-num">05</span>Patterns Creaționale</a>
+    <a href="#" class="sidebar-link" style="opacity:.4;pointer-events:none"><span class="sidebar-num">06</span>Patterns Structurale I</a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="progress-bar"></div>
+
+  <header class="hero">
+    <div class="hero-meta">
+      <span class="tag tag-mod">Modul: Principii</span>
+      <span class="tag tag-lang">C#</span>
+      <span class="tag tag-n">Curs 4 din 14</span>
+    </div>
+    <h1>Principiile <span>SOLID</span> — Partea II</h1>
+    <p class="hero-desc">ISP și DIP completează tabloul SOLID. ISP spune că interfețele trebuie să fie mici și precise — nu interfețe supraîncărcate cu zeci de metode. DIP spune că dependențele trebuie să fie orientate spre abstracții, nu spre implementări concrete. La final, trei heuristici practice: DRY, KISS, YAGNI.</p>
+  </header>
+
+  <div class="objectives">
+    <div class="objectives-title">Obiective</div>
+    <ul>
+      <li>Înțelegeți de ce interfețele supraîncărcate sunt o problemă și cum ISP le rezolvă</li>
+      <li>Distingeți între Dependency Inversion (principiu) și Dependency Injection (tehnică)</li>
+      <li>Aplicați DIP prin constructor injection, fără un container IoC</li>
+      <li>Recunoașteți când să aplicați DRY, KISS și YAGNI și când acestea intră în tensiune</li>
+      <li>Extindeți proiectul Task Manager din Laboratorul 3 cu ISP și DIP</li>
+    </ul>
+  </div>
+
+  <!-- ── SECTION 1: RECAP ── -->
+  <section class="section" id="intro">
+    <h2 class="stitle"><span class="num">01</span>Recapitulare și context</h2>
+
+    <p>În cursul anterior am parcurs SRP, OCP și LSP. Astăzi finalizăm SOLID cu ultimele două principii. Înainte de a continua, o privire de ansamblu — unde suntem:</p>
+
+    <div class="solid-bar">
+      <div class="solid-pill done-pill">
+        <span class="solid-pill-letter">S</span>
+        <span class="solid-pill-name">Single Responsibility ✓</span>
+      </div>
+      <div class="solid-pill done-pill">
+        <span class="solid-pill-letter">O</span>
+        <span class="solid-pill-name">Open / Closed ✓</span>
+      </div>
+      <div class="solid-pill done-pill">
+        <span class="solid-pill-letter">L</span>
+        <span class="solid-pill-name">Liskov Substitution ✓</span>
+      </div>
+      <div class="solid-pill active-pill">
+        <span class="solid-pill-letter">I</span>
+        <span class="solid-pill-name">Interface Segregation ← astăzi</span>
+      </div>
+      <div class="solid-pill active-pill">
+        <span class="solid-pill-letter">D</span>
+        <span class="solid-pill-name">Dependency Inversion ← astăzi</span>
+      </div>
+    </div>
+
+    <p>ISP și DIP sunt legate strâns: ISP definește cum arată o interfață bună, DIP definește cum se folosesc interfețele pentru a decupla modulele. Împreună fac posibil OCP la scară mare — poți substitui module întregi fără să modifici codul care le folosește.</p>
+
+    <div class="callout info">
+      <span class="callout-icon">🔗</span>
+      <div class="callout-body">
+        <div class="callout-title">Relația cu proiectul de laborator</div>
+        <p>La Laboratorul 3 ați construit Task Manager-ul aplicând SRP, OCP și LSP. La Laboratorul 4 (sfârșitul acestui curs) veți extinde exact acel proiect cu ISP și DIP. Deschideți soluția — o veți refactoriza pas cu pas.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 2: ISP ── -->
+  <section class="section" id="isp">
+    <h2 class="stitle"><span class="num">02</span>ISP — Interface Segregation Principle</h2>
+
+    <div class="principle-card">
+      <div class="principle-header isp">
+        <span class="principle-letter">I</span>
+        <div>
+          <div class="principle-name">Interface Segregation Principle</div>
+          <div class="principle-tagline">Niciun client nu trebuie să fie forțat să depindă de metode pe care nu le folosește.</div>
+        </div>
+      </div>
+      <div class="principle-body">
+        <p>O interfață mare obligă orice clasă care o implementează să definească <em>toate</em> metodele, chiar și pe cele irelevante pentru ea. Și orice client care depinde de interfață este forțat să „cunoască" și să fie recompilat dacă oricare din cele zeci de metode se schimbă — inclusiv cele pe care nu le folosea deloc.</p>
+        <p>ISP spune: împarte interfața în roluri mici și precise, fiecare acoperind un rol precis. Clienții depind doar de rolul de care au nevoie.</p>
+      </div>
+    </div>
+
+    <h3 class="sub"><span class="dot"></span>Problema: interfața supraîncărcată</h3>
+
+    <p>Scenariul: un sistem de raportare cu o interfață <code>IDocument</code> care reunește toate operațiile posibile — citire, scriere, export, previzualizare, compresie. Un client care vrea doar să <em>citească</em> un document este forțat să depindă de <code>Compress()</code> și <code>Export()</code>, metode pe care nu le va apela niciodată.</p>
+
+    <div class="compare">
+      <div class="compare-col before">
+        <div class="compare-label before">❌ Interfață supraîncărcată — forțează dependențe inutile</div>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname bad">IDocument.cs — toate operațiile la un loc</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="kw">public interface</span> <span class="ifc">IDocument</span>
+{
+    <span class="tp">string</span>  <span class="mth">GetContent</span>();
+    <span class="kw">void</span>    <span class="mth">SetContent</span>(<span class="tp">string</span> content);
+    <span class="tp">byte</span>[]  <span class="mth">Export</span>(<span class="tp">string</span> format);
+    <span class="kw">void</span>    <span class="mth">Compress</span>();
+    <span class="tp">string</span>  <span class="mth">Preview</span>(<span class="tp">int</span> maxChars);
+}
+
+<span class="cmt">// ReadOnlyDocument vrea să ofere conținut, nu să îl modifice sau exporte</span>
+<span class="kw">public class</span> <span class="tp">ReadOnlyDocument</span> : <span class="ifc">IDocument</span>
+{
+    <span class="kw">private readonly</span> <span class="tp">string</span> _content;
+    <span class="kw">public</span>  <span class="tp">string</span> <span class="mth">GetContent</span>() => _content;
+    <span class="kw">public</span>  <span class="tp">string</span> <span class="mth">Preview</span>(<span class="tp">int</span> n) => _content[..<span class="tp">Math</span>.<span class="mth">Min</span>(n, _content.Length)];
+
+    <span class="cmt">// ❌ Forțat să implementeze operații care nu au sens</span>
+    <span class="kw">public void</span>   <span class="mth">SetContent</span>(<span class="tp">string</span> c) => <span class="kw">throw new</span> <span class="tp">NotSupportedException</span>();
+    <span class="kw">public</span> <span class="tp">byte</span>[] <span class="mth">Export</span>(<span class="tp">string</span> f)    => <span class="kw">throw new</span> <span class="tp">NotSupportedException</span>();
+    <span class="kw">public void</span>   <span class="mth">Compress</span>()          => <span class="kw">throw new</span> <span class="tp">NotSupportedException</span>();
+}
+<span class="cmt">// ISP și LSP se susțin reciproc:</span>
+<span class="cmt">// o interfață prea mare forțează implementări false → LSP încălcat.</span></pre>
+        </div>
+      </div>
+      <div class="compare-col after">
+        <div class="compare-label after">✅ Interfețe segregate — fiecare client depinde doar de rolul său</div>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname ok">Interfețe segregate pe roluri</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="cmt">// Fiecare interfață acoperă un singur rol</span>
+<span class="kw">public interface</span> <span class="ifc">IReadableDocument</span>
+{
+    <span class="tp">string</span> <span class="mth">GetContent</span>();
+    <span class="tp">string</span> <span class="mth">Preview</span>(<span class="tp">int</span> maxChars);
+}
+
+<span class="kw">public interface</span> <span class="ifc">IWritableDocument</span>
+{
+    <span class="kw">void</span> <span class="mth">SetContent</span>(<span class="tp">string</span> content);
+}
+
+<span class="kw">public interface</span> <span class="ifc">IExportableDocument</span>
+{
+    <span class="tp">byte</span>[] <span class="mth">Export</span>(<span class="tp">string</span> format);
+    <span class="kw">void</span>   <span class="mth">Compress</span>();
+}
+
+<span class="cmt">// ReadOnlyDocument implementează doar ce poate face — fără excepții false</span>
+<span class="kw">public class</span> <span class="tp">ReadOnlyDocument</span> : <span class="ifc">IReadableDocument</span>
+{
+    <span class="kw">private readonly</span> <span class="tp">string</span> _content;
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">GetContent</span>()    => _content;
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">Preview</span>(<span class="tp">int</span> n) => _content[..<span class="tp">Math</span>.<span class="mth">Min</span>(n, _content.Length)];
+}
+
+<span class="cmt">// EditableDocument implementează citire + scriere</span>
+<span class="kw">public class</span> <span class="tp">EditableDocument</span> : <span class="ifc">IReadableDocument</span>, <span class="ifc">IWritableDocument</span>
+{
+    <span class="kw">private</span> <span class="tp">string</span> _content = <span class="tp">string</span>.Empty;
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">GetContent</span>()             => _content;
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">Preview</span>(<span class="tp">int</span> n)           => _content[..<span class="tp">Math</span>.<span class="mth">Min</span>(n, _content.Length)];
+    <span class="kw">public void</span>   <span class="mth">SetContent</span>(<span class="tp">string</span> value) => _content = value;
+}
+
+<span class="cmt">// DocumentViewer depinde DOAR de IReadableDocument</span>
+<span class="cmt">// Nu poate modifica sau exporta — protecție prin design</span>
+<span class="kw">public class</span> <span class="tp">DocumentViewer</span>
+{
+    <span class="kw">public void</span> <span class="mth">Show</span>(<span class="ifc">IReadableDocument</span> doc)
+        => <span class="tp">Console</span>.<span class="mth">WriteLine</span>(doc.<span class="mth">Preview</span>(<span class="num">200</span>));
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub"><span class="dot"></span>ISP aplicat la repository — exemplu practic</h3>
+
+    <p>Un exemplu mai aproape de practica zilnică: interfața <code>ITaskRepository</code> din proiectul vostru are 5 metode. Un <code>ReportService</code> care generează rapoarte are nevoie <em>doar</em> să citească date — de ce să depindă de <code>Add</code>, <code>Update</code>, <code>Delete</code>?</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-fname ok">ITaskRepository.cs — împărțit în două roluri</span>
+        <span class="code-lang-tag">C#</span>
+      </div>
+      <pre><span class="cmt">// Rolul de citire — tot ce are nevoie un raport sau o pagină de listare</span>
+<span class="kw">public interface</span> <span class="ifc">ITaskReader</span>
+{
+    <span class="tp">IReadOnlyList</span>&lt;<span class="tp">TaskItem</span>&gt; <span class="mth">GetAll</span>();
+    <span class="tp">TaskItem</span>?               <span class="mth">GetById</span>(<span class="tp">int</span> id);
+}
+
+<span class="cmt">// Rolul de scriere — creare, modificare, ștergere</span>
+<span class="kw">public interface</span> <span class="ifc">ITaskWriter</span>
+{
+    <span class="kw">void</span> <span class="mth">Add</span>   (<span class="tp">TaskItem</span> task);
+    <span class="kw">void</span> <span class="mth">Update</span>(<span class="tp">TaskItem</span> task);
+    <span class="kw">void</span> <span class="mth">Delete</span>(<span class="tp">int</span> id);
+}
+
+<span class="cmt">// Interfața completă — compusă din cele două roluri (ISP + segregare)</span>
+<span class="kw">public interface</span> <span class="ifc">ITaskRepository</span> : <span class="ifc">ITaskReader</span>, <span class="ifc">ITaskWriter</span> { }
+
+<span class="cmt">// SqliteTaskRepository implementează totul — nicio schimbare față de înainte</span>
+<span class="kw">public class</span> <span class="tp">SqliteTaskRepository</span> : <span class="ifc">ITaskRepository</span>
+{
+    <span class="cmt">// ... implementare completă</span>
+}
+
+<span class="cmt">// ReportService depinde DOAR de ITaskReader — nu poate șterge date accidental</span>
+<span class="kw">public class</span> <span class="tp">ReportService</span>
+{
+    <span class="kw">private readonly</span> <span class="ifc">ITaskReader</span> _reader;
+    <span class="kw">public</span> <span class="mth">ReportService</span>(<span class="ifc">ITaskReader</span> reader) => _reader = reader;
+
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">GenerateSummary</span>()
+    {
+        <span class="kw">var</span> tasks = _reader.<span class="mth">GetAll</span>();
+        <span class="kw">return</span> <span class="str">$"Total: {tasks.Count}, Done: {tasks.Count(t => t.Status == Status.Done)}"</span>;
+    }
+}</pre>
+    </div>
+
+    <div class="callout ok">
+      <span class="callout-icon">✓</span>
+      <div class="callout-body">
+        <div class="callout-title">Ce câștigăm concret</div>
+        <p><code>ReportService</code> nu poate fi modificat să apeleze <code>Delete()</code> din greșeală — compilatorul nu îi permite. Dacă adăugăm o metodă nouă în <code>ITaskWriter</code>, <code>ReportService</code> nu se recompilează. Testele pentru <code>ReportService</code> folosesc un mock simplu de <code>ITaskReader</code> — nu trebuie să implementeze și metodele de scriere.</p>
+      </div>
+    </div>
+
+    <h3 class="sub"><span class="dot"></span>Cât de mici trebuie să fie interfețele?</h3>
+
+    <p>ISP nu spune „o metodă per interfață". Spune că interfața trebuie să reflecte un <strong>rol coerent</strong> al unui client. Două metode care sunt mereu folosite împreună aparțin aceleiași interfețe. Regula practică:</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Identifică clienții — nu implementările</div>
+          <div class="step-desc">Întreabă: cine <em>folosește</em> interfața? Ce metode are nevoie fiecare client? Separă după client, nu după logică internă.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Metodele mereu folosite împreună rămân împreună</div>
+          <div class="step-desc"><code>GetAll()</code> și <code>GetById()</code> sunt mereu cerute de același client (orice view sau raport). Nu le separa forțat.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">O metodă care apare doar la un singur client → interfață separată</div>
+          <div class="step-desc">Dacă <code>GetStatistics()</code> e cerută doar de un dashboard, nu de alte 10 componente, extrage-o în <code>ITaskStatistics</code>.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-title">Compune interfețele mari din cele mici</div>
+          <div class="step-desc"><code>ITaskRepository : ITaskReader, ITaskWriter</code> — implementarea concretă poate implementa totul, dar clienții depind de bucăți.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        <div class="callout-title">ISP prematur — un anti-pattern</div>
+        <p>Nu sparge interfețele <em>înainte</em> să știi cine le folosește. O interfață cu 3 metode pe care toți clienții le folosesc în totalitate nu necesită segregare. Aplici ISP când <strong>observi</strong> că un client e forțat să depindă de metode pe care nu le cheamă niciodată.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 3: DIP ── -->
+  <section class="section" id="dip">
+    <h2 class="stitle"><span class="num">03</span>DIP — Dependency Inversion Principle</h2>
+
+    <div class="principle-card">
+      <div class="principle-header dip">
+        <span class="principle-letter">D</span>
+        <div>
+          <div class="principle-name">Dependency Inversion Principle</div>
+          <div class="principle-tagline">Modulele de nivel înalt nu trebuie să depindă de modulele de nivel scăzut. Ambele trebuie să depindă de abstracții.</div>
+        </div>
+      </div>
+      <div class="principle-body">
+        <p>DIP are două afirmații. Prima: logica de business (nivel înalt) nu trebuie să depindă direct de SQLite, de HTTP, de sistemul de fișiere (nivel scăzut) — trebuie să depindă de o interfață. A doua afirmație, mai subtilă: interfața nu aparține modulului de nivel scăzut, ci <em>modulului de nivel înalt</em> care o definește. Asta înseamnă că dependența de compilare este <strong>inversată</strong> față de dependența de execuție.</p>
+      </div>
+    </div>
+
+    <h3 class="sub"><span class="dot"></span>Dependența directă — problema</h3>
+
+    <div class="compare">
+      <div class="compare-col before">
+        <div class="compare-label before">❌ Nivel înalt depinde de nivel scăzut</div>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname bad">TaskService.cs — cuplat la SQLite</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="kw">public class</span> <span class="tp">TaskService</span>
+{
+    <span class="cmt">// ❌ TaskService știe că există SqliteTaskRepository</span>
+    <span class="cmt">// ❌ Nu poți testa TaskService fără o bază de date SQLite</span>
+    <span class="cmt">// ❌ Vrei să schimbi la PostgreSQL? Modifici TaskService.</span>
+    <span class="kw">private readonly</span> <span class="tp">SqliteTaskRepository</span> _repo
+        = <span class="kw">new</span> <span class="tp">SqliteTaskRepository</span>(<span class="str">"tasks.db"</span>);
+
+    <span class="kw">public void</span> <span class="mth">CompleteTask</span>(<span class="tp">int</span> id)
+    {
+        <span class="kw">var</span> task = _repo.<span class="mth">GetById</span>(id);
+        task.<span class="mth">Complete</span>();
+        _repo.<span class="mth">Update</span>(task);
+    }
+}
+
+<span class="cmt">// Grafic de dependențe:</span>
+<span class="cmt">// TaskService ──→ SqliteTaskRepository ──→ SQLite</span>
+<span class="cmt">// Nivel înalt      Nivel scăzut             Infrastructură</span></pre>
+        </div>
+      </div>
+      <div class="compare-col after">
+        <div class="compare-label after">✅ Ambele depind de abstracție</div>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname ok">TaskService.cs — cuplat doar la interfață</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="kw">public class</span> <span class="tp">TaskService</span>
+{
+    <span class="cmt">// ✓ TaskService știe doar de ITaskRepository</span>
+    <span class="cmt">// ✓ Se testează cu InMemoryTaskRepository</span>
+    <span class="cmt">// ✓ Schimbi la PostgreSQL fără să atingi TaskService</span>
+    <span class="kw">private readonly</span> <span class="ifc">ITaskRepository</span> _repo;
+
+    <span class="kw">public</span> <span class="mth">TaskService</span>(<span class="ifc">ITaskRepository</span> repo) => _repo = repo;
+
+    <span class="kw">public void</span> <span class="mth">CompleteTask</span>(<span class="tp">int</span> id)
+    {
+        <span class="kw">var</span> task = _repo.<span class="mth">GetById</span>(id);
+        task.<span class="mth">Complete</span>();
+        _repo.<span class="mth">Update</span>(task);
+    }
+}
+
+<span class="cmt">// Grafic de dependențe:</span>
+<span class="cmt">// TaskService ──→ ITaskRepository ←── SqliteTaskRepository</span>
+<span class="cmt">// Nivel înalt      Abstracție          Nivel scăzut</span>
+<span class="cmt">// Săgeata spre SqliteTaskRepository este INVERSATĂ față de înainte.</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub"><span class="dot"></span>Dependency Inversion vs Dependency Injection</h3>
+
+    <p>Sunt două concepte distincte, frecvent confundate:</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">P</div>
+        <div class="step-body">
+          <div class="step-title">Dependency Inversion (DIP) — principiu de design</div>
+          <div class="step-desc">Spune <em>ce</em> trebuie să se întâmple: modulele de nivel înalt nu depind de implementări concrete. Este o regulă arhitecturală, nu o tehnică de cod.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">T</div>
+        <div class="step-body">
+          <div class="step-title">Dependency Injection (DI) — tehnică de implementare</div>
+          <div class="step-desc">Spune <em>cum</em> se poate obține DIP în practică: dependențele se furnizează din exterior (prin constructor, proprietate sau metodă) în loc să fie create intern cu <code>new</code>. DI implementează DIP, dar DIP se poate obține și altfel (factory, service locator).</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">C</div>
+        <div class="step-body">
+          <div class="step-title">IoC Container — unealtă opțională pentru DI</div>
+          <div class="step-desc">Un container (<code>Microsoft.Extensions.DependencyInjection</code>, Autofac etc.) automatizează construirea și injectarea dependențelor. Nu e obligatoriu pentru DIP — constructor injection manual este suficient pentru proiecte mici.</div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub"><span class="dot"></span>Constructor Injection manual — fără container</h3>
+
+    <p>Fără un container IoC, asamblarea dependențelor se face în <strong>Composition Root</strong> — un singur loc în aplicație, de obicei <code>Program.cs</code>. Toate obiectele se construiesc o singură dată, la pornire.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-fname">Program.cs — Composition Root manual</span>
+        <span class="code-lang-tag">C#</span>
+      </div>
+      <pre><span class="cmt">// Composition Root: singurul loc unde există `new` pentru dependențe</span>
+<span class="cmt">// Tot restul codului primește interfețe — nu știe ce implementare există</span>
+
+<span class="cmt">// 1. Construim nivelul scăzut (infrastructura)</span>
+<span class="kw">var</span> repository = <span class="kw">new</span> <span class="tp">SqliteTaskRepository</span>(<span class="str">"tasks.db"</span>);
+
+<span class="cmt">// 2. Construim notificatorii</span>
+<span class="kw">var</span> notifiers = <span class="kw">new</span> <span class="tp">Dictionary</span>&lt;<span class="tp">NotificationType</span>, <span class="ifc">ITaskNotifier</span>&gt;
+{
+    [<span class="tp">NotificationType</span>.Email]    = <span class="kw">new</span> <span class="tp">EmailNotifier</span>(),
+    [<span class="tp">NotificationType</span>.Console]  = <span class="kw">new</span> <span class="tp">ConsoleNotifier</span>(),
+    [<span class="tp">NotificationType</span>.FileLog]  = <span class="kw">new</span> <span class="tp">FileLogNotifier</span>(<span class="str">"tasks.log"</span>),
+};
+
+<span class="cmt">// 3. Construim serviciile (nivel înalt) — primesc interfețe</span>
+<span class="kw">var</span> validator = <span class="kw">new</span> <span class="tp">TaskValidator</span>();
+<span class="kw">var</span> service   = <span class="kw">new</span> <span class="tp">TaskService</span>(repository, validator, notifiers);
+<span class="kw">var</span> reporter  = <span class="kw">new</span> <span class="tp">ReportService</span>(repository); <span class="cmt">// ITaskReader — ISP aplicat</span>
+
+<span class="cmt">// 4. Construim UI-ul — primește serviciile</span>
+<span class="kw">var</span> form = <span class="kw">new</span> <span class="tp">MainForm</span>(service, reporter);
+<span class="tp">Application</span>.<span class="mth">Run</span>(form);
+
+<span class="cmt">// Observați: TaskService nu știe de SqliteTaskRepository.</span>
+<span class="cmt">// SqliteTaskRepository nu știe de TaskService.</span>
+<span class="cmt">// Ambele depind doar de ITaskRepository — definit în Core.</span></pre>
+    </div>
+
+    <h3 class="sub"><span class="dot"></span>Cu container IoC — Microsoft.Extensions.DependencyInjection</h3>
+
+    <p>Același rezultat, dar containerul construiește și injectează automat. Containerul devine util când numărul de servicii crește și construirea manuală devine laborioasă.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-fname">Program.cs — cu container IoC</span>
+        <span class="code-lang-tag">C#</span>
+      </div>
+      <pre><span class="kw">var</span> services = <span class="kw">new</span> <span class="tp">ServiceCollection</span>();
+
+<span class="cmt">// Înregistrăm: „când cineva cere ITaskRepository, dă SqliteTaskRepository"</span>
+services.<span class="mth">AddSingleton</span>&lt;<span class="ifc">ITaskRepository</span>, <span class="tp">SqliteTaskRepository</span>&gt;();
+services.<span class="mth">AddSingleton</span>&lt;<span class="ifc">ITaskReader</span>(<span class="kw">sp</span> => <span class="kw">sp</span>.<span class="mth">GetRequiredService</span>&lt;<span class="tp">SqliteTaskRepository</span>&gt;());
+services.<span class="mth">AddTransient</span>&lt;<span class="tp">TaskValidator</span>&gt;();
+services.<span class="mth">AddTransient</span>&lt;<span class="tp">TaskService</span>&gt;();   <span class="cmt">// containerul injectează automat</span>
+services.<span class="mth">AddTransient</span>&lt;<span class="tp">ReportService</span>&gt;();
+
+<span class="kw">var</span> provider = services.<span class="mth">BuildServiceProvider</span>();
+
+<span class="cmt">// Containerul construiește MainForm și toate dependențele sale în lanț</span>
+<span class="kw">var</span> form = provider.<span class="mth">GetRequiredService</span>&lt;<span class="tp">MainForm</span>&gt;();
+<span class="tp">Application</span>.<span class="mth">Run</span>(form);
+
+<span class="cmt">// Lifetimes:</span>
+<span class="cmt">// AddSingleton  — o singură instanță pe toată durata aplicației</span>
+<span class="cmt">// AddTransient  — instanță nouă la fiecare cerere</span>
+<span class="cmt">// AddScoped     — o instanță per „scope" (per request în web, manual altundeva)</span></pre>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <div class="callout-title">Unde „trăiește" interfața — detaliul care face DIP real</div>
+        <p>Interfața <code>ITaskRepository</code> trebuie să fie definită în proiectul <strong>Core</strong> (nivel înalt), nu în proiectul <strong>Data</strong> (nivel scăzut). Astfel, proiectul <strong>Core</strong> nu depinde de <strong>Data</strong> — dimpotrivă, <strong>Data</strong> depinde de <strong>Core</strong> (implementează interfața definită acolo). Dependența de compilare este inversată față de dependența de execuție.</p>
+      </div>
+    </div>
+
+    <h3 class="sub"><span class="dot"></span>Testabilitate — beneficiul imediat al DIP</h3>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-fname">TaskServiceTests.cs — fără SQLite, fără fișiere</span>
+        <span class="code-lang-tag">C#</span>
+      </div>
+      <pre>[<span class="tp">TestFixture</span>]
+<span class="kw">public class</span> <span class="tp">TaskServiceTests</span>
+{
+    <span class="kw">private</span> <span class="tp">TaskService</span>  _service;
+    <span class="kw">private</span> <span class="tp">InMemoryTaskRepository</span> _repo;
+
+    [<span class="tp">SetUp</span>]
+    <span class="kw">public void</span> <span class="mth">SetUp</span>()
+    {
+        _repo = <span class="kw">new</span> <span class="tp">InMemoryTaskRepository</span>();
+
+        <span class="cmt">// MockNotifier — implementare minimă pentru teste</span>
+        <span class="kw">var</span> mockNotifier = <span class="kw">new</span> <span class="tp">MockNotifier</span>();
+        <span class="kw">var</span> notifiers = <span class="kw">new</span> <span class="tp">Dictionary</span>&lt;<span class="tp">NotificationType</span>, <span class="ifc">ITaskNotifier</span>&gt;
+        {
+            [<span class="tp">NotificationType</span>.Console] = mockNotifier
+        };
+
+        _service = <span class="kw">new</span> <span class="tp">TaskService</span>(_repo, <span class="kw">new</span> <span class="tp">TaskValidator</span>(), notifiers);
+    }
+
+    [<span class="tp">Test</span>]
+    <span class="kw">public void</span> <span class="mth">CompleteTask_SetsStatusDone</span>()
+    {
+        <span class="kw">var</span> task = <span class="kw">new</span> <span class="tp">TaskItem</span> { Title = <span class="str">"Test task"</span>, Status = <span class="tp">Status</span>.Todo };
+        _repo.<span class="mth">Add</span>(task);
+
+        _service.<span class="mth">CompleteTask</span>(task.Id);
+
+        <span class="tp">Assert</span>.<span class="mth">That</span>(_repo.<span class="mth">GetById</span>(task.Id)!.Status, <span class="tp">Is</span>.<span class="mth">EqualTo</span>(<span class="tp">Status</span>.Done));
+    }
+}
+
+<span class="cmt">// MockNotifier — captează apelurile fără a trimite nimic real</span>
+<span class="kw">public class</span> <span class="tp">MockNotifier</span> : <span class="ifc">ITaskNotifier</span>
+{
+    <span class="kw">public</span> <span class="tp">List</span>&lt;<span class="tp">TaskItem</span>&gt; <span class="prp">NotifiedTasks</span> { <span class="kw">get</span>; } = <span class="kw">new</span>();
+    <span class="kw">public void</span> <span class="mth">Notify</span>(<span class="tp">TaskItem</span> task) => <span class="prp">NotifiedTasks</span>.<span class="mth">Add</span>(task);
+}</pre>
+    </div>
+  </section>
+
+  <!-- ── SECTION 4: HEURISTICS ── -->
+  <section class="section" id="heuristics">
+    <h2 class="stitle"><span class="num">04</span>DRY, KISS, YAGNI</h2>
+
+    <p>Aceste trei heuristici nu sunt principii de design la același nivel cu SOLID — sunt reguli practice de bună conduită care ghidează deciziile de zi cu zi. Le prezentăm împreună cu SOLID pentru că interacționează direct cu el: DRY justifică de ce extrageți o abstracție, YAGNI justifică de ce <em>nu</em> o extragi, KISS reamintește că simplitatea este o valoare.</p>
+
+    <div class="heuristic-row">
+      <div class="heuristic-card">
+        <div class="heuristic-header dry">
+          <span class="heuristic-acronym">DRY</span>
+          <span class="heuristic-full">Don't Repeat Yourself</span>
+        </div>
+        <div class="heuristic-body">
+          <p>Fiecare element de cunoaștere trebuie să aibă <strong>o singură reprezentare autorizată</strong> în sistem. Nu e vorba doar de cod duplicat — e vorba de logică duplicată. Dacă o regulă de business apare în două locuri, modificarea ei va fi uitată în unul din ele.</p>
+          <p>DRY se aplică la logică, nu la sintaxă. Două funcții care se întâmplă să arate similar dar fac lucruri diferite <em>nu</em> sunt duplicat DRY.</p>
+        </div>
+      </div>
+      <div class="heuristic-card">
+        <div class="heuristic-header kiss">
+          <span class="heuristic-acronym">KISS</span>
+          <span class="heuristic-full">Keep It Simple, Stupid</span>
+        </div>
+        <div class="heuristic-body">
+          <p>Soluția cea mai simplă care funcționează corect este de obicei cea mai bună. Complexitatea are un cost: e mai greu de înțeles, de testat, de modificat.</p>
+          <p>KISS nu înseamnă să nu refactorizezi. Înseamnă să nu adaugi straturi de abstracție care nu rezolvă o problemă reală prezentă. Dacă poți explica ce face codul în 10 cuvinte, e simplu.</p>
+        </div>
+      </div>
+      <div class="heuristic-card">
+        <div class="heuristic-header yagni">
+          <span class="heuristic-acronym">YAGNI</span>
+          <span class="heuristic-full">You Aren't Gonna Need It</span>
+        </div>
+        <div class="heuristic-body">
+          <p>Nu implementa funcționalitate pe care o <em>crezi</em> că o vei avea nevoie în viitor. Implementați doar ce aveți nevoie în prezent. Codul nefolosit are un cost: trebuie testat, menținut, citit și creează dependențe inutile.</p>
+          <p>YAGNI intră în tensiune cu OCP — dar soluția e simplă: OCP se aplică atunci când schimbarea este concretă și iminentă, nu ipotetică. Dacă nu știi că va veni, nu te pregătești pentru ea.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub"><span class="dot"></span>Cum interacționează cele trei</h3>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-fname">Exemple concrete de tensiuni</span>
+        <span class="code-lang-tag">C#</span>
+      </div>
+      <pre><span class="cmt">// ── DRY vs YAGNI ───────────────────────────────────────────────────────</span>
+<span class="cmt">// Ai două metode cu logică similară. DRY spune: extrage abstracția.</span>
+<span class="cmt">// YAGNI spune: extrage-o doar dacă e cu adevărat aceeași regulă, nu doar cod similar.</span>
+
+<span class="cmt">// ❌ DRY aplicat greșit — unificare forțată a lucruri diferite</span>
+<span class="kw">private</span> <span class="tp">decimal</span> <span class="mth">CalculateDiscount</span>(<span class="tp">Order</span> order) => order.Total * <span class="num">0.1m</span>;
+<span class="kw">private</span> <span class="tp">decimal</span> <span class="mth">CalculateTax</span>(<span class="tp">Order</span> order)      => order.Total * <span class="num">0.1m</span>;
+<span class="cmt">// Ambele înmulțesc cu 0.1 — dar sunt reguli de business DIFERITE.</span>
+<span class="cmt">// Dacă taxa se schimbă la 0.19, discountul rămâne 0.1.</span>
+<span class="cmt">// Unificarea lor ar fi o aplicare greșită a DRY — ar crea cuplare artificială.</span>
+
+<span class="cmt">// ── KISS vs SOLID ──────────────────────────────────────────────────────</span>
+<span class="cmt">// Ai o singură sursă de notificare — email. KISS spune: nu crea INotifier.</span>
+<span class="cmt">// OCP spune: vei adăuga Slack în curând, creează interfața acum.</span>
+<span class="cmt">// Rezolvare: dacă Slack este o cerință confirmată pentru săptămâna viitoare → creează interfața.</span>
+<span class="cmt">// Dacă Slack rămâne ipotetică → YAGNI prevalează, interfața se adaugă când cerința devine reală.</span>
+
+<span class="cmt">// ── DRY bine aplicat ──────────────────────────────────────────────────</span>
+<span class="kw">public class</span> <span class="tp">TaskValidator</span>
+{
+    <span class="cmt">// Regula „titlul nu poate fi gol" apare la Add și la Update.</span>
+    <span class="cmt">// E aceeași regulă de business — DRY justifică extragerea.</span>
+    <span class="kw">public void</span> <span class="mth">Validate</span>(<span class="tp">TaskItem</span> task)
+    {
+        <span class="kw">if</span> (<span class="tp">string</span>.<span class="mth">IsNullOrWhiteSpace</span>(task.Title))
+            <span class="kw">throw new</span> <span class="tp">ValidationException</span>(<span class="str">"Title is required"</span>);
+        <span class="kw">if</span> (task.Title.<span class="prp">Length</span> > <span class="num">200</span>)
+            <span class="kw">throw new</span> <span class="tp">ValidationException</span>(<span class="str">"Title max 200 chars"</span>);
+    }
+    <span class="cmt">// Add și Update apelează Validate() — un singur loc pentru regula de business.</span>
+}</pre>
+    </div>
+
+    <div class="callout note">
+      <span class="callout-icon">🧭</span>
+      <div class="callout-body">
+        <div class="callout-title">Regula de decizie practică</div>
+        <p>Când simți nevoia să „pregătești" codul pentru viitor, întreabă: <strong>„este aceasta o cerință confirmată sau o presupunere?"</strong> Dacă e presupunere → YAGNI. Dacă aceeași logică apare în două locuri și va trebui să o schimbi în tandem → DRY. Dacă soluția ta are mai mult de două niveluri de indirectare pentru o problemă care se poate exprima în 20 de linii → KISS.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 5: SOLID COMPLET ── -->
+  <section class="section" id="relatie">
+    <h2 class="stitle"><span class="num">05</span>SOLID complet — cum colaborează cele 5 principii</h2>
+
+    <p>Acum că am parcurs toate cinci principii, putem vedea cum se susțin reciproc. Nu sunt reguli independente — formează un sistem:</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">S</div>
+        <div class="step-body">
+          <div class="step-title">SRP — fiecare clasă are un singur motiv de schimbare</div>
+          <div class="step-desc">Produce clase mici și coezive. Face posibilă aplicarea celorlalte principii: o clasă cu o singură responsabilitate este mai ușor de „închis" pentru modificare (OCP) și mai ușor de testat în izolare (DIP).</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">O</div>
+        <div class="step-body">
+          <div class="step-title">OCP — deschis pentru extensie, închis pentru modificare</div>
+          <div class="step-desc">Se bazează pe polimorfism și interfețe. Funcționează corect numai dacă LSP este respectat: extensiile trebuie să fie substituibile. DIP face OCP fezabil la scara modulelor întregi.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">L</div>
+        <div class="step-body">
+          <div class="step-title">LSP — subtipurile sunt substituibile fără surprize</div>
+          <div class="step-desc">Garantează că polimorfismul pe care OCP îl cere funcționează corect. ISP ajută LSP: interfețele mici sunt mai ușor de implementat fără <code>NotSupportedException</code>.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">I</div>
+        <div class="step-body">
+          <div class="step-title">ISP — clienții depind doar de metodele pe care le folosesc</div>
+          <div class="step-desc">Produce interfețe precise. Ajută LSP (implementările nu sunt forțate să suporte metode absurde). Ajută DIP: interfețele mici sunt mai ușor de mockat în teste.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">D</div>
+        <div class="step-body">
+          <div class="step-title">DIP — modulele de nivel înalt depind de abstracții, nu de implementări</div>
+          <div class="step-desc">Face testabilitatea posibilă (injectezi mock-uri). Face OCP posibil la nivel de module întregi: poți schimba întreaga implementare a bazei de date fără să atingi logica de business.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cquote">
+      SRP spune ce trebuie să conțină o clasă. OCP spune cum trebuie să evolueze. LSP spune ce condiții trebuie să respecte ierarhiile. ISP spune cât de mari trebuie să fie interfețele. DIP spune în ce direcție trebuie să curgă dependențele. Toate cinci împreună produc cod care crește fără să se destrame.
+    </div>
+  </section>
+
+  <!-- ── SECTION 6: LAB ── -->
+  <section class="section" id="lab">
+    <h2 class="stitle"><span class="num">06</span>Laborator 4</h2>
+
+    <p>Extindeți proiectul <strong>Task Manager din Laboratorul 3</strong> cu ISP și DIP. Nu rescriați de la zero — refactorizați codul existent, pas cu pas, conform cerințelor de mai jos.</p>
+
+    <div class="lab-box">
+      <div class="lab-header">
+        <span class="lab-header-icon">🔬</span>
+        <div class="lab-header-text">
+          <h4>Task Manager — extins cu ISP și DIP</h4>
+          <p>Laborator 4 — refactorizare ISP + DIP + container IoC pe proiectul existent</p>
+        </div>
+      </div>
+      <div class="lab-body">
+
+        <p>Plecați de la soluția din Laboratorul 3. Modificările sunt chirurgicale — nu schimbați logica de business, ci modul în care dependențele sunt exprimate și asamblate.</p>
+
+        <div class="lab-section">
+          <div class="lab-section-title">Cerințe</div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge isp">ISP</span>
+              <span class="lab-req-title">Cerința 1 — Separați ITaskRepository în două roluri</span>
+            </div>
+            <div class="lab-req-body">
+              <ul>
+                <li>Creați <code>ITaskReader</code> cu metodele <code>GetAll()</code> și <code>GetById(int id)</code></li>
+                <li>Creați <code>ITaskWriter</code> cu metodele <code>Add(TaskItem)</code>, <code>Update(TaskItem)</code>, <code>Delete(int id)</code></li>
+                <li><code>ITaskRepository</code> rămâne dar extinde ambele: <code>ITaskRepository : ITaskReader, ITaskWriter</code> — <code>SqliteTaskRepository</code> și <code>InMemoryTaskRepository</code> nu necesită modificări</li>
+                <li>Creați clasa <code>ReportService</code> care primește <code>ITaskReader</code> prin constructor și expune metoda <code>GenerateSummary()</code> — returnează un string cu numărul total de sarcini și câte sunt <code>Done</code></li>
+                <li>Justificați în <code>README.md</code>: de ce <code>ReportService</code> nu trebuie să primească <code>ITaskRepository</code></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge dip">DIP</span>
+              <span class="lab-req-title">Cerința 2 — Asigurați-vă că interfețele sunt în Core</span>
+            </div>
+            <div class="lab-req-body">
+              <ul>
+                <li>Verificați că <code>ITaskReader</code>, <code>ITaskWriter</code>, <code>ITaskRepository</code>, <code>ITaskNotifier</code> sunt toate în proiectul <code>TaskManager.Core</code></li>
+                <li><code>TaskManager.Data</code> depinde de <code>TaskManager.Core</code> — nu invers. Verificați că <code>TaskManager.Core.csproj</code> nu are nicio referință la <code>TaskManager.Data</code></li>
+                <li><code>TaskManager.Core</code> nu conține nicio referință la <code>Microsoft.Data.Sqlite</code> — aceasta rămâne exclusiv în <code>TaskManager.Data</code></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge dip">DIP</span>
+              <span class="lab-req-title">Cerința 3 — Composition Root cu container IoC</span>
+            </div>
+            <div class="lab-req-body">
+              <ul>
+                <li>Instalați pachetul NuGet <code>Microsoft.Extensions.DependencyInjection</code> în proiectul UI</li>
+                <li>Înregistrați toate dependențele în <code>Program.cs</code>: <code>ITaskRepository → SqliteTaskRepository</code> (Singleton), <code>ITaskReader → SqliteTaskRepository</code> (același Singleton), <code>TaskValidator</code> (Transient), <code>TaskService</code> (Transient), <code>ReportService</code> (Transient)</li>
+                <li>Eliminați toate instanțierile cu <code>new</code> din <code>MainForm</code> sau din alte clase de business — acestea trebuie să primească dependențele prin constructor</li>
+                <li>Înregistrați și dicționarul de notificatori — creați o metodă factory sau o extensie <code>AddNotifiers()</code> pe <code>IServiceCollection</code></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge test">TESTE</span>
+              <span class="lab-req-title">Cerința 4 — Teste NUnit pentru ISP și DIP</span>
+            </div>
+            <div class="lab-req-body">
+              <ul>
+                <li>Test care verifică că <code>ReportService</code> poate fi construit cu un <code>InMemoryTaskRepository</code> (care implementează <code>ITaskReader</code>) — confirmă că ISP funcționează</li>
+                <li>Test care verifică că <code>GenerateSummary()</code> returnează valorile corecte pentru un set de sarcini cu statusuri mixte</li>
+                <li>Test care verifică că <code>TaskService</code> nu poate fi construit fără <code>ITaskRepository</code> — confirmă că DIP este respectat (dependența e declarată explicit în constructor)</li>
+                <li>Test parametrizat (<code>[TestCase]</code>) care verifică că <code>MockNotifier</code> este apelat pentru fiecare tip de notificare înregistrat</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge solid">SOLID complet</span>
+              <span class="lab-req-title">Cerința 5 — Documentare finală</span>
+            </div>
+            <div class="lab-req-body">
+              <ul>
+                <li>Actualizați <code>README.md</code> cu o secțiune <strong>„Decizii de design SOLID"</strong> care explică, pentru fiecare din cele 5 principii, <em>unde</em> este aplicat și <em>ce problemă</em> rezolvă în acest proiect concret</li>
+                <li>Adăugați o diagramă simplă (Mermaid sau text ASCII) care arată dependențele între proiecte: <code>UI → Core ← Data</code>, și care arată că <code>Core</code> nu depinde de nimeni</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="lab-section">
+          <div class="lab-section-title">Structura soluției după refactorizare</div>
+          <div class="structure-tree">
+<span class="st-folder">TaskManager.sln</span>
+├── <span class="st-folder">src/</span>
+│   ├── <span class="st-folder">TaskManager.Core/</span>                   <span class="st-comment">← ZERO dependențe externe</span>
+│   │   ├── <span class="st-file">Models/TaskItem.cs  RecurringTask.cs  DeadlineTask.cs</span>
+│   │   ├── <span class="st-file">Interfaces/ITaskReader.cs</span>           <span class="st-comment">← NOU (ISP)</span>
+│   │   ├── <span class="st-file">Interfaces/ITaskWriter.cs</span>           <span class="st-comment">← NOU (ISP)</span>
+│   │   ├── <span class="st-file">Interfaces/ITaskRepository.cs</span>       <span class="st-comment">← acum extinde ITaskReader + ITaskWriter</span>
+│   │   ├── <span class="st-file">Interfaces/ITaskNotifier.cs</span>
+│   │   ├── <span class="st-file">Services/TaskService.cs</span>
+│   │   ├── <span class="st-file">Services/TaskValidator.cs</span>
+│   │   ├── <span class="st-file">Services/ReportService.cs</span>           <span class="st-comment">← NOU (ISP + DIP)</span>
+│   │   └── <span class="st-file">Notifications/EmailNotifier.cs  ConsoleNotifier.cs  FileLogNotifier.cs</span>
+│   ├── <span class="st-folder">TaskManager.Data/</span>                   <span class="st-comment">← depinde de Core</span>
+│   │   ├── <span class="st-file">SqliteTaskRepository.cs</span>
+│   │   └── <span class="st-file">InMemoryTaskRepository.cs</span>
+│   └── <span class="st-folder">TaskManager.UI/</span>                     <span class="st-comment">← Composition Root + UI</span>
+│       └── <span class="st-file">Program.cs</span>                          <span class="st-comment">← IoC container aici</span>
+└── <span class="st-folder">tests/</span>
+    └── <span class="st-folder">TaskManager.Tests/</span>
+        ├── <span class="st-file">TaskServiceTests.cs</span>
+        ├── <span class="st-file">TaskValidatorTests.cs</span>
+        ├── <span class="st-file">TaskHierarchyTests.cs</span>
+        └── <span class="st-file">ReportServiceTests.cs</span>              <span class="st-comment">← NOU</span>
+          </div>
+        </div>
+
+        <div class="lab-deliverable">
+          <div class="lab-deliverable-title">📦 Livrabil</div>
+          <p>Același repository GitHub ca Laboratorul 3, actualizat cu modificările de mai sus. Branch separat sau commit clar marcat <code>lab4-isp-dip</code>. Proiectul compilează, toate testele (Lab 3 + Lab 4) trec la <code>dotnet test</code>. <code>README.md</code> actualizat cu secțiunea SOLID completă.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- QUESTIONS -->
+  <div class="questions-box">
+    <div class="questions-title">💬 Teme de Discuție</div>
+    <ol>
+      <li>ISP spune că interfețele trebuie să fie mici, dar DRY spune să nu duplici codul. Dacă două servicii au nevoie de metode care se suprapun parțial, cum decizi granularitatea interfețelor?</li>
+      <li>DIP spune că interfața aparține modulului de nivel înalt. Dar ce faci cu interfețele „de infrastructură" — <code>ILogger</code>, <code>IClock</code>? Unde le definești?</li>
+      <li>Dependency Injection manual vs container IoC: care sunt dezavantajele unui container? Există situații în care construcția manuală e preferabilă?</li>
+      <li>YAGNI vs OCP: dacă știi că într-o lună vei adăuga un nou tip de notificare, când este momentul corect să introduci <code>ITaskNotifier</code>?</li>
+    </ol>
+  </div>
+
+  <!-- RESOURCES -->
+  <div class="resources">
+    <div class="resources-title">Resurse</div>
+    <div class="resource-list">
+      <div class="resource-item">Clean Architecture — Robert C. Martin (cap. 10, 11)</div>
+      <div class="resource-item">Agile Software Development, Principles, Patterns, and Practices — Robert C. Martin (cap. ISP, DIP)</div>
+      <div class="resource-item">Microsoft.Extensions.DependencyInjection — docs.microsoft.com/dotnet/core/extensions/dependency-injection</div>
+      <div class="resource-item">Mark Seemann — „Dependency Injection in .NET" (Manning)</div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const el = document.documentElement;
+    document.getElementById('scroll-prog').style.transform =
+      `scaleX(${el.scrollTop / (el.scrollHeight - el.clientHeight)})`;
+  });
+  const sections = document.querySelectorAll('section[id]');
+  const links = document.querySelectorAll('.sidebar-link[href^="#"]');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector(`.sidebar-link[href="#${e.target.id}"]`);
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+tasks.db
+tasks.log
+bin/
+obj/
