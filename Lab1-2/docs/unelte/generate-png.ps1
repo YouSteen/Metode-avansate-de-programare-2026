@@ -1,4 +1,4 @@
-# Genereaza PNG din fisierele Mermaid din surse/ (ruleaza din root-ul repo)
+# Genereaza PNG din fisierele Mermaid din docs/ (ruleaza din Lab1-2; root = folderul docs)
 $ErrorActionPreference = "Stop"
 $root = Split-Path (Split-Path $MyInvocation.MyCommand.Path -Parent) -Parent
 

@@ -10,4 +10,4 @@ Toate livrabilele sunt grupate **pe cerinte**. Deschide folderul cerintei pentru
 
 **Cod C# modelat:** `src/OrderManagement.Before` (stare actuala) si `src/OrderManagement.After` (structura propusa).
 
-**Decizii de modelare (README general):** [../README.md](../README.md)
+**Decizii de modelare (README Lab 1–2):** [../README.md](../README.md) · [README repository](../../README.md)

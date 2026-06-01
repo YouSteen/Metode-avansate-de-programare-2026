@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curs 3 — Principiile SOLID I | Metode Avansate de Programare</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;--bg4:#21262d;
+    --border:#30363d;--border2:#3d4450;
+    --accent:#58a6ff;--accent2:#79c0ff;--accent3:#1f6feb;
+    --green:#3fb950;--green-bg:#0d2a1a;--green-border:#1a4731;
+    --yellow:#d29922;--yellow-bg:#2a1f0a;--yellow-border:#4a3400;
+    --purple:#bc8cff;--purple-bg:#1a0d2e;--purple-border:#3a1f5a;
+    --red:#f85149;--red-bg:#2d0f0f;--red-border:#5a1e1e;--orange:#ffa657;
+    --text:#e6edf3;--text2:#8b949e;--text3:#6e7681;
+    --radius:8px;--radius2:12px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;font-size:15px;line-height:1.75;}
+
+  .topbar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,17,23,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 2rem;height:52px;display:flex;align-items:center;justify-content:space-between;}
+  .topbar-left{display:flex;align-items:center;gap:1rem;}
+  .course-badge{background:var(--accent3);color:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.05em;}
+  .course-title-nav{font-size:13px;color:var(--text2);font-weight:500;}
+  .topbar-right{display:flex;gap:.5rem;}
+  .nav-pill{font-size:11px;color:var(--text3);padding:4px 10px;border:1px solid var(--border);border-radius:20px;text-decoration:none;font-family:'JetBrains Mono',monospace;transition:all .2s;}
+  .nav-pill:hover{color:var(--accent);border-color:var(--accent3);background:rgba(31,111,235,.08);}
+
+  .layout{display:flex;margin-top:52px;}
+
+  .sidebar{width:255px;min-width:255px;height:calc(100vh - 52px);position:sticky;top:52px;overflow-y:auto;border-right:1px solid var(--border);padding:1.5rem 0;background:var(--bg);}
+  .sidebar::-webkit-scrollbar{width:3px;}
+  .sidebar::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+  .sidebar-heading{font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--text3);text-transform:uppercase;padding:.75rem 1.5rem .25rem;}
+  .sidebar-link{display:flex;align-items:center;gap:.6rem;padding:.42rem 1.5rem;color:var(--text2);text-decoration:none;font-size:13px;border-left:2px solid transparent;transition:all .15s;}
+  .sidebar-link:hover{color:var(--text);background:var(--bg2);border-left-color:var(--border2);}
+  .sidebar-link.active{color:var(--accent);background:rgba(88,166,255,.06);border-left-color:var(--accent);font-weight:500;}
+  .sidebar-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);min-width:18px;}
+  .sidebar-divider{border:none;border-top:1px solid var(--border);margin:.75rem 1.5rem;}
+
+  .main{flex:1;max-width:860px;padding:3rem 3.5rem 6rem;min-width:0;}
+
+  #scroll-prog{position:fixed;top:52px;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent3),var(--accent),var(--purple));transform-origin:left;transform:scaleX(0);z-index:99;transition:transform .1s;}
+
+  .hero{margin-bottom:2.5rem;padding-bottom:2rem;border-bottom:1px solid var(--border);}
+  .hero-meta{display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;flex-wrap:wrap;}
+  .tag{font-family:'JetBrains Mono',monospace;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;}
+  .tag-mod{background:rgba(255,166,87,.1);color:var(--orange);border:1px solid rgba(255,166,87,.2);}
+  .tag-lang{background:rgba(63,185,80,.1);color:var(--green);border:1px solid rgba(63,185,80,.2);}
+  .tag-n{background:var(--bg3);color:var(--text2);border:1px solid var(--border);}
+  .hero h1{font-size:2.2rem;font-weight:800;line-height:1.2;letter-spacing:-.02em;margin-bottom:.75rem;}
+  .hero h1 span{color:var(--orange);}
+  .hero-desc{font-size:15.5px;color:var(--text2);max-width:640px;}
+
+  .objectives{background:rgba(255,166,87,.05);border:1px solid rgba(255,166,87,.15);border-radius:var(--radius2);padding:1.5rem;margin-bottom:2.5rem;}
+  .objectives-title{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--orange);text-transform:uppercase;margin-bottom:1rem;}
+  .objectives ul{list-style:none;display:flex;flex-direction:column;gap:.5rem;}
+  .objectives li{display:flex;align-items:flex-start;gap:.75rem;font-size:14px;color:var(--text2);}
+  .objectives li::before{content:'→';color:var(--orange);font-weight:700;flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+
+  .section{margin-bottom:3rem;}
+  h2.stitle{font-size:1.35rem;font-weight:700;color:var(--text);margin-bottom:1.5rem;padding-bottom:.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem;letter-spacing:-.01em;}
+  h2.stitle .num{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--orange);background:rgba(255,166,87,.12);padding:2px 8px;border-radius:4px;}
+  h3.sub{font-size:1.05rem;font-weight:600;color:var(--text);margin:2rem 0 .75rem;display:flex;align-items:center;gap:.5rem;}
+  h3.sub .dot{width:6px;height:6px;border-radius:50%;background:var(--orange);flex-shrink:0;}
+
+  p{color:var(--text2);margin-bottom:.85rem;}
+  p:last-child{margin-bottom:0;}
+  strong{color:var(--text);font-weight:600;}
+  em{color:var(--orange);font-style:normal;font-weight:500;}
+  code{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--accent2);background:rgba(88,166,255,.08);padding:1px 6px;border-radius:4px;border:1px solid rgba(88,166,255,.12);}
+
+  /* PRINCIPLE CARD */
+  .principle-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;margin-bottom:2.5rem;}
+  .principle-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1rem;}
+  .principle-letter{font-family:'JetBrains Mono',monospace;font-size:2.8rem;font-weight:700;line-height:1;min-width:52px;}
+  .principle-header.srp .principle-letter{color:var(--accent);}
+  .principle-header.ocp .principle-letter{color:var(--green);}
+  .principle-header.lsp .principle-letter{color:var(--purple);}
+  .principle-header-text{}
+  .principle-name{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:.2rem;}
+  .principle-tagline{font-size:13px;color:var(--text2);}
+  .principle-body{padding:1.5rem;}
+
+  /* CODE BLOCK */
+  .code-block{background:#0d1117;border:1px solid var(--border);border-radius:var(--radius2);margin:1.25rem 0;overflow:hidden;}
+  .code-header{display:flex;align-items:center;justify-content:space-between;padding:.55rem 1rem;border-bottom:1px solid var(--border);background:var(--bg3);}
+  .code-fname{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2);display:flex;align-items:center;gap:.5rem;}
+  .code-fname .ok{color:var(--green);}
+  .code-fname .bad{color:var(--red);}
+  .code-lang-tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);background:var(--bg4);padding:2px 8px;border-radius:4px;}
+  pre{padding:1.25rem 1.5rem;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.65;}
+  pre::-webkit-scrollbar{height:4px;}
+  pre::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+  .kw{color:#ff7b72;}.tp{color:#79c0ff;}.ifc{color:#d2a8ff;}.mth{color:#d2a8ff;}
+  .str{color:#a5d6ff;}.num{color:#79c0ff;}.cmt{color:#6e7681;font-style:italic;}.prp{color:#e6edf3;}
+
+  /* CALLOUT */
+  .callout{border-radius:var(--radius);padding:1rem 1.25rem;margin:1.25rem 0;display:flex;gap:.85rem;align-items:flex-start;}
+  .callout-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
+  .callout-body{flex:1;}
+  .callout-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem;}
+  .callout p{font-size:13.5px;margin-bottom:0;}
+  .callout.info{background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.15);}
+  .callout.info .callout-title{color:var(--accent);}
+  .callout.warn{background:var(--yellow-bg);border:1px solid var(--yellow-border);}
+  .callout.warn .callout-title{color:var(--yellow);}
+  .callout.ok{background:var(--green-bg);border:1px solid var(--green-border);}
+  .callout.ok .callout-title{color:var(--green);}
+  .callout.danger{background:var(--red-bg);border:1px solid var(--red-border);}
+  .callout.danger .callout-title{color:var(--red);}
+  .callout.note{background:var(--purple-bg);border:1px solid var(--purple-border);}
+  .callout.note .callout-title{color:var(--purple);}
+
+  /* COMPARE: before/after — stacked */
+  .compare{display:flex;flex-direction:column;gap:1rem;margin:1.25rem 0;}
+  .compare-col{}
+  .compare-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:.35rem .75rem;border-radius:var(--radius) var(--radius) 0 0;display:flex;align-items:center;gap:.4rem;}
+  .compare-label.before{background:rgba(248,81,73,.12);color:var(--red);border:1px solid var(--red-border);border-bottom:none;}
+  .compare-label.after{background:rgba(63,185,80,.12);color:var(--green);border:1px solid var(--green-border);border-bottom:none;}
+  .compare-col .code-block{margin:0;border-radius:0 0 var(--radius2) var(--radius2);}
+  .compare-col.before .code-block{border-color:var(--red-border);}
+  .compare-col.after .code-block{border-color:var(--green-border);}
+
+  /* CQUOTE */
+  .cquote{border-left:3px solid var(--orange);padding:.75rem 1.25rem;background:rgba(255,166,87,.04);border-radius:0 var(--radius) var(--radius) 0;margin:1rem 0;font-size:15px;color:var(--text);line-height:1.6;}
+
+  /* SOLID OVERVIEW BAR */
+  .solid-bar{display:flex;gap:.5rem;margin:1.5rem 0;flex-wrap:wrap;}
+  .solid-pill{
+    display:flex;align-items:center;gap:.5rem;padding:.6rem 1rem;
+    border-radius:var(--radius);border:1px solid var(--border);
+    background:var(--bg2);font-size:13px;flex:1;min-width:140px;
+    transition:border-color .2s;
+  }
+  .solid-pill.active-pill{border-color:var(--orange);background:rgba(255,166,87,.06);}
+  .solid-pill.done-pill{border-color:var(--green-border);background:var(--green-bg);}
+  .solid-pill-letter{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;min-width:22px;}
+  .solid-pill.active-pill .solid-pill-letter{color:var(--orange);}
+  .solid-pill.done-pill .solid-pill-letter{color:var(--green);}
+  .solid-pill:not(.active-pill):not(.done-pill) .solid-pill-letter{color:var(--text3);}
+  .solid-pill-name{font-size:12px;color:var(--text2);}
+  .solid-pill.active-pill .solid-pill-name{color:var(--text);}
+
+  /* SMELL LIST */
+  .smell-list{display:flex;flex-direction:column;gap:.5rem;margin:1rem 0;}
+  .smell-item{display:flex;align-items:flex-start;gap:.75rem;background:var(--red-bg);border:1px solid var(--red-border);border-radius:var(--radius);padding:.7rem 1rem;}
+  .smell-item-icon{color:var(--red);font-size:1rem;flex-shrink:0;margin-top:1px;}
+  .smell-item-text{font-size:13.5px;color:var(--text2);}
+  .smell-item-text strong{color:var(--red);}
+
+  /* STEPS */
+  .steps{display:flex;flex-direction:column;gap:0;margin:1.25rem 0;}
+  .step{display:flex;gap:1rem;position:relative;}
+  .step:not(:last-child)::before{content:'';position:absolute;left:15px;top:34px;bottom:-4px;width:1px;background:var(--border2);}
+  .step-num{width:32px;height:32px;border-radius:50%;background:var(--bg3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--orange);flex-shrink:0;margin-top:2px;}
+  .step-body{flex:1;padding-bottom:1.5rem;}
+  .step-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:.4rem;}
+  .step-desc{font-size:13.5px;color:var(--text2);}
+
+  /* LAB BOX */
+  .lab-box{background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius2);margin:2rem 0;}
+  .lab-header{background:rgba(63,185,80,.12);border-bottom:1px solid var(--green-border);padding:1rem 1.5rem;display:flex;align-items:center;gap:.75rem;}
+  .lab-header-icon{font-size:1.3rem;}
+  .lab-header-text h4{font-size:14px;font-weight:700;color:var(--green);margin-bottom:.1rem;}
+  .lab-header-text p{font-size:12px;color:var(--text2);margin:0;}
+  .lab-body{padding:1.25rem 1.25rem 1.5rem;}
+  .lab-body p{color:var(--text2);font-size:14px;}
+  .lab-section{margin-top:1.25rem;}
+  .lab-section-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:.6rem;}
+  .lab-list{list-style:none;display:flex;flex-direction:column;gap:.4rem;}
+  .lab-list li{font-size:13.5px;color:var(--text2);padding:.3rem 0 .3rem 1.2rem;border-bottom:1px solid rgba(63,185,80,.08);position:relative;overflow-wrap:break-word;}
+  .lab-list li:last-child{border-bottom:none;}
+  .lab-list li::before{content:'▸';color:var(--green);font-size:11px;position:absolute;left:0;top:7px;}
+  .lab-deliverable{margin-top:1.25rem;padding:1rem;background:rgba(63,185,80,.06);border:1px solid rgba(63,185,80,.15);border-radius:var(--radius);}
+  .lab-deliverable-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green);margin-bottom:.5rem;}
+  .lab-deliverable p{font-size:13px;color:var(--text2);margin:0;}
+
+  /* QUESTIONS */
+  .questions-box{background:var(--purple-bg);border:1px solid var(--purple-border);border-radius:var(--radius2);padding:1.5rem;margin-top:2rem;}
+  .questions-title{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--purple);text-transform:uppercase;margin-bottom:1rem;}
+  .questions-box ol{padding-left:1.5rem;display:flex;flex-direction:column;gap:.6rem;}
+  .questions-box li{color:var(--text2);font-size:14px;}
+
+  /* RESOURCES */
+  .resources{border-top:1px solid var(--border);padding-top:1.5rem;margin-top:2rem;}
+  .resources-title{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:1rem;}
+  .resource-list{display:flex;flex-direction:column;gap:.5rem;}
+  .resource-item{display:flex;align-items:center;gap:.75rem;font-size:13px;color:var(--text2);}
+  .resource-item::before{content:'📖';font-size:14px;}
+
+  .progress-bar{height:3px;background:linear-gradient(90deg,var(--accent3),var(--orange),var(--purple));border-radius:2px;margin-bottom:2.5rem;width:calc(3/14*100%);opacity:.8;}
+
+  @media(max-width:900px){.sidebar{display:none;}.main{padding:2rem 1.5rem 4rem;}}
+
+  /* ── LAB REDESIGN ── */
+  .lab-arch{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:1.25rem 0;}
+  .lab-arch-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem;min-width:0;}
+  .lab-arch-card-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green);margin-bottom:.5rem;}
+  .lab-arch-card-body{font-size:13px;color:var(--text2);line-height:1.6;}
+  @media(max-width:700px){.lab-arch{grid-template-columns:1fr;}.ui-options{grid-template-columns:1fr;}}
+
+  .lab-req{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;margin:.75rem 0;}
+  .lab-req-header{padding:.6rem 1rem;background:var(--bg4);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.65rem;}
+  .lab-req-badge{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;flex-shrink:0;}
+  .lab-req-badge.srp{background:rgba(88,166,255,.15);color:var(--accent2);}
+  .lab-req-badge.ocp{background:rgba(63,185,80,.12);color:var(--green);}
+  .lab-req-badge.lsp{background:rgba(188,140,255,.12);color:var(--purple);}
+  .lab-req-badge.repo{background:rgba(255,166,87,.1);color:var(--orange);}
+  .lab-req-badge.test{background:rgba(248,81,73,.1);color:var(--red);}
+  .lab-req-title{font-size:13.5px;font-weight:600;color:var(--text);}
+  .lab-req-body{padding:.9rem 1.1rem;overflow:hidden;}
+  .lab-req-body ul{list-style:none;display:block;margin:0;padding:0;}
+  .lab-req-body li{font-size:13px;color:var(--text2);line-height:1.6;min-width:0;padding-left:1.2rem;position:relative;word-break:normal;overflow-wrap:break-word;margin-bottom:.45rem;}
+  .lab-req-body li:last-child{margin-bottom:0;}
+  .lab-req-body li::before{content:'▸';color:var(--green);font-size:11px;position:absolute;left:0;top:3px;}
+
+  .db-schema{background:#0d1117;border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;margin:1rem 0;}
+  .db-schema-header{padding:.55rem 1rem;border-bottom:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;gap:.5rem;}
+  .db-schema-title{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2);}
+  .db-table th{font-family:'JetBrains Mono',monospace;color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:.35rem .85rem;text-align:left;border-bottom:1px solid var(--border);}
+  .db-table td{padding:.35rem .85rem;border-bottom:1px solid rgba(48,54,61,.5);vertical-align:top;font-size:12.5px;}
+  .db-table tr:last-child td{border-bottom:none;}
+  .db-col-name{font-family:'JetBrains Mono',monospace;color:var(--accent2);}
+  .db-col-type{font-family:'JetBrains Mono',monospace;color:var(--orange);}
+  .db-col-note{color:var(--text3);font-size:12px;}
+  .db-col-pk{color:var(--green);font-size:10px;font-weight:700;padding:1px 5px;background:rgba(63,185,80,.1);border-radius:3px;font-family:'JetBrains Mono',monospace;}
+
+  .ui-options{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;margin:1rem 0;}
+  .ui-option{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem 1rem;}
+  .ui-option-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:.35rem;display:flex;align-items:center;gap:.5rem;}
+  .ui-option-icon{font-size:1.1rem;}
+  .ui-option-desc{font-size:12px;color:var(--text2);line-height:1.55;}
+  .ui-option-tag{font-size:10px;font-family:'JetBrains Mono',monospace;padding:1px 6px;border-radius:10px;margin-left:auto;white-space:nowrap;}
+  .ui-option-tag.rec{background:rgba(63,185,80,.12);color:var(--green);}
+  .ui-option-tag.alt{background:var(--bg4);color:var(--text3);}
+
+
+  /* structure tree: keep lines intact, scroll horizontally if needed */
+  .structure-tree{font-family:'JetBrains Mono',monospace;font-size:12.5px;background:#0d1117;border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;line-height:2;margin:.75rem 0;overflow-x:auto;white-space:pre;}
+  .st-folder{color:var(--accent2);}
+  .st-file{color:var(--text2);}
+  .st-comment{color:var(--text3);font-size:11.5px;}
+
+  /* db schema body: padding + horizontal scroll for table */
+  .db-schema-body{padding:.75rem 0;overflow-x:auto;}
+  .db-table{width:100%;min-width:520px;border-collapse:collapse;font-size:12.5px;}
+</style>
+</head>
+<body>
+<div id="scroll-prog"></div>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="course-badge">MAP</span>
+    <span class="course-title-nav">Curs 3 — Principiile SOLID I: SRP, OCP, LSP</span>
+  </div>
+  <div class="topbar-right">
+    <a href="#srp" class="nav-pill">SRP</a>
+    <a href="#ocp" class="nav-pill">OCP</a>
+    <a href="#lsp" class="nav-pill">LSP</a>
+    <a href="#lab" class="nav-pill">Laborator</a>
+  </div>
+</nav>
+
+<div class="layout">
+<aside class="sidebar">
+  <div>
+    <div class="sidebar-heading">Conținut</div>
+    <a href="#intro"  class="sidebar-link active"><span class="sidebar-num">01</span>Introducere SOLID</a>
+    <a href="#srp"    class="sidebar-link"><span class="sidebar-num">02</span>SRP</a>
+    <a href="#ocp"    class="sidebar-link"><span class="sidebar-num">03</span>OCP</a>
+    <a href="#lsp"    class="sidebar-link"><span class="sidebar-num">04</span>LSP</a>
+    <a href="#relatie" class="sidebar-link"><span class="sidebar-num">05</span>Relații & Rezumat</a>
+    <a href="#lab"    class="sidebar-link"><span class="sidebar-num">06</span>Laborator</a>
+  </div>
+  <hr class="sidebar-divider">
+  <div>
+    <div class="sidebar-heading">Cursurile MAP</div>
+    <a href="curs1_oop.html"   class="sidebar-link"><span class="sidebar-num">01</span>Recapitulare OOP</a>
+    <a href="curs2_uml.html"   class="sidebar-link"><span class="sidebar-num">02</span>UML</a>
+    <a href="curs3_solid1.html" class="sidebar-link active"><span class="sidebar-num">03</span>SOLID I</a>
+    <a href="#" class="sidebar-link" style="opacity:.4;pointer-events:none"><span class="sidebar-num">04</span>SOLID II</a>
+    <a href="#" class="sidebar-link" style="opacity:.4;pointer-events:none"><span class="sidebar-num">05</span>Patterns Creaționale</a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="progress-bar" title="3 din 14 cursuri"></div>
+
+  <header class="hero">
+    <div class="hero-meta">
+      <span class="tag tag-mod">Modul: Principii</span>
+      <span class="tag tag-lang">C#</span>
+      <span class="tag tag-n">Curs 3 din 14</span>
+    </div>
+    <h1>Principiile <span>SOLID</span> — Partea I</h1>
+    <p class="hero-desc">Trei dintre cele cinci principii care transformă codul corect în cod bine proiectat: Single Responsibility, Open/Closed și Liskov Substitution. Nu sunt reguli arbitrare — fiecare rezolvă o problemă reală de mentenanță.</p>
+  </header>
+
+  <div class="objectives">
+    <div class="objectives-title">🎯 Obiective</div>
+    <ul>
+      <li>Înțelegerea originii și scopului principiilor SOLID — probleme reale, nu teorie abstractă</li>
+      <li>Aplicarea <strong>SRP</strong>: identificarea și separarea responsabilităților dintr-o clasă</li>
+      <li>Aplicarea <strong>OCP</strong>: extinderea comportamentului fără a modifica codul existent</li>
+      <li>Aplicarea <strong>LSP</strong>: garantarea că subclasele sunt substituibile fără surprize</li>
+    </ul>
+  </div>
+
+  <!-- ── SECTION 1: INTRO ── -->
+  <section class="section" id="intro">
+    <h2 class="stitle"><span class="num">01</span>Introducere în SOLID</h2>
+
+    <p>Robert C. Martin (Uncle Bob) a formalizat aceste principii la începutul anilor 2000, pornind de la observații acumulate în decenii de practică. Acronimul SOLID a fost propus ulterior de Michael Feathers.</p>
+
+    <p>Scopul lor comun este simplu: <strong>cod care rezistă în timp</strong>. Cod pe care îl poți extinde fără să spargi ce era deja funcțional, cod pe care îl poți testa în izolare, cod pe care un coleg îl poate înțelege fără să îți ceară explicații.</p>
+
+    <div class="cquote">
+      Principiile SOLID nu sunt reguli de urmat orbește. Sunt instrumente de gândire care te ajută să recunoști când un design va deveni o problemă mai târziu.
+    </div>
+
+    <p>În acest curs acoperim primele trei. Celelalte două — ISP și DIP — sunt subiectul Cursului 4.</p>
+
+    <div class="solid-bar">
+      <div class="solid-pill active-pill"><span class="solid-pill-letter">S</span><span class="solid-pill-name">Single Responsibility</span></div>
+      <div class="solid-pill active-pill"><span class="solid-pill-letter">O</span><span class="solid-pill-name">Open / Closed</span></div>
+      <div class="solid-pill active-pill"><span class="solid-pill-letter">L</span><span class="solid-pill-name">Liskov Substitution</span></div>
+      <div class="solid-pill"><span class="solid-pill-letter">I</span><span class="solid-pill-name">Interface Segregation</span></div>
+      <div class="solid-pill"><span class="solid-pill-letter">D</span><span class="solid-pill-name">Dependency Inversion</span></div>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        <div class="callout-title">Capcana comună</div>
+        <p>SOLID poate deveni o sursă de over-engineering dacă este aplicat mecanic. Regula: aplică un principiu când <strong>există deja o problemă</strong> sau când schimbarea viitoare este previzibilă și concretă, nu ipotetică.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 2: SRP ── -->
+  <section class="section" id="srp">
+    <h2 class="stitle"><span class="num">02</span>SRP — Single Responsibility Principle</h2>
+
+    <div class="principle-card">
+      <div class="principle-header srp">
+        <span class="principle-letter">S</span>
+        <div class="principle-header-text">
+          <div class="principle-name">Single Responsibility Principle</div>
+          <div class="principle-tagline">„O clasă trebuie să aibă un singur motiv de schimbare."</div>
+        </div>
+      </div>
+      <div class="principle-body">
+
+        <p>Definiția originală vorbește despre <em>motive de schimbare</em>, nu despre numărul de metode sau linii de cod. Un motiv de schimbare vine întotdeauna de la un <strong>actor</strong> — o persoană sau un sistem care poate cere modificarea clasei.</p>
+
+        <p>O clasă care servește doi actori diferiți are două motive de schimbare și va trebui modificată din două direcții independente — ceea ce crește riscul că o modificare pentru un actor o va strica pe cealaltă.</p>
+
+        <h3 class="sub"><span class="dot"></span>Semne că SRP este încălcat</h3>
+
+        <div class="smell-list">
+          <div class="smell-item">
+            <span class="smell-item-icon">⚠</span>
+            <span class="smell-item-text"><strong>Nume vagi:</strong> <code>OrderManager</code>, <code>UserHelper</code>, <code>DataUtil</code> — când nu poți numi precis ce face o clasă, face prea multe lucruri.</span>
+          </div>
+          <div class="smell-item">
+            <span class="smell-item-icon">⚠</span>
+            <span class="smell-item-text"><strong>Metode fără legătură:</strong> aceeași clasă are metode pentru validare, calcul, persistență și trimitere email — patru responsabilități, patru motive de schimbare.</span>
+          </div>
+          <div class="smell-item">
+            <span class="smell-item-icon">⚠</span>
+            <span class="smell-item-text"><strong>Clase mari:</strong> o clasă cu 400+ linii este aproape sigur un semnal că face mai mult decât ar trebui.</span>
+          </div>
+          <div class="smell-item">
+            <span class="smell-item-icon">⚠</span>
+            <span class="smell-item-text"><strong>Importuri mixte:</strong> o clasă care importă simultan <code>System.Data</code>, <code>System.Net.Mail</code> și <code>System.IO</code> amestecă infrastructuri care nu au ce căuta împreună.</span>
+          </div>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Exemplu: God Class → clase cu responsabilități clare</h3>
+        <p>Pornim de la un <code>OrderProcessor</code> care face totul: validează comanda, calculează prețul, salvează în baza de date și trimite email de confirmare. Aceasta este o clasă cu patru responsabilități și patru actori potențiali: echipa de business (reguli de validare), contabilitate (calcul prețuri), DBA (schema bazei de date) și echipa de comunicare (template email).</p>
+
+        <div class="compare">
+          <div class="compare-col before">
+            <div class="compare-label before">❌ Înainte — o clasă, patru responsabilități</div>
+            <div class="code-block" style="border-radius:0 0 var(--radius2) var(--radius2);">
+              <pre><span class="kw">public class</span> <span class="tp">OrderProcessor</span>
+{
+    <span class="cmt">// Responsabilitate 1: Validare</span>
+    <span class="kw">public bool</span> <span class="mth">ValidateOrder</span>(<span class="tp">Order</span> order)
+    {
+        <span class="kw">if</span> (order.Items.Count == <span class="num">0</span>) <span class="kw">return false</span>;
+        <span class="kw">if</span> (order.Customer == <span class="kw">null</span>) <span class="kw">return false</span>;
+        <span class="kw">return true</span>;
+    }
+
+    <span class="cmt">// Responsabilitate 2: Calcul preț</span>
+    <span class="kw">public decimal</span> <span class="mth">CalculateTotal</span>(<span class="tp">Order</span> order)
+    {
+        <span class="kw">var</span> total = order.Items.<span class="mth">Sum</span>(i => i.Price * i.Quantity);
+        <span class="kw">if</span> (order.Customer.IsPremium) total *= <span class="num">0.9m</span>;
+        <span class="kw">return</span> total;
+    }
+
+    <span class="cmt">// Responsabilitate 3: Persistență</span>
+    <span class="kw">public void</span> <span class="mth">SaveOrder</span>(<span class="tp">Order</span> order)
+    {
+        <span class="kw">using var</span> conn = <span class="kw">new</span> <span class="tp">SqlConnection</span>(<span class="str">"Server=..."</span>);
+        <span class="cmt">// INSERT INTO Orders...</span>
+    }
+
+    <span class="cmt">// Responsabilitate 4: Notificare</span>
+    <span class="kw">public void</span> <span class="mth">SendConfirmation</span>(<span class="tp">Order</span> order)
+    {
+        <span class="kw">var</span> smtp = <span class="kw">new</span> <span class="tp">SmtpClient</span>(<span class="str">"smtp.company.com"</span>);
+        <span class="cmt">// send email...</span>
+    }
+}</pre>
+            </div>
+          </div>
+          <div class="compare-col after">
+            <div class="compare-label after">✅ După — fiecare clasă are o singură responsabilitate</div>
+            <div class="code-block" style="border-radius:0 0 var(--radius2) var(--radius2);">
+              <pre><span class="cmt">// Responsabilitate 1: Validare comenzi</span>
+<span class="kw">public class</span> <span class="tp">OrderValidator</span>
+{
+    <span class="kw">public bool</span> <span class="mth">IsValid</span>(<span class="tp">Order</span> order)
+    {
+        <span class="kw">if</span> (order.Items.Count == <span class="num">0</span>) <span class="kw">return false</span>;
+        <span class="kw">if</span> (order.Customer == <span class="kw">null</span>) <span class="kw">return false</span>;
+        <span class="kw">return true</span>;
+    }
+}
+
+<span class="cmt">// Responsabilitate 2: Calcul prețuri</span>
+<span class="kw">public class</span> <span class="tp">OrderPriceCalculator</span>
+{
+    <span class="kw">public decimal</span> <span class="mth">Calculate</span>(<span class="tp">Order</span> order)
+    {
+        <span class="kw">var</span> total = order.Items.<span class="mth">Sum</span>(i => i.Price * i.Quantity);
+        <span class="kw">if</span> (order.Customer.IsPremium) total *= <span class="num">0.9m</span>;
+        <span class="kw">return</span> total;
+    }
+}
+
+<span class="cmt">// Responsabilitate 3: Persistență</span>
+<span class="kw">public class</span> <span class="tp">OrderRepository</span>
+{
+    <span class="kw">public void</span> <span class="mth">Save</span>(<span class="tp">Order</span> order) { <span class="cmt">/* SQL */</span> }
+}
+
+<span class="cmt">// Responsabilitate 4: Notificări</span>
+<span class="kw">public class</span> <span class="tp">OrderNotificationService</span>
+{
+    <span class="kw">public void</span> <span class="mth">SendConfirmation</span>(<span class="tp">Order</span> order) { <span class="cmt">/* SMTP */</span> }
+}
+
+<span class="cmt">// Orchestrator — coordonează fără să implementeze</span>
+<span class="kw">public class</span> <span class="tp">OrderProcessor</span>
+{
+    <span class="kw">private readonly</span> <span class="tp">OrderValidator</span>          _validator;
+    <span class="kw">private readonly</span> <span class="tp">OrderPriceCalculator</span>     _calculator;
+    <span class="kw">private readonly</span> <span class="tp">OrderRepository</span>          _repository;
+    <span class="kw">private readonly</span> <span class="tp">OrderNotificationService</span> _notifier;
+
+    <span class="kw">public</span> <span class="mth">OrderProcessor</span>(
+        <span class="tp">OrderValidator</span>          validator,
+        <span class="tp">OrderPriceCalculator</span>     calculator,
+        <span class="tp">OrderRepository</span>          repository,
+        <span class="tp">OrderNotificationService</span> notifier)
+    {
+        _validator  = validator;
+        _calculator = calculator;
+        _repository = repository;
+        _notifier   = notifier;
+    }
+
+    <span class="kw">public void</span> <span class="mth">Process</span>(<span class="tp">Order</span> order)
+    {
+        <span class="kw">if</span> (!_validator.<span class="mth">IsValid</span>(order))
+            <span class="kw">throw new</span> <span class="tp">InvalidOrderException</span>();
+
+        order.Total = _calculator.<span class="mth">Calculate</span>(order);
+        _repository.<span class="mth">Save</span>(order);
+        _notifier.<span class="mth">SendConfirmation</span>(order);
+    }
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout ok">
+          <span class="callout-icon">✓</span>
+          <div class="callout-body">
+            <div class="callout-title">Ce câștigăm</div>
+            <p>Dacă echipa de business schimbă regulile de validare, modificăm <em>doar</em> <code>OrderValidator</code>. <code>OrderRepository</code> și <code>OrderNotificationService</code> nu sunt atinse. Fiecare clasă poate fi testată independent, în izolare completă.</p>
+          </div>
+        </div>
+
+        <div class="callout info">
+          <span class="callout-icon">💡</span>
+          <div class="callout-body">
+            <div class="callout-title">SRP se aplică și la nivel de metodă</div>
+            <p>O metodă care face mai mult de un lucru este un candidat la extracție. Semnalul: dacă simți nevoia unui comentariu care separă blocuri de cod dintr-o metodă, acele blocuri sunt metode separate.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 3: OCP ── -->
+  <section class="section" id="ocp">
+    <h2 class="stitle"><span class="num">03</span>OCP — Open/Closed Principle</h2>
+
+    <div class="principle-card">
+      <div class="principle-header ocp">
+        <span class="principle-letter">O</span>
+        <div class="principle-header-text">
+          <div class="principle-name">Open/Closed Principle</div>
+          <div class="principle-tagline">„Entitățile software trebuie să fie deschise pentru extensie, dar închise pentru modificare."</div>
+        </div>
+      </div>
+      <div class="principle-body">
+
+        <p>Formulat de Bertrand Meyer în 1988, OCP spune că atunci când trebuie să adaugi un comportament nou, <strong>nu ar trebui să modifici codul care funcționează deja</strong> — ci să îl extinzi prin noi clase sau implementări.</p>
+
+        <p>Motivul este practic: codul existent este testat și stabil. Orice modificare în el introduce riscul unui regres. OCP ne îndeamnă să proiectăm sisteme în care extinderea este posibilă fără a atinge codul testat.</p>
+
+        <div class="callout warn">
+          <span class="callout-icon">⚠️</span>
+          <div class="callout-body">
+            <div class="callout-title">OCP și YAGNI — când se aplică</div>
+            <p><strong>YAGNI</strong> (You Aren't Gonna Need It) spune: nu construi abstractizări înainte să ai nevoie de ele. OCP și YAGNI nu se contrazic — se completează. Regula practică: aplică OCP când schimbarea este <strong>concretă și previzibilă</strong> (știi că vor mai veni tipuri noi), nu când este ipotetică. Dacă ai un singur format de export și nu știi dacă vor fi altele, nu crea o interfață „pentru viitor" — adaug-o când apare al doilea caz.</p>
+          </div>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Exemplul 1 — if/switch pe tip: DiscountCalculator</h3>
+
+        <p>Cel mai frecvent semnal că OCP este încălcat: un bloc <code>if</code> sau <code>switch</code> care verifică tipul unui obiect pentru a decide comportamentul. La fiecare nou tip, trebuie să modifici clasa existentă.</p>
+
+        <div class="compare">
+          <div class="compare-col before">
+            <div class="compare-label before">❌ Orice discount nou înseamnă modificarea clasei existente</div>
+            <div class="code-block" style="border-radius:0 0 var(--radius2) var(--radius2);">
+              <pre><span class="kw">public class</span> <span class="tp">DiscountCalculator</span>
+{
+    <span class="kw">public decimal</span> <span class="mth">Calculate</span>(<span class="tp">Order</span> order, <span class="tp">string</span> customerType)
+    {
+        <span class="kw">if</span> (customerType == <span class="str">"Regular"</span>)
+            <span class="kw">return</span> order.Total * <span class="num">0.05m</span>;
+
+        <span class="kw">if</span> (customerType == <span class="str">"Premium"</span>)
+            <span class="kw">return</span> order.Total * <span class="num">0.10m</span>;
+
+        <span class="kw">if</span> (customerType == <span class="str">"VIP"</span>)
+            <span class="kw">return</span> order.Total * <span class="num">0.20m</span>;
+
+        <span class="cmt">// Cerință nouă: SeasonalDiscount?</span>
+        <span class="cmt">// → trebuie să modific această metodă</span>
+        <span class="kw">return</span> <span class="num">0</span>;
+    }
+}</pre>
+            </div>
+          </div>
+          <div class="compare-col after">
+            <div class="compare-label after">✅ Interfață + injecție — tip nou = clasă nouă, nimic nu se modifică</div>
+            <div class="code-block" style="border-radius:0 0 var(--radius2) var(--radius2);">
+              <pre><span class="kw">public interface</span> <span class="ifc">IDiscountStrategy</span>
+{
+    <span class="tp">decimal</span> <span class="mth">Calculate</span>(<span class="tp">Order</span> order);
+}
+
+<span class="kw">public class</span> <span class="tp">RegularDiscount</span> : <span class="ifc">IDiscountStrategy</span>
+{
+    <span class="kw">public decimal</span> <span class="mth">Calculate</span>(<span class="tp">Order</span> o) => o.Total * <span class="num">0.05m</span>;
+}
+
+<span class="kw">public class</span> <span class="tp">PremiumDiscount</span> : <span class="ifc">IDiscountStrategy</span>
+{
+    <span class="kw">public decimal</span> <span class="mth">Calculate</span>(<span class="tp">Order</span> o) => o.Total * <span class="num">0.10m</span>;
+}
+
+<span class="kw">public class</span> <span class="tp">VipDiscount</span> : <span class="ifc">IDiscountStrategy</span>
+{
+    <span class="kw">public decimal</span> <span class="mth">Calculate</span>(<span class="tp">Order</span> o) => o.Total * <span class="num">0.20m</span>;
+}
+
+<span class="cmt">// Cerință nouă: adaugi SeasonalDiscount : IDiscountStrategy</span>
+<span class="cmt">// DiscountCalculator și testele existente rămân NEATINSE</span>
+<span class="kw">public class</span> <span class="tp">DiscountCalculator</span>
+{
+    <span class="kw">private readonly</span> <span class="ifc">IDiscountStrategy</span> _strategy;
+
+    <span class="cmt">// strategia este injectată — nu hardcodată</span>
+    <span class="kw">public</span> <span class="mth">DiscountCalculator</span>(<span class="ifc">IDiscountStrategy</span> strategy)
+        => _strategy = strategy;
+
+    <span class="kw">public decimal</span> <span class="mth">Calculate</span>(<span class="tp">Order</span> order)
+        => _strategy.<span class="mth">Calculate</span>(order);
+}
+
+<span class="cmt">// Utilizare:</span>
+<span class="kw">var</span> calc = <span class="kw">new</span> <span class="tp">DiscountCalculator</span>(<span class="kw">new</span> <span class="tp">VipDiscount</span>());
+<span class="kw">var</span> discount = calc.<span class="mth">Calculate</span>(order);</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout ok">
+          <span class="callout-icon">✓</span>
+          <div class="callout-body">
+            <div class="callout-title">Ce câștigăm</div>
+            <p>Adăugarea unui nou tip de discount înseamnă o clasă nouă. <code>DiscountCalculator</code> și testele sale existente nu sunt atinse. <code>IDiscountStrategy</code> este injectată prin constructor — calculatorul nu știe și nu îi pasă ce strategie primește. Acesta este <strong>Strategy pattern</strong> — îl vom studia detaliat la Cursul 8.</p>
+          </div>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Exemplul 2 — clasă abstractă + injecție: exportul de rapoarte</h3>
+
+        <p>Un alt scenariu frecvent: un serviciu care generează rapoarte și le exportă. Fiecare format nou (HTML, PDF, CSV) forțează modificarea clasei centrale. Soluția folosește o <strong>clasă abstractă</strong> pentru comportamentul comun și metode abstracte pentru pașii variabili — combinat cu injecție de dependențe.</p>
+
+        <div class="compare">
+          <div class="compare-col before">
+            <div class="compare-label before">❌ ReportExporter știe despre fiecare format — OCP încălcat</div>
+            <div class="code-block" style="border-radius:0 0 var(--radius2) var(--radius2);">
+              <pre><span class="kw">public class</span> <span class="tp">ReportExporter</span>
+{
+    <span class="kw">public void</span> <span class="mth">Export</span>(<span class="tp">Report</span> report, <span class="tp">string</span> format)
+    {
+        <span class="cmt">// logică comună: validare, logging...</span>
+        Console.<span class="mth">WriteLine</span>(<span class="str">$"Exporting: {report.Title}"</span>);
+
+        <span class="kw">switch</span> (format)
+        {
+            <span class="kw">case</span> <span class="str">"html"</span>:
+                <span class="cmt">// generează HTML...</span>
+                <span class="kw">break</span>;
+            <span class="kw">case</span> <span class="str">"pdf"</span>:
+                <span class="cmt">// generează PDF...</span>
+                <span class="kw">break</span>;
+            <span class="kw">case</span> <span class="str">"csv"</span>:
+                <span class="cmt">// generează CSV...</span>
+                <span class="kw">break</span>;
+            <span class="cmt">// format nou → modific această clasă</span>
+        }
+    }
+}</pre>
+            </div>
+          </div>
+          <div class="compare-col after">
+            <div class="compare-label after">✅ Clasă abstractă + injecție — format nou = subclasă nouă</div>
+            <div class="code-block" style="border-radius:0 0 var(--radius2) var(--radius2);">
+              <pre><span class="cmt">// Comportamentul comun este în clasa abstractă (ÎNCHIS)</span>
+<span class="kw">public abstract class</span> <span class="tp">ReportExporter</span>
+{
+    <span class="cmt">// Template Method: scheletul algoritmului — nu se modifică</span>
+    <span class="kw">public void</span> <span class="mth">Export</span>(<span class="tp">Report</span> report)
+    {
+        <span class="mth">Validate</span>(report);
+        Console.<span class="mth">WriteLine</span>(<span class="str">$"Exporting: {report.Title}"</span>);
+        <span class="mth">WriteContent</span>(report);  <span class="cmt">// pasul variabil</span>
+    }
+
+    <span class="kw">private void</span> <span class="mth">Validate</span>(<span class="tp">Report</span> r)
+    {
+        <span class="kw">if</span> (r == <span class="kw">null</span>) <span class="kw">throw new</span> <span class="tp">ArgumentNullException</span>(<span class="kw">nameof</span>(r));
+    }
+
+    <span class="cmt">// Pasul variabil — subclasele îl implementează (DESCHIS)</span>
+    <span class="kw">protected abstract void</span> <span class="mth">WriteContent</span>(<span class="tp">Report</span> report);
+}
+
+<span class="kw">public class</span> <span class="tp">HtmlReportExporter</span> : <span class="tp">ReportExporter</span>
+{
+    <span class="kw">protected override void</span> <span class="mth">WriteContent</span>(<span class="tp">Report</span> r)
+        => Console.<span class="mth">WriteLine</span>(<span class="str">$"&lt;html&gt;{r.Content}&lt;/html&gt;"</span>);
+}
+
+<span class="kw">public class</span> <span class="tp">CsvReportExporter</span> : <span class="tp">ReportExporter</span>
+{
+    <span class="kw">protected override void</span> <span class="mth">WriteContent</span>(<span class="tp">Report</span> r)
+        => Console.<span class="mth">WriteLine</span>(<span class="str">$"title,content\n{r.Title},{r.Content}"</span>);
+}
+
+<span class="cmt">// Format nou: adaugi PdfReportExporter : ReportExporter</span>
+<span class="cmt">// ReportExporter (baza) rămâne NEATINS</span>
+
+<span class="cmt">// Serviciu care primește exporterul prin injecție:</span>
+<span class="kw">public class</span> <span class="tp">ReportService</span>
+{
+    <span class="kw">private readonly</span> <span class="tp">ReportExporter</span> _exporter;
+
+    <span class="kw">public</span> <span class="mth">ReportService</span>(<span class="tp">ReportExporter</span> exporter)
+        => _exporter = exporter;
+
+    <span class="kw">public void</span> <span class="mth">GenerateAndExport</span>(<span class="tp">Report</span> report)
+        => _exporter.<span class="mth">Export</span>(report);
+}
+
+<span class="cmt">// Utilizare — schimbi formatul fără să atingi ReportService:</span>
+<span class="kw">var</span> service = <span class="kw">new</span> <span class="tp">ReportService</span>(<span class="kw">new</span> <span class="tp">HtmlReportExporter</span>());
+service.<span class="mth">GenerateAndExport</span>(report);
+
+<span class="kw">var</span> csvService = <span class="kw">new</span> <span class="tp">ReportService</span>(<span class="kw">new</span> <span class="tp">CsvReportExporter</span>());
+csvService.<span class="mth">GenerateAndExport</span>(report);</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout info">
+          <span class="callout-icon">💡</span>
+          <div class="callout-body">
+            <div class="callout-title">Template Method Pattern</div>
+            <p>Clasa abstractă <code>ReportExporter</code> definește scheletul algoritmului în <code>Export()</code> — validare, logging, scriere conținut — iar pasul variabil (<code>WriteContent</code>) este delegat subclaselor. Comportamentul comun este <strong>închis</strong> în clasa de bază; comportamentul specific formatului este <strong>deschis</strong> extensiei prin suprascrierea metodei abstracte. Acesta este <strong>Template Method pattern</strong> — îl vom studia la Cursul 8.</p>
+          </div>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Alternativa: compoziție în loc de moștenire</h3>
+
+        <p>Template Method rezolvă problema, dar o face prin <strong>moștenire</strong> — subclasele sunt cuplate structural la clasa de bază. GoF recomandă să <em>favorizezi compoziția față de moștenire</em>. Varianta prin compoziție: <code>ReportExporter</code> devine o clasă concretă care primește un <code>IContentWriter</code> injectat. Niciun <code>abstract</code>, nicio ierarhie.</p>
+
+        <div class="compare">
+          <div class="compare-col before">
+            <div class="compare-label before">Template Method — extensie prin moștenire</div>
+            <div class="code-block" style="border-radius:0 0 var(--radius2) var(--radius2);">
+              <pre><span class="cmt">// Subclasa este LEGATĂ de clasa de bază</span>
+<span class="cmt">// Nu poți schimba formatul la runtime</span>
+<span class="cmt">// Nu poți combina doi scriitori</span>
+<span class="kw">public abstract class</span> <span class="tp">ReportExporter</span>
+{
+    <span class="kw">public void</span> <span class="mth">Export</span>(<span class="tp">Report</span> report)
+    {
+        <span class="mth">Validate</span>(report);
+        <span class="mth">WriteContent</span>(report); <span class="cmt">// apel virtual</span>
+    }
+    <span class="kw">protected abstract void</span> <span class="mth">WriteContent</span>(<span class="tp">Report</span> r);
+}
+
+<span class="kw">public class</span> <span class="tp">HtmlReportExporter</span> : <span class="tp">ReportExporter</span>
+{
+    <span class="kw">protected override void</span> <span class="mth">WriteContent</span>(<span class="tp">Report</span> r)
+        => Console.<span class="mth">WriteLine</span>(<span class="str">$"&lt;html&gt;{r.Content}&lt;/html&gt;"</span>);
+}
+
+<span class="cmt">// Utilizare — formatul e fix la compile-time:</span>
+<span class="kw">var</span> exporter = <span class="kw">new</span> <span class="tp">HtmlReportExporter</span>();
+exporter.<span class="mth">Export</span>(report);</pre>
+            </div>
+          </div>
+          <div class="compare-col after">
+            <div class="compare-label after">✅ Compoziție — IContentWriter injectat, fără ierarhie</div>
+            <div class="code-block" style="border-radius:0 0 var(--radius2) var(--radius2);">
+              <pre><span class="cmt">// Contract pentru pasul variabil</span>
+<span class="kw">public interface</span> <span class="ifc">IContentWriter</span>
+{
+    <span class="kw">void</span> <span class="mth">Write</span>(<span class="tp">Report</span> report);
+}
+
+<span class="kw">public class</span> <span class="tp">HtmlContentWriter</span> : <span class="ifc">IContentWriter</span>
+{
+    <span class="kw">public void</span> <span class="mth">Write</span>(<span class="tp">Report</span> r)
+        => Console.<span class="mth">WriteLine</span>(<span class="str">$"&lt;html&gt;{r.Content}&lt;/html&gt;"</span>);
+}
+
+<span class="kw">public class</span> <span class="tp">CsvContentWriter</span> : <span class="ifc">IContentWriter</span>
+{
+    <span class="kw">public void</span> <span class="mth">Write</span>(<span class="tp">Report</span> r)
+        => Console.<span class="mth">WriteLine</span>(<span class="str">$"title,content\n{r.Title},{r.Content}"</span>);
+}
+
+<span class="cmt">// Clasa concretă — primește scriitorul prin constructor</span>
+<span class="kw">public class</span> <span class="tp">ReportExporter</span>
+{
+    <span class="kw">private readonly</span> <span class="ifc">IContentWriter</span> _writer;
+
+    <span class="kw">public</span> <span class="mth">ReportExporter</span>(<span class="ifc">IContentWriter</span> writer)
+        => _writer = writer;
+
+    <span class="kw">public void</span> <span class="mth">Export</span>(<span class="tp">Report</span> report)
+    {
+        <span class="kw">if</span> (report == <span class="kw">null</span>) <span class="kw">throw new</span> <span class="tp">ArgumentNullException</span>(<span class="kw">nameof</span>(report));
+        Console.<span class="mth">WriteLine</span>(<span class="str">$"Exporting: {report.Title}"</span>);
+        _writer.<span class="mth">Write</span>(report); <span class="cmt">// delegare, nu moștenire</span>
+    }
+}
+
+<span class="cmt">// Utilizare — formatul se alege la runtime:</span>
+<span class="kw">var</span> exporter = <span class="kw">new</span> <span class="tp">ReportExporter</span>(<span class="kw">new</span> <span class="tp">HtmlContentWriter</span>());
+exporter.<span class="mth">Export</span>(report);
+
+<span class="cmt">// Schimbi formatul fără subclasare:</span>
+<span class="kw">var</span> csvExporter = <span class="kw">new</span> <span class="tp">ReportExporter</span>(<span class="kw">new</span> <span class="tp">CsvContentWriter</span>());
+csvExporter.<span class="mth">Export</span>(report);</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout note">
+          <span class="callout-icon">🔀</span>
+          <div class="callout-body">
+            <div class="callout-title">Moștenire vs. Compoziție — diferențele practice</div>
+            <p>
+              <strong>Template Method (moștenire):</strong> formatul este fix la compile-time; subclasa este cuplată la clasa de bază; nu poți combina doi scriitori într-o singură instanță.<br><br>
+              <strong>Compoziție:</strong> scriitorul poate fi schimbat la runtime; <code>ReportExporter</code> nu știe nimic despre formatele concrete; poți injecta un <code>CompositeWriter</code> care scrie în mai multe formate simultan — fără nicio modificare în <code>ReportExporter</code>.<br><br>
+              În practică: preferă compoziția când comportamentul variabil trebuie ales la runtime sau combinat. Folosește moștenirea când există un algoritm cu structură fixă și variații minore la pași discreți.
+            </p>
+          </div>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Interfață vs. clasă abstractă — când alegi ce</h3>
+
+        <table style="width:100%;border-collapse:collapse;font-size:13.5px;margin:1rem 0;">
+          <thead>
+            <tr>
+              <th style="background:var(--bg3);color:var(--text);padding:.6rem 1rem;text-align:left;border-bottom:2px solid var(--accent3);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;">Situație</th>
+              <th style="background:var(--bg3);color:var(--text);padding:.6rem 1rem;text-align:left;border-bottom:2px solid var(--accent3);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;">Folosești</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding:.6rem 1rem;border-bottom:1px solid var(--border);color:var(--text2);">Implementări complet diferite, niciun cod comun</td>
+              <td style="padding:.6rem 1rem;border-bottom:1px solid var(--border);color:var(--accent2);font-family:'JetBrains Mono',monospace;font-size:12.5px;">interface</td>
+            </tr>
+            <tr>
+              <td style="padding:.6rem 1rem;border-bottom:1px solid var(--border);color:var(--text2);">Există comportament comun + pași variabili</td>
+              <td style="padding:.6rem 1rem;border-bottom:1px solid var(--border);color:var(--purple);font-family:'JetBrains Mono',monospace;font-size:12.5px;">abstract class</td>
+            </tr>
+            <tr>
+              <td style="padding:.6rem 1rem;border-bottom:1px solid var(--border);color:var(--text2);">O clasă trebuie să respecte mai multe contracte</td>
+              <td style="padding:.6rem 1rem;border-bottom:1px solid var(--border);color:var(--accent2);font-family:'JetBrains Mono',monospace;font-size:12.5px;">interface (C# permite multiple)</td>
+            </tr>
+            <tr>
+              <td style="padding:.6rem 1rem;color:var(--text2);">Comportament implicit opțional pentru unele metode</td>
+              <td style="padding:.6rem 1rem;color:var(--accent2);font-family:'JetBrains Mono',monospace;font-size:12.5px;">interface + default implementation (C# 8+)</td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 4: LSP ── -->
+  <section class="section" id="lsp">
+    <h2 class="stitle"><span class="num">04</span>LSP — Liskov Substitution Principle</h2>
+
+    <div class="principle-card">
+      <div class="principle-header lsp">
+        <span class="principle-letter">L</span>
+        <div class="principle-header-text">
+          <div class="principle-name">Liskov Substitution Principle</div>
+          <div class="principle-tagline">„Dacă S este subtip al lui T, obiectele de tip T pot fi înlocuite cu obiecte de tip S fără a altera corectitudinea programului."</div>
+        </div>
+      </div>
+      <div class="principle-body">
+
+        <p>Formulat de Barbara Liskov în 1987, LSP spune că o <strong>subclasă trebuie să se comporte conform contractului clasei de bază</strong>. Codul care funcționează cu tipul de bază trebuie să funcționeze corect și cu orice subtip, fără a ști că este subtip.</p>
+
+        <p>Tradus practic: dacă trebuie să verifici cu <code>if (obj is SubclassType)</code> pentru a trata un subtip diferit, LSP este probabil încălcat.</p>
+
+        <h3 class="sub"><span class="dot"></span>Exemplul clasic: Rectangle și Square</h3>
+
+        <p>Matematic, un pătrat este un dreptunghi. Dar din punct de vedere OOP, nu neapărat — depinde de comportament.</p>
+
+        <div class="compare">
+          <div class="compare-col before">
+            <div class="compare-label before">❌ Square extinde Rectangle — LSP încălcat</div>
+            <div class="code-block" style="border-radius:0 0 var(--radius2) var(--radius2);">
+              <pre><span class="kw">public class</span> <span class="tp">Rectangle</span>
+{
+    <span class="kw">public virtual int</span> <span class="prp">Width</span>  { <span class="kw">get</span>; <span class="kw">set</span>; }
+    <span class="kw">public virtual int</span> <span class="prp">Height</span> { <span class="kw">get</span>; <span class="kw">set</span>; }
+    <span class="kw">public int</span> <span class="mth">Area</span>() => Width * Height;
+}
+
+<span class="kw">public class</span> <span class="tp">Square</span> : <span class="tp">Rectangle</span>
+{
+    <span class="cmt">// Forțăm invarianta: latura = latura</span>
+    <span class="kw">public override int</span> <span class="prp">Width</span>
+    {
+        <span class="kw">set</span> { <span class="kw">base</span>.Width = value; <span class="kw">base</span>.Height = value; }
+    }
+    <span class="kw">public override int</span> <span class="prp">Height</span>
+    {
+        <span class="kw">set</span> { <span class="kw">base</span>.Width = value; <span class="kw">base</span>.Height = value; }
+    }
+}
+
+<span class="cmt">// Cod care funcționează cu Rectangle, se sparge cu Square:</span>
+<span class="kw">void</span> <span class="mth">SetDimensions</span>(<span class="tp">Rectangle</span> r)
+{
+    r.Width  = <span class="num">4</span>;
+    r.Height = <span class="num">5</span>;
+    <span class="cmt">// Așteptăm: Area() == 20</span>
+    <span class="cmt">// Cu Square: Area() == 25 ← surpriză!</span>
+}</pre>
+            </div>
+          </div>
+          <div class="compare-col after">
+            <div class="compare-label after">✅ Interfețe separate — fără ierarhie forțată</div>
+            <div class="code-block" style="border-radius:0 0 var(--radius2) var(--radius2);">
+              <pre><span class="kw">public interface</span> <span class="ifc">IShape</span>
+{
+    <span class="tp">int</span> <span class="mth">Area</span>();
+}
+
+<span class="kw">public class</span> <span class="tp">Rectangle</span> : <span class="ifc">IShape</span>
+{
+    <span class="kw">public int</span> <span class="prp">Width</span>  { <span class="kw">get</span>; }
+    <span class="kw">public int</span> <span class="prp">Height</span> { <span class="kw">get</span>; }
+
+    <span class="kw">public</span> <span class="mth">Rectangle</span>(<span class="tp">int</span> w, <span class="tp">int</span> h)
+        => (Width, Height) = (w, h);
+
+    <span class="kw">public int</span> <span class="mth">Area</span>() => Width * Height;
+}
+
+<span class="kw">public class</span> <span class="tp">Square</span> : <span class="ifc">IShape</span>
+{
+    <span class="kw">public int</span> <span class="prp">Side</span> { <span class="kw">get</span>; }
+
+    <span class="kw">public</span> <span class="mth">Square</span>(<span class="tp">int</span> side) => Side = side;
+
+    <span class="kw">public int</span> <span class="mth">Area</span>() => Side * Side;
+}
+
+<span class="cmt">// Ambele sunt IShape → substituibile corect</span>
+<span class="tp">IShape</span> s1 = <span class="kw">new</span> <span class="tp">Rectangle</span>(<span class="num">4</span>, <span class="num">5</span>); <span class="cmt">// Area = 20</span>
+<span class="tp">IShape</span> s2 = <span class="kw">new</span> <span class="tp">Square</span>(<span class="num">5</span>);      <span class="cmt">// Area = 25</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Exemplu practic C#: păsări și zbor</h3>
+
+        <p>Un exemplu mai apropiat de cod real: o ierarhie de animale unde subclasa este forțată să implementeze un comportament pe care nu îl poate asigura.</p>
+
+        <div class="compare">
+          <div class="compare-col before">
+            <div class="compare-label before">❌ Penguin aruncă excepție pentru Fly() — contract rupt</div>
+            <div class="code-block" style="border-radius:0 0 var(--radius2) var(--radius2);">
+              <pre><span class="kw">public class</span> <span class="tp">Bird</span>
+{
+    <span class="kw">public virtual void</span> <span class="mth">Fly</span>()
+        => Console.<span class="mth">WriteLine</span>(<span class="str">"Zbor..."</span>);
+}
+
+<span class="kw">public class</span> <span class="tp">Eagle</span> : <span class="tp">Bird</span>
+{
+    <span class="kw">public override void</span> <span class="mth">Fly</span>()
+        => Console.<span class="mth">WriteLine</span>(<span class="str">"Zbor înalt"</span>);
+}
+
+<span class="kw">public class</span> <span class="tp">Penguin</span> : <span class="tp">Bird</span>
+{
+    <span class="kw">public override void</span> <span class="mth">Fly</span>()
+        <span class="cmt">// Pinguinul nu poate zbura!</span>
+        => <span class="kw">throw new</span> <span class="tp">NotSupportedException</span>();
+}
+
+<span class="cmt">// Cod care se sparge cu Penguin:</span>
+<span class="kw">void</span> <span class="mth">MakeFly</span>(<span class="tp">Bird</span> bird) => bird.<span class="mth">Fly</span>(); <span class="cmt">// ← excepție la runtime</span></pre>
+            </div>
+          </div>
+          <div class="compare-col after">
+            <div class="compare-label after">✅ Interfețe granulare — fiecare clasă implementează ce poate</div>
+            <div class="code-block" style="border-radius:0 0 var(--radius2) var(--radius2);">
+              <pre><span class="kw">public interface</span> <span class="ifc">IBird</span>
+{
+    <span class="tp">string</span> <span class="prp">Name</span> { <span class="kw">get</span>; }
+    <span class="kw">void</span> <span class="mth">Eat</span>();
+}
+
+<span class="kw">public interface</span> <span class="ifc">IFlyable</span>
+{
+    <span class="kw">void</span> <span class="mth">Fly</span>();
+}
+
+<span class="kw">public class</span> <span class="tp">Eagle</span> : <span class="ifc">IBird</span>, <span class="ifc">IFlyable</span>
+{
+    <span class="kw">public string</span> <span class="prp">Name</span> => <span class="str">"Eagle"</span>;
+    <span class="kw">public void</span> <span class="mth">Eat</span>()  => Console.<span class="mth">WriteLine</span>(<span class="str">"Mănânc pește"</span>);
+    <span class="kw">public void</span> <span class="mth">Fly</span>()  => Console.<span class="mth">WriteLine</span>(<span class="str">"Zbor înalt"</span>);
+}
+
+<span class="kw">public class</span> <span class="tp">Penguin</span> : <span class="ifc">IBird</span>
+{
+    <span class="kw">public string</span> <span class="prp">Name</span> => <span class="str">"Penguin"</span>;
+    <span class="kw">public void</span> <span class="mth">Eat</span>() => Console.<span class="mth">WriteLine</span>(<span class="str">"Mănânc pește"</span>);
+    <span class="cmt">// Nu implementează IFlyable — corect!</span>
+}
+
+<span class="cmt">// Sigur: compilatorul te oprește să zbori cu Penguin</span>
+<span class="kw">void</span> <span class="mth">MakeFly</span>(<span class="ifc">IFlyable</span> bird) => bird.<span class="mth">Fly</span>();</pre>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Design prin Contract și LSP</h3>
+
+        <p><strong>Design by Contract (DbC)</strong> este o tehnică introdusă de Bertrand Meyer care formalizează exact ce înseamnă „contractul" unui tip. Fiecare metodă are trei componente:</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">P</div>
+            <div class="step-body">
+              <div class="step-title">Precondiție — ce trebuie să fie adevărat <em>înainte</em> de apel</div>
+              <div class="step-desc">Responsabilitatea apelantului. Dacă precondiția nu e respectată, metoda nu garantează nimic. LSP spune: <strong>subclasa nu poate întări precondiția</strong> — nu poate cere mai mult decât baza.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">Q</div>
+            <div class="step-body">
+              <div class="step-title">Postcondiție — ce garantează metoda <em>după</em> execuție</div>
+              <div class="step-desc">Responsabilitatea implementatorului. LSP spune: <strong>subclasa nu poate slăbi postcondiția</strong> — trebuie să garanteze cel puțin ce garantează baza.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">I</div>
+            <div class="step-body">
+              <div class="step-title">Invariantă — ce rămâne adevărat pe tot ciclul de viață al obiectului</div>
+              <div class="step-desc">LSP spune: <strong>subclasa trebuie să păstreze invariantele bazei</strong>. Dacă baza garantează că un câmp este întotdeauna pozitiv, subclasa nu îl poate lăsa negativ.</div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>DbC în C# — Guard clauses și excepții explicite</h3>
+
+        <p>C# nu are suport nativ pentru DbC ca Eiffel, dar putem aplica aceleași idei prin <strong>guard clauses</strong> la intrarea în metode și <strong>postcondiții verificate</strong> explicit. Important: contractul trebuie documentat la nivelul interfeței/clasei de bază — subclasele îl moștenesc și trebuie să îl respecte.</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname">IDiscountCalculator.cs — contractul definit pe interfață</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="cmt">/// Calculează discountul pentru o comandă.</span>
+<span class="cmt">/// Precondiție:  order != null, order.Total >= 0</span>
+<span class="cmt">/// Postcondiție: rezultatul este în intervalul [0, order.Total]</span>
+<span class="cmt">/// Invariantă:   rata de discount nu se poate schimba după construcție</span>
+<span class="kw">public interface</span> <span class="ifc">IDiscountCalculator</span>
+{
+    <span class="tp">decimal</span> <span class="mth">Calculate</span>(<span class="tp">Order</span> order);
+}
+
+<span class="cmt">// Clasă de bază abstractă care aplică contractul —</span>
+<span class="cmt">// subclasele implementează doar logica, nu re-validează</span>
+<span class="kw">public abstract class</span> <span class="tp">DiscountCalculatorBase</span> : <span class="ifc">IDiscountCalculator</span>
+{
+    <span class="kw">public</span> <span class="tp">decimal</span> <span class="mth">Calculate</span>(<span class="tp">Order</span> order)
+    {
+        <span class="cmt">// Precondiție — guard clause, verificată o singură dată în bază</span>
+        <span class="kw">if</span> (order == <span class="kw">null</span>)
+            <span class="kw">throw new</span> <span class="tp">ArgumentNullException</span>(<span class="kw">nameof</span>(order));
+        <span class="kw">if</span> (order.Total &lt; <span class="num">0</span>)
+            <span class="kw">throw new</span> <span class="tp">ArgumentException</span>(<span class="str">"Total cannot be negative"</span>);
+
+        <span class="kw">var</span> result = <span class="mth">ComputeDiscount</span>(order); <span class="cmt">// delegat subclaselor</span>
+
+        <span class="cmt">// Postcondiție — verificată tot în bază, nu în subclase</span>
+        <span class="kw">if</span> (result &lt; <span class="num">0</span> || result &gt; order.Total)
+            <span class="kw">throw new</span> <span class="tp">InvalidOperationException</span>(
+                <span class="str">$"Discount {result} outside valid range [0, {order.Total}]"</span>);
+
+        <span class="kw">return</span> result;
+    }
+
+    <span class="cmt">// Subclasele implementează DOAR logica — contractul e garantat de bază</span>
+    <span class="kw">protected abstract</span> <span class="tp">decimal</span> <span class="mth">ComputeDiscount</span>(<span class="tp">Order</span> order);
+}
+
+<span class="cmt">// Implementare corectă — respectă contractul implicit</span>
+<span class="kw">public class</span> <span class="tp">PremiumDiscount</span> : <span class="tp">DiscountCalculatorBase</span>
+{
+    <span class="kw">protected override</span> <span class="tp">decimal</span> <span class="mth">ComputeDiscount</span>(<span class="tp">Order</span> order)
+        => order.Total * <span class="num">0.10m</span>; <span class="cmt">// întotdeauna în [0, Total] ✓</span>
+}
+
+<span class="cmt">// Implementare greșită — ar fi prinsă de postcondiție la runtime</span>
+<span class="kw">public class</span> <span class="tp">BuggyDiscount</span> : <span class="tp">DiscountCalculatorBase</span>
+{
+    <span class="kw">protected override</span> <span class="tp">decimal</span> <span class="mth">ComputeDiscount</span>(<span class="tp">Order</span> order)
+        => order.Total * <span class="num">2.0m</span>; <span class="cmt">// InvalidOperationException → LSP încălcat detectat!</span>
+}</pre>
+        </div>
+
+        <div class="callout ok">
+          <span class="callout-icon">✓</span>
+          <div class="callout-body">
+            <div class="callout-title">De ce acest pattern ajută LSP</div>
+            <p>Contractul este definit și verificat <strong>o singură dată</strong>, în clasa de bază. Subclasele nu pot ignora precondițiile (nu le mai văd) și nu pot produce rezultate care violează postcondițiile (baza le detectează). O subclasă defectă este prinsă la runtime cu un mesaj explicit, nu tăcut ca un bug logic.</p>
+          </div>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>DbC cu invariante — exemplu cu cont bancar</h3>
+
+        <p>Invariantele sunt condițiile care trebuie să rămână adevărate pe tot ciclul de viață al obiectului. Un cont bancar are invarianta că soldul nu poate fi negativ (în varianta simplă). Orice subclasă — <code>SavingsAccount</code>, <code>CreditAccount</code> — trebuie să păstreze această invariantă sau să o extindă corect.</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname">BankAccount.cs — invariantă garantată de baza</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="kw">public abstract class</span> <span class="tp">BankAccount</span>
+{
+    <span class="kw">protected</span> <span class="tp">decimal</span> _balance;
+
+    <span class="kw">public</span> <span class="tp">decimal</span> <span class="prp">Balance</span> => _balance;
+
+    <span class="cmt">// Invariantă: soldul nu poate fi negativ după orice operație</span>
+    <span class="kw">protected void</span> <span class="mth">CheckInvariant</span>()
+    {
+        <span class="kw">if</span> (_balance &lt; <span class="num">0</span>)
+            <span class="kw">throw new</span> <span class="tp">InvalidOperationException</span>(
+                <span class="str">"Invariant violated: balance cannot be negative"</span>);
+    }
+
+    <span class="kw">public void</span> <span class="mth">Deposit</span>(<span class="tp">decimal</span> amount)
+    {
+        <span class="kw">if</span> (amount &lt;= <span class="num">0</span>) <span class="kw">throw new</span> <span class="tp">ArgumentException</span>(<span class="str">"Amount must be positive"</span>);
+        _balance += amount;
+        <span class="mth">CheckInvariant</span>(); <span class="cmt">// invarianta verificată după fiecare operație</span>
+    }
+
+    <span class="kw">public virtual void</span> <span class="mth">Withdraw</span>(<span class="tp">decimal</span> amount)
+    {
+        <span class="kw">if</span> (amount &lt;= <span class="num">0</span>) <span class="kw">throw new</span> <span class="tp">ArgumentException</span>(<span class="str">"Amount must be positive"</span>);
+        <span class="kw">if</span> (amount &gt; _balance) <span class="kw">throw new</span> <span class="tp">InvalidOperationException</span>(<span class="str">"Insufficient funds"</span>);
+        _balance -= amount;
+        <span class="mth">CheckInvariant</span>();
+    }
+}
+
+<span class="cmt">// SavingsAccount adaugă o restricție suplimentară (sold minim)</span>
+<span class="cmt">// dar nu slăbește invarianta bazei — LSP respectat</span>
+<span class="kw">public class</span> <span class="tp">SavingsAccount</span> : <span class="tp">BankAccount</span>
+{
+    <span class="kw">private const decimal</span> MinBalance = <span class="num">50m</span>;
+
+    <span class="kw">public override void</span> <span class="mth">Withdraw</span>(<span class="tp">decimal</span> amount)
+    {
+        <span class="cmt">// Precondiție mai restrictivă? Nu — e o regulă de business</span>
+        <span class="cmt">// SavingsAccount garantează în plus: balance >= 50 după retragere</span>
+        <span class="kw">if</span> (_balance - amount &lt; MinBalance)
+            <span class="kw">throw new</span> <span class="tp">InvalidOperationException</span>(
+                <span class="str">$"Must maintain minimum balance of {MinBalance}"</span>);
+        <span class="kw">base</span>.<span class="mth">Withdraw</span>(amount); <span class="cmt">// refolosește logica bazei + CheckInvariant()</span>
+    }
+}
+
+<span class="cmt">// CreditAccount permite sold negativ — invarianta bazei este SCHIMBATĂ.</span>
+<span class="cmt">// BankAccount garantează: balance >= 0 după orice operație.</span>
+<span class="cmt">// CreditAccount are nevoie de: balance >= -creditLimit.</span>
+<span class="cmt">// Cele două invariante sunt incompatibile — CreditAccount NU poate</span>
+<span class="cmt">// extinde BankAccount fără să violeze LSP. Vezi soluția de mai jos.</span></pre>
+        </div>
+
+        <div class="callout warn">
+          <span class="callout-icon">⚠️</span>
+          <div class="callout-body">
+            <div class="callout-title">De ce CreditAccount nu poate extinde BankAccount</div>
+            <p>Orice cod care lucrează cu un <code>BankAccount</code> se poate baza pe invarianta <code>balance &gt;= 0</code> — de exemplu un serviciu de raportare care calculează expunerea totală. Dacă înlocuim <code>BankAccount</code> cu un <code>CreditAccount</code> al cărui sold poate fi -500, raportul produce valori incorecte fără nicio eroare. Acesta este exact scenariul pe care LSP îl interzice: substituția silențioasă care schimbă comportamentul.</p>
+          </div>
+        </div>
+
+        <p>Soluția corectă este să extragem contractul comun într-o <strong>interfață</strong> și să lăsăm cele două tipuri de cont să fie <em>peer-uri</em>, nu relație părinte-copil. Fiecare implementează interfața cu propriile invariante, fără să le moștenească pe ale celuilalt.</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname">Refactorizare — interfețe granulare în loc de moștenire</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="cmt">// Contractul comun: ce știe să facă orice cont</span>
+<span class="kw">public interface</span> <span class="ifc">IAccount</span>
+{
+    <span class="tp">Guid</span>    <span class="prp">Id</span>      { <span class="kw">get</span>; }
+    <span class="tp">decimal</span> <span class="prp">Balance</span> { <span class="kw">get</span>; }
+    <span class="kw">void</span>    <span class="mth">Deposit</span>(<span class="tp">decimal</span> amount);
+}
+
+<span class="cmt">// Contractul pentru conturi care pot retrage (fără a specifica limita)</span>
+<span class="kw">public interface</span> <span class="ifc">IWithdrawable</span> : <span class="ifc">IAccount</span>
+{
+    <span class="cmt">/// Precondiție:  amount &gt; 0</span>
+    <span class="cmt">/// Postcondiție: Balance scade cu amount (în limita permisă de implementare)</span>
+    <span class="kw">void</span> <span class="mth">Withdraw</span>(<span class="tp">decimal</span> amount);
+}
+
+<span class="cmt">// ── Implementare 1: DebitAccount ──────────────────────────────────────</span>
+<span class="cmt">// Invariantă proprie: Balance &gt;= 0 întotdeauna</span>
+<span class="kw">public class</span> <span class="tp">DebitAccount</span> : <span class="ifc">IWithdrawable</span>
+{
+    <span class="kw">private</span> <span class="tp">decimal</span> _balance;
+    <span class="kw">public</span> <span class="tp">Guid</span>    <span class="prp">Id</span>      { <span class="kw">get</span>; } = <span class="tp">Guid</span>.<span class="mth">NewGuid</span>();
+    <span class="kw">public</span> <span class="tp">decimal</span> <span class="prp">Balance</span> => _balance;
+
+    <span class="kw">public void</span> <span class="mth">Deposit</span>(<span class="tp">decimal</span> amount)
+    {
+        <span class="kw">if</span> (amount &lt;= <span class="num">0</span>) <span class="kw">throw new</span> <span class="tp">ArgumentException</span>(<span class="str">"Amount must be positive"</span>);
+        _balance += amount;
+    }
+
+    <span class="kw">public void</span> <span class="mth">Withdraw</span>(<span class="tp">decimal</span> amount)
+    {
+        <span class="kw">if</span> (amount &lt;= <span class="num">0</span>)         <span class="kw">throw new</span> <span class="tp">ArgumentException</span>(<span class="str">"Amount must be positive"</span>);
+        <span class="kw">if</span> (amount &gt; _balance)  <span class="kw">throw new</span> <span class="tp">InvalidOperationException</span>(<span class="str">"Insufficient funds"</span>);
+        _balance -= amount;
+        <span class="cmt">// Invariantă: _balance &gt;= 0 — garantată de verificarea de mai sus</span>
+    }
+}
+
+<span class="cmt">// ── Implementare 2: CreditAccount ────────────────────────────────────</span>
+<span class="cmt">// Invariantă proprie: Balance &gt;= -CreditLimit  (poate fi negativ!)</span>
+<span class="kw">public class</span> <span class="tp">CreditAccount</span> : <span class="ifc">IWithdrawable</span>
+{
+    <span class="kw">private</span> <span class="tp">decimal</span> _balance;
+    <span class="kw">private readonly</span> <span class="tp">decimal</span> _creditLimit;
+
+    <span class="kw">public</span> <span class="tp">Guid</span>    <span class="prp">Id</span>          { <span class="kw">get</span>; } = <span class="tp">Guid</span>.<span class="mth">NewGuid</span>();
+    <span class="kw">public</span> <span class="tp">decimal</span> <span class="prp">Balance</span>     => _balance;
+    <span class="kw">public</span> <span class="tp">decimal</span> <span class="prp">CreditLimit</span> => _creditLimit;
+    <span class="kw">public</span> <span class="tp">decimal</span> <span class="prp">Available</span>   => _balance + _creditLimit;
+
+    <span class="kw">public</span> <span class="mth">CreditAccount</span>(<span class="tp">decimal</span> creditLimit)
+    {
+        <span class="kw">if</span> (creditLimit &lt;= <span class="num">0</span>) <span class="kw">throw new</span> <span class="tp">ArgumentException</span>(<span class="str">"Credit limit must be positive"</span>);
+        _creditLimit = creditLimit;
+    }
+
+    <span class="kw">public void</span> <span class="mth">Deposit</span>(<span class="tp">decimal</span> amount)
+    {
+        <span class="kw">if</span> (amount &lt;= <span class="num">0</span>) <span class="kw">throw new</span> <span class="tp">ArgumentException</span>(<span class="str">"Amount must be positive"</span>);
+        _balance += amount;
+    }
+
+    <span class="kw">public void</span> <span class="mth">Withdraw</span>(<span class="tp">decimal</span> amount)
+    {
+        <span class="kw">if</span> (amount &lt;= <span class="num">0</span>)            <span class="kw">throw new</span> <span class="tp">ArgumentException</span>(<span class="str">"Amount must be positive"</span>);
+        <span class="kw">if</span> (amount &gt; Available)    <span class="kw">throw new</span> <span class="tp">InvalidOperationException</span>(<span class="str">"Credit limit exceeded"</span>);
+        _balance -= amount;
+        <span class="cmt">// Invariantă proprie: _balance &gt;= -_creditLimit — garantată mai sus</span>
+        <span class="cmt">// Nu moștenește invarianta DebitAccount (balance &gt;= 0) — și nici nu trebuie</span>
+    }
+}
+
+<span class="cmt">// ── Cod care lucrează prin interfața comună IWithdrawable ─────────────</span>
+<span class="cmt">// Contractul IWithdrawable NU garantează balance &gt;= 0 — doar că Withdraw()</span>
+<span class="cmt">// scade soldul în limita permisă de fiecare implementare.</span>
+<span class="cmt">// Substituția este corectă: DebitAccount și CreditAccount respectă același contract.</span>
+<span class="kw">public class</span> <span class="tp">PaymentProcessor</span>
+{
+    <span class="kw">public void</span> <span class="mth">ProcessPayment</span>(<span class="ifc">IWithdrawable</span> account, <span class="tp">decimal</span> amount)
+    {
+        <span class="cmt">// Nu știe dacă e DebitAccount sau CreditAccount — nu îi pasă</span>
+        <span class="cmt">// Dacă suma depășește limita, primește InvalidOperationException</span>
+        <span class="cmt">// — comportament documentat în contractul IWithdrawable</span>
+        account.<span class="mth">Withdraw</span>(amount);
+        Console.<span class="mth">WriteLine</span>(<span class="str">$"Payment of {amount} processed. New balance: {account.Balance}"</span>);
+    }
+}</pre>
+        </div>
+
+        <div class="callout ok">
+          <span class="callout-icon">✓</span>
+          <div class="callout-body">
+            <div class="callout-title">Ce s-a rezolvat</div>
+            <p><code>DebitAccount</code> și <code>CreditAccount</code> sunt acum <strong>peer-uri</strong> — implementează același contract <code>IWithdrawable</code>, fiecare cu propriile invariante, fără să le moștenească una pe ale celeilalte. <code>PaymentProcessor</code> funcționează corect cu ambele. Niciun cod nu se mai poate baza pe ipoteza falsă că <code>balance &gt;= 0</code> — pentru că <code>IWithdrawable</code> nu face această promisiune. Dacă cineva chiar are nevoie de garanția <code>balance &gt;= 0</code>, poate depinde explicit de <code>DebitAccount</code> sau poate cere o interfață suplimentară <code>INonNegativeBalance</code>.</p>
+          </div>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Exemplu concret: întărirea precondiției duce la LSP încălcat</h3>
+
+        <p>Scenariul: un sistem de procesare a plăților cu o clasă de bază <code>PaymentGateway</code> care acceptă orice sumă pozitivă. O subclasă <code>PremiumGateway</code> decide să accepte <em>doar</em> sume mai mari de 100 — adică <strong>întărește precondiția</strong>. Vedem pas cu pas de ce asta sparge codul existent.</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname">PaymentGateway.cs — contractul bazei</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="cmt">/// Procesează o plată.</span>
+<span class="cmt">/// Precondiție:  amount &gt; 0          ← orice sumă pozitivă este validă</span>
+<span class="cmt">/// Postcondiție: returnează un TransactionId nenul</span>
+<span class="kw">public class</span> <span class="tp">PaymentGateway</span>
+{
+    <span class="kw">public virtual</span> <span class="tp">string</span> <span class="mth">ProcessPayment</span>(<span class="tp">decimal</span> amount)
+    {
+        <span class="kw">if</span> (amount &lt;= <span class="num">0</span>)
+            <span class="kw">throw new</span> <span class="tp">ArgumentException</span>(<span class="str">"Amount must be positive"</span>);
+
+        <span class="cmt">// simulăm procesarea</span>
+        <span class="kw">return</span> <span class="str">$"TXN-{Guid.NewGuid():N}"</span>;
+    }
+}
+
+<span class="cmt">// ❌ PremiumGateway ÎNTĂREȘTE precondiția: acceptă doar sume > 100</span>
+<span class="cmt">// Baza promitea că amount > 0 este suficient — subclasa retrage promisiunea</span>
+<span class="kw">public class</span> <span class="tp">PremiumGateway</span> : <span class="tp">PaymentGateway</span>
+{
+    <span class="kw">public override</span> <span class="tp">string</span> <span class="mth">ProcessPayment</span>(<span class="tp">decimal</span> amount)
+    {
+        <span class="kw">if</span> (amount &lt;= <span class="num">100</span>)           <span class="cmt">// ← precondiție mai strictă decât baza!</span>
+            <span class="kw">throw new</span> <span class="tp">ArgumentException</span>(<span class="str">"PremiumGateway requires amount &gt; 100"</span>);
+
+        <span class="kw">return</span> <span class="str">$"PREMIUM-TXN-{Guid.NewGuid():N}"</span>;
+    }
+}</pre>
+        </div>
+
+        <p>Până acum pare inofensiv — „PremiumGateway e pentru sume mari, normal că are restricții". Problema apare când codul existent, scris să lucreze cu <code>PaymentGateway</code>, primește în schimb un <code>PremiumGateway</code>:</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname">OrderService.cs — codul care se sparge</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="kw">public class</span> <span class="tp">OrderService</span>
+{
+    <span class="kw">private readonly</span> <span class="tp">PaymentGateway</span> _gateway;
+
+    <span class="kw">public</span> <span class="mth">OrderService</span>(<span class="tp">PaymentGateway</span> gateway)
+        => _gateway = gateway;
+
+    <span class="kw">public void</span> <span class="mth">PlaceOrder</span>(<span class="tp">Order</span> order)
+    {
+        <span class="cmt">// OrderService cunoaște contractul bazei: amount > 0 este suficient</span>
+        <span class="cmt">// A respectat precondiția — amount = 45, deci > 0 ✓</span>
+        <span class="kw">var</span> txnId = _gateway.<span class="mth">ProcessPayment</span>(order.Total); <span class="cmt">// order.Total = 45m</span>
+        Console.<span class="mth">WriteLine</span>(<span class="str">$"Order placed, transaction: {txnId}"</span>);
+    }
+}
+
+<span class="cmt">// ── La configurarea aplicației ────────────────────────────────────────</span>
+<span class="kw">var</span> service = <span class="kw">new</span> <span class="tp">OrderService</span>(<span class="kw">new</span> <span class="tp">PaymentGateway</span>());
+service.<span class="mth">PlaceOrder</span>(orderOf45);   <span class="cmt">// ✓ funcționează corect</span>
+
+<span class="cmt">// Cineva schimbă implementarea — par echivalente, nu?</span>
+<span class="kw">var</span> service2 = <span class="kw">new</span> <span class="tp">OrderService</span>(<span class="kw">new</span> <span class="tp">PremiumGateway</span>());
+service2.<span class="mth">PlaceOrder</span>(orderOf45);  <span class="cmt">// ❌ ArgumentException — LSP încălcat!</span>
+<span class="cmt">//                                    OrderService a respectat contractul bazei.</span>
+<span class="cmt">//                                    Subclasa a retras o promisiune fără să anunțe.</span></pre>
+        </div>
+
+        <div class="callout danger">
+          <span class="callout-icon">💥</span>
+          <div class="callout-body">
+            <div class="callout-title">De ce e periculos — nu e doar o excepție</div>
+            <p><code>OrderService</code> și-a respectat partea lui de contract: a trimis <code>amount &gt; 0</code>. A respectat tot ce promitea documentația bazei. Eroarea nu e în <code>OrderService</code> — e în faptul că <code>PremiumGateway</code> a <strong>retras o promisiune</strong> pe care baza o făcuse. Orice cod scris corect față de bază se poate sparge când primește subclasa, fără nicio greșeală proprie. În sisteme mari, unde <code>OrderService</code> și <code>PremiumGateway</code> sunt în module diferite, acest bug poate fi extrem de greu de depistat.</p>
+          </div>
+        </div>
+
+        <p>Există trei soluții, în ordinea preferinței:</p>
+
+        <div class="compare">
+          <div class="compare-col before">
+            <div class="compare-label before">❌ Varianta greșită — verificare în apelant (anti-pattern)</div>
+            <div class="code-block" style="border-radius:0 0 var(--radius2) var(--radius2);">
+              <pre><span class="cmt">// "Soluția" naivă: OrderService verifică tipul</span>
+<span class="kw">public void</span> <span class="mth">PlaceOrder</span>(<span class="tp">Order</span> order)
+{
+    <span class="kw">if</span> (_gateway <span class="kw">is</span> <span class="tp">PremiumGateway</span> &amp;&amp; order.Total &lt;= <span class="num">100</span>)
+        <span class="kw">throw new</span> <span class="tp">InvalidOperationException</span>(<span class="str">"Use standard gateway"</span>);
+
+    <span class="kw">var</span> txnId = _gateway.<span class="mth">ProcessPayment</span>(order.Total);
+}
+<span class="cmt">// ❌ OrderService trebuie să cunoască subclasele — cuplare maximă</span>
+<span class="cmt">// ❌ La fiecare subclasă nouă, OrderService se modifică — OCP încălcat</span>
+<span class="cmt">// ❌ Exact comportamentul pe care LSP vrea să îl elimine</span></pre>
+            </div>
+          </div>
+          <div class="compare-col after">
+            <div class="compare-label after">✅ Varianta corectă — contracte separate, fără moștenire forțată</div>
+            <div class="code-block" style="border-radius:0 0 var(--radius2) var(--radius2);">
+              <pre><span class="cmt">// PremiumGateway nu extinde PaymentGateway — are alt contract</span>
+<span class="kw">public interface</span> <span class="ifc">IPaymentGateway</span>
+{
+    <span class="cmt">/// Precondiție: amount &gt; 0</span>
+    <span class="tp">string</span> <span class="mth">ProcessPayment</span>(<span class="tp">decimal</span> amount);
+}
+
+<span class="kw">public interface</span> <span class="ifc">IPremiumPaymentGateway</span>
+{
+    <span class="cmt">/// Precondiție: amount &gt; 100</span>
+    <span class="tp">string</span> <span class="mth">ProcessPayment</span>(<span class="tp">decimal</span> amount);
+}
+
+<span class="kw">public class</span> <span class="tp">StandardGateway</span> : <span class="ifc">IPaymentGateway</span>
+{
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">ProcessPayment</span>(<span class="tp">decimal</span> amount)
+    {
+        <span class="kw">if</span> (amount &lt;= <span class="num">0</span>) <span class="kw">throw new</span> <span class="tp">ArgumentException</span>(<span class="str">"amount &gt; 0 required"</span>);
+        <span class="kw">return</span> <span class="str">$"TXN-{Guid.NewGuid():N}"</span>;
+    }
+}
+
+<span class="kw">public class</span> <span class="tp">PremiumGateway</span> : <span class="ifc">IPremiumPaymentGateway</span>
+{
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">ProcessPayment</span>(<span class="tp">decimal</span> amount)
+    {
+        <span class="kw">if</span> (amount &lt;= <span class="num">100</span>) <span class="kw">throw new</span> <span class="tp">ArgumentException</span>(<span class="str">"amount &gt; 100 required"</span>);
+        <span class="kw">return</span> <span class="str">$"PREMIUM-{Guid.NewGuid():N}"</span>;
+    }
+}
+
+<span class="cmt">// OrderService depinde de IPaymentGateway — contractul cu amount > 0</span>
+<span class="cmt">// Nu poate primi PremiumGateway — compilatorul o împiedică</span>
+<span class="kw">public class</span> <span class="tp">OrderService</span>
+{
+    <span class="kw">private readonly</span> <span class="ifc">IPaymentGateway</span> _gateway;
+    <span class="kw">public</span> <span class="mth">OrderService</span>(<span class="ifc">IPaymentGateway</span> gateway) => _gateway = gateway;
+
+    <span class="kw">public void</span> <span class="mth">PlaceOrder</span>(<span class="tp">Order</span> order)
+    {
+        <span class="kw">var</span> txnId = _gateway.<span class="mth">ProcessPayment</span>(order.Total);
+        Console.<span class="mth">WriteLine</span>(<span class="str">$"Transaction: {txnId}"</span>);
+    }
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout ok">
+          <span class="callout-icon">✓</span>
+          <div class="callout-body">
+            <div class="callout-title">Regula de aur pentru precondiții</div>
+            <p>Dacă o subclasă nu poate accepta tot ce accepta baza, nu aparține acelei ierarhii — are un contract diferit și trebuie să exprime asta printr-o interfață separată. <strong>Compilatorul devine aliatul tău</strong>: <code>OrderService(IPaymentGateway)</code> nu poate primi un <code>PremiumGateway</code> — eroarea este la compile-time, nu la runtime în producție.</p>
+          </div>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Rezumat: regulile LSP prin prisma DbC</h3>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <div class="step-title">Precondițiile: subclasa acceptă cel puțin ce acceptă baza</div>
+              <div class="step-desc">Poți relaxa (accepta mai mult), nu poți întări (accepta mai puțin). Verificările de precondiție se fac o singură dată, în bază — nu se re-verifică în subclase.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <div class="step-title">Postcondițiile: subclasa garantează cel puțin ce garantează baza</div>
+              <div class="step-desc">Poți întări (garanta mai mult), nu poți slăbi (garanta mai puțin). Verificările de postcondiție se fac în bază, după apelul metodei delegate.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <div class="step-title">Invariantele: subclasa le păstrează pe toate ale bazei</div>
+              <div class="step-desc">Poți adăuga invariante noi, nu poți viola cele existente. Dacă nu poți păstra o invariantă, nu aparții ierarhiei.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <div class="step-title">Nicio excepție neașteptată</div>
+              <div class="step-desc">Subclasa nu aruncă tipuri de excepții noi, nedeclarate de bază. Codul care prinde <code>InsufficientFundsException</code> de la bază nu se așteaptă la <code>NetworkException</code> din subclasă.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 5: RELATII ── -->
+  <section class="section" id="relatie">
+    <h2 class="stitle"><span class="num">05</span>Relații între SRP, OCP și LSP</h2>
+
+    <p>Cele trei principii nu sunt independente — se susțin reciproc:</p>
+
+    <div class="callout info">
+      <span class="callout-icon">🔗</span>
+      <div class="callout-body">
+        <div class="callout-title">Cum colaborează</div>
+        <p><strong>SRP</strong> asigură că fiecare clasă are o responsabilitate clară — ceea ce face posibilă aplicarea OCP: o clasă cu o singură responsabilitate este mai ușor de „închis" pentru modificare. <strong>OCP</strong> se bazează pe polimorfism și interfețe — exact mecanismele pe care <strong>LSP</strong> le face sigure: dacă subclasele respectă contractul, substituția prin interfețe funcționează corect.</p>
+      </div>
+    </div>
+
+    <p>Un mod simplu de a ține minte relația: <strong>SRP</strong> spune <em>ce</em> trebuie să conțină o clasă, <strong>OCP</strong> spune <em>cum</em> trebuie să evolueze, iar <strong>LSP</strong> spune <em>ce condiții</em> trebuie să respecte ierarhiile de tipuri.</p>
+
+    <div class="cquote">
+      Codul care respectă SRP este mai ușor de extins conform OCP. Ierarhiile care respectă LSP fac OCP-ul sigur. Toate trei împreună produc cod care crește fără să se destrame.
+    </div>
+  </section>
+
+  <!-- ── SECTION 6: LAB ── -->
+  <section class="section" id="lab">
+    <h2 class="stitle"><span class="num">06</span>Laborator 3</h2>
+
+    <p>Proiect independent și complet — de la baza de date până la interfața grafică. Scopul nu este să implementați totul perfect, ci să luați <strong>decizii de design conștiente</strong> și să le justificați prin prisma principiilor SRP, OCP și LSP.</p>
+
+    <div class="lab-box">
+      <div class="lab-header">
+        <span class="lab-header-icon">🔬</span>
+        <div class="lab-header-text">
+          <h4>Aplicație de Gestiune a Sarcinilor — Task Manager</h4>
+          <p>Laborator 3 — aplicație .NET completă cu SQLite, servicii, repository pattern și SOLID aplicat explicit</p>
+        </div>
+      </div>
+      <div class="lab-body">
+
+        <p>Veți construi o aplicație de gestiune a sarcinilor pentru o echipă mică. Fiecare sarcină are titlu, descriere, status, prioritate și un tip de notificare la finalizare. Aplicația permite adăugarea, editarea, ștergerea și filtrarea sarcinilor.</p>
+
+        <!-- ARHITECTURA -->
+        <div class="lab-section" style="margin-top:1.5rem;">
+          <div class="lab-section-title">Arhitectura stratificată</div>
+          <div class="lab-arch">
+            <div class="lab-arch-card">
+              <div class="lab-arch-card-title">🖥 UI Layer</div>
+              <div class="lab-arch-card-body">Interfața cu utilizatorul — alege una din variantele de mai jos. Nu conține logică de business. Apelează exclusiv <code>TaskService</code>.</div>
+            </div>
+            <div class="lab-arch-card">
+              <div class="lab-arch-card-title">⚙️ Service Layer</div>
+              <div class="lab-arch-card-body"><code>TaskService</code> — orchestrare, validare prin <code>TaskValidator</code>, aplicare reguli de business. Nu știe de baza de date.</div>
+            </div>
+            <div class="lab-arch-card">
+              <div class="lab-arch-card-title">🗄 Repository Layer</div>
+              <div class="lab-arch-card-body"><code>ITaskRepository</code> cu implementare <code>SqliteTaskRepository</code>. Izolează accesul la date față de restul aplicației.</div>
+            </div>
+            <div class="lab-arch-card">
+              <div class="lab-arch-card-title">💾 Baza de date</div>
+              <div class="lab-arch-card-body">SQLite, fișier local. Schema se creează automat la prima rulare. Pachet: <code>Microsoft.Data.Sqlite</code> sau <code>Dapper</code>.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- UI OPTIONS -->
+        <div class="lab-section">
+          <div class="lab-section-title">Variante de UI — alege una</div>
+          <div class="ui-options">
+            <div class="ui-option">
+              <div class="ui-option-name"><span class="ui-option-icon">🪟</span> WinForms <span class="ui-option-tag rec">recomandat</span></div>
+              <div class="ui-option-desc">Form principal cu <code>DataGridView</code> pentru lista de sarcini, <code>ComboBox</code> pentru filtrare după status/prioritate, butoane Add / Edit / Delete. Cel mai rapid de livrat — toolbox-ul face layout-ul vizual fără CSS.</div>
+            </div>
+            <div class="ui-option">
+              <div class="ui-option-name"><span class="ui-option-icon">🖱</span> WPF + MVVM <span class="ui-option-tag alt">alternativă</span></div>
+              <div class="ui-option-desc"><code>ListView</code> cu data binding la <code>ObservableCollection&lt;TaskItem&gt;</code>, <code>ViewModel</code> intermediar. Demonstrează SRP la nivel de UI: View nu știe nimic, ViewModel nu accesează date direct.</div>
+            </div>
+            <div class="ui-option">
+              <div class="ui-option-name"><span class="ui-option-icon">🌐</span> ASP.NET MVC <span class="ui-option-tag alt">alternativă</span></div>
+              <div class="ui-option-desc">Aplicație web locală (<code>localhost</code>). Controller subțire care apelează <code>TaskService</code>, Views cu Razor. Potrivit dacă ești confortabil cu web dev și vrei un UI mai modern.</div>
+            </div>
+            <div class="ui-option">
+              <div class="ui-option-name"><span class="ui-option-icon">🔌</span> REST API <span class="ui-option-tag alt">alternativă</span></div>
+              <div class="ui-option-desc">Minimal API (<code>app.MapGet/Post/Put/Delete</code>) fără UI grafic — testat cu Postman sau Swagger UI. Separă clar responsabilitățile: UI = clientul HTTP, nu codul tău.</div>
+            </div>
+            <div class="ui-option">
+              <div class="ui-option-name"><span class="ui-option-icon">⌨️</span> Consolă <span class="ui-option-tag alt">alternativă</span></div>
+              <div class="ui-option-desc">Meniu interactiv cu <code>Spectre.Console</code> pentru tabele și culori. Focusul rămâne pe design și straturile Core/Data. Acceptabil dacă echipa vrea să aloce mai mult timp cerințelor SOLID.</div>
+            </div>
+          </div>
+          <p style="font-size:13px;color:var(--text3);margin-top:.5rem;">Indiferent de variantă, UI-ul este un strat subțire. Dacă scrii logică de business în event handler, Controller sau ViewModel, mută-o în <code>TaskService</code>.</p>
+        </div>
+
+        <!-- BAZA DE DATE -->
+        <div class="lab-section">
+          <div class="lab-section-title">Schema bazei de date</div>
+          <div class="db-schema">
+            <div class="db-schema-header">
+              <span class="db-schema-icon">🗄</span>
+              <span class="db-schema-title">tasks.db — tabelul Tasks</span>
+            </div>
+            <div class="db-schema-body">
+              <table class="db-table">
+                <thead>
+                  <tr>
+                    <th>Coloană</th>
+                    <th>Tip</th>
+                    <th>Constrângeri</th>
+                    <th>Descriere</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="db-col-name">Id</span></td>
+                    <td><span class="db-col-type">INTEGER</span></td>
+                    <td><span class="db-col-pk">PK</span> AUTOINCREMENT</td>
+                    <td class="db-col-note">Cheie primară</td>
+                  </tr>
+                  <tr>
+                    <td><span class="db-col-name">Title</span></td>
+                    <td><span class="db-col-type">TEXT</span></td>
+                    <td>NOT NULL</td>
+                    <td class="db-col-note">Titlul sarcinii, max 200 caractere</td>
+                  </tr>
+                  <tr>
+                    <td><span class="db-col-name">Description</span></td>
+                    <td><span class="db-col-type">TEXT</span></td>
+                    <td>—</td>
+                    <td class="db-col-note">Descriere opțională</td>
+                  </tr>
+                  <tr>
+                    <td><span class="db-col-name">Status</span></td>
+                    <td><span class="db-col-type">TEXT</span></td>
+                    <td>NOT NULL</td>
+                    <td class="db-col-note"><code>Todo</code> | <code>InProgress</code> | <code>Done</code></td>
+                  </tr>
+                  <tr>
+                    <td><span class="db-col-name">Priority</span></td>
+                    <td><span class="db-col-type">INTEGER</span></td>
+                    <td>NOT NULL</td>
+                    <td class="db-col-note"><code>1</code> Low · <code>2</code> Medium · <code>3</code> High</td>
+                  </tr>
+                  <tr>
+                    <td><span class="db-col-name">TaskType</span></td>
+                    <td><span class="db-col-type">TEXT</span></td>
+                    <td>NOT NULL</td>
+                    <td class="db-col-note"><code>Standard</code> | <code>Recurring</code> | <code>Deadline</code></td>
+                  </tr>
+                  <tr>
+                    <td><span class="db-col-name">NotificationType</span></td>
+                    <td><span class="db-col-type">TEXT</span></td>
+                    <td>NOT NULL</td>
+                    <td class="db-col-note"><code>Email</code> | <code>Console</code> | <code>FileLog</code></td>
+                  </tr>
+                  <tr>
+                    <td><span class="db-col-name">DueDate</span></td>
+                    <td><span class="db-col-type">TEXT</span></td>
+                    <td>—</td>
+                    <td class="db-col-note">ISO 8601. Obligatoriu pentru <code>DeadlineTask</code></td>
+                  </tr>
+                  <tr>
+                    <td><span class="db-col-name">RecurrenceInterval</span></td>
+                    <td><span class="db-col-type">INTEGER</span></td>
+                    <td>—</td>
+                    <td class="db-col-note">Zile între recurențe. Doar pentru <code>RecurringTask</code></td>
+                  </tr>
+                  <tr>
+                    <td><span class="db-col-name">CreatedAt</span></td>
+                    <td><span class="db-col-type">TEXT</span></td>
+                    <td>NOT NULL</td>
+                    <td class="db-col-note">ISO 8601, setat automat la inserare</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <p style="font-size:13px;color:var(--text3);">Schema se creează automat la prima rulare: <code>SqliteTaskRepository</code> apelează <code>CREATE TABLE IF NOT EXISTS</code> în constructor.</p>
+        </div>
+
+        <!-- CERINTE -->
+        <div class="lab-section">
+          <div class="lab-section-title">Cerințe SOLID</div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge srp">SRP</span>
+              <span class="lab-req-title">Cerința 1 — Separarea responsabilităților</span>
+            </div>
+            <div class="lab-req-body">
+              <ul>
+                <li>UI-ul nu conține logică de business — event handlers apelează exclusiv <code>TaskService</code></li>
+                <li><code>TaskService</code> nu accesează direct baza de date — folosește <code>ITaskRepository</code></li>
+                <li><code>TaskValidator</code> este o clasă separată cu o singură responsabilitate: validarea regulilor (titlu nenul, titlu max 200 caractere, <code>DueDate</code> în viitor pentru <code>DeadlineTask</code>)</li>
+                <li>Justificați în <code>README.md</code>: care este actorul fiecărei clase și de ce o schimbare a unui actor nu afectează celelalte clase</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge ocp">OCP</span>
+              <span class="lab-req-title">Cerința 2 — Extensibilitatea notificărilor</span>
+            </div>
+            <div class="lab-req-body">
+              <ul>
+                <li>La marcarea unei sarcini ca <em>Done</em>, sistemul trimite o notificare al cărei tip este stocat în câmpul <code>NotificationType</code></li>
+                <li>Definiți interfața <code>ITaskNotifier</code> cu metoda <code>Notify(TaskItem task)</code></li>
+                <li>Implementați: <code>EmailNotifier</code> (scrie în consolă „Email sent to…"), <code>ConsoleNotifier</code>, <code>FileLogNotifier</code> (append în <code>tasks.log</code>)</li>
+                <li><code>TaskService</code> primește un <code>IReadOnlyDictionary&lt;NotificationType, ITaskNotifier&gt;</code> prin constructor — selectează notifier-ul corect fără <code>if/switch</code></li>
+                <li>Demonstrați OCP: adăugați <code>SlackNotifier</code> și înregistrați-l în dicționar — nicio clasă existentă nu se modifică</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge lsp">LSP + DbC</span>
+              <span class="lab-req-title">Cerința 3 — Ierarhia de sarcini cu contract explicit</span>
+            </div>
+            <div class="lab-req-body">
+              <ul>
+                <li>Subtipuri: <code>TaskItem</code> (bază), <code>RecurringTask</code>, <code>DeadlineTask</code></li>
+                <li>Contractul metodei <code>Complete()</code> definit în clasa de bază: <strong>precondiție</strong> — sarcina nu este deja <code>Done</code>; <strong>postcondiție</strong> — <code>Status == Done</code> după apel; <strong>invariantă</strong> — <code>Status</code> nu poate fi simultan <code>Done</code> și <code>Overdue</code></li>
+                <li>Baza verifică precondiția și postcondiția; subclasele suprascriu doar <code>CompleteCore()</code> (Template Method intern)</li>
+                <li><code>RecurringTask.CompleteCore()</code>: setează <code>Status = Done</code> și recalculează <code>DueDate += RecurrenceInterval</code> — respectă postcondiția, adaugă comportament suplimentar</li>
+                <li><code>DeadlineTask.CompleteCore()</code>: setează <code>Status = Done</code> — identic cu baza, fără surprize</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge repo">REPO</span>
+              <span class="lab-req-title">Cerința 4 — Repository și acces la date</span>
+            </div>
+            <div class="lab-req-body">
+              <ul>
+                <li>Interfața <code>ITaskRepository</code>: <code>GetAll()</code>, <code>GetById(int id)</code>, <code>Add(TaskItem t)</code>, <code>Update(TaskItem t)</code>, <code>Delete(int id)</code></li>
+                <li><code>SqliteTaskRepository</code> folosește <code>Microsoft.Data.Sqlite</code>. Mapare manuală din <code>SqliteDataReader</code> în obiect — fără ORM</li>
+                <li><code>InMemoryTaskRepository</code> — implementare pe <code>List&lt;TaskItem&gt;</code>, folosită exclusiv în teste NUnit</li>
+                <li>Ambele implementări sunt interschimbabile față de <code>TaskService</code> — LSP respectat la nivel de repository</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge test">TESTE</span>
+              <span class="lab-req-title">Cerința 5 — Teste NUnit</span>
+            </div>
+            <div class="lab-req-body">
+              <ul>
+                <li>Minim 8 teste NUnit (<code>NUnit</code> + <code>NUnit3TestAdapter</code> + <code>Microsoft.NET.Test.Sdk</code>), toate folosind <code>InMemoryTaskRepository</code> — fără SQLite în teste</li>
+                <li>Test parametrizat (<code>[TestCase]</code>) care verifică postcondiția LSP: <code>Complete()</code> produce <code>Status == Done</code> pentru toate cele 3 subtipuri</li>
+                <li>Test care verifică că precondiția aruncă excepție la apelarea <code>Complete()</code> pe o sarcină deja <code>Done</code></li>
+                <li>Test care verifică extensibilitatea OCP: un <code>MockNotifier</code> injectat în <code>TaskService</code> este apelat la finalizare, fără modificări în serviciu</li>
+                <li>Test care verifică că <code>TaskValidator</code> respinge titlul gol și titlul mai lung de 200 caractere</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- STRUCTURA PROIECT -->
+        <div class="lab-section">
+          <div class="lab-section-title">Structura soluției</div>
+          <div class="structure-tree">
+<span class="st-folder">TaskManager.sln</span>
+├── <span class="st-folder">src/</span>
+│   ├── <span class="st-folder">TaskManager.Core/</span>          <span class="st-comment">← modele, interfețe, servicii, validatori</span>
+│   │   ├── <span class="st-file">Models/TaskItem.cs</span>
+│   │   ├── <span class="st-file">Models/RecurringTask.cs</span>
+│   │   ├── <span class="st-file">Models/DeadlineTask.cs</span>
+│   │   ├── <span class="st-file">Interfaces/ITaskRepository.cs</span>
+│   │   ├── <span class="st-file">Interfaces/ITaskNotifier.cs</span>
+│   │   ├── <span class="st-file">Services/TaskService.cs</span>
+│   │   ├── <span class="st-file">Services/TaskValidator.cs</span>
+│   │   └── <span class="st-file">Notifications/EmailNotifier.cs  ConsoleNotifier.cs  FileLogNotifier.cs</span>
+│   ├── <span class="st-folder">TaskManager.Data/</span>             <span class="st-comment">← acces date, SQLite</span>
+│   │   ├── <span class="st-file">SqliteTaskRepository.cs</span>
+│   │   └── <span class="st-file">InMemoryTaskRepository.cs</span>
+│   └── <span class="st-folder">TaskManager.UI/</span>               <span class="st-comment">← WinForms / WPF / Consolă</span>
+│       └── <span class="st-file">Program.cs  (sau MainForm.cs)</span>
+└── <span class="st-folder">tests/</span>
+    └── <span class="st-folder">TaskManager.Tests/</span>
+        ├── <span class="st-file">TaskServiceTests.cs</span>
+        ├── <span class="st-file">TaskValidatorTests.cs</span>
+        └── <span class="st-file">TaskHierarchyTests.cs</span>
+          </div>
+        </div>
+
+        <div class="lab-deliverable">
+          <div class="lab-deliverable-title">📦 Livrabil</div>
+          <p>Repository GitHub cu soluția completă (minim .NET 6). <code>README.md</code> cu: descrierea arhitecturii, justificarea deciziilor SOLID pentru fiecare cerință, instrucțiuni de rulare (inclusiv pachetele NuGet necesare). Proiectul trebuie să compileze și toate testele să treacă la <code>dotnet test</code>.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="callout note">
+      <span class="callout-icon">🧭</span>
+      <div class="callout-body">
+        <div class="callout-title">Laboratorul 4 — același proiect, extins după Cursul 4</div>
+        <p>Acest proiect <strong>nu se predă acum</strong>. Îl construiți, îl structurați bine, și îl luați cu voi la Laboratorul 4, de după Cursul 4. Acolo veți adăuga două lucruri noi — pe care le veți înțelege abia după ce parcurgeți Cursul 4:</p>
+        <p style="margin-top:.75rem;"><strong>Ce problemă concretă va apărea:</strong> dacă priviți acum <code>ITaskRepository</code>, are 5 metode: <code>GetAll</code>, <code>GetById</code>, <code>Add</code>, <code>Update</code>, <code>Delete</code>. Un raport care doar <em>citește</em> sarcini este forțat să depindă de toată această interfață, inclusiv de <code>Add</code>, <code>Update</code>, <code>Delete</code> — metode pe care nu le va folosi niciodată. Aceasta este o problemă de design — și Cursul 4 vă va da instrumentele să o rezolvați.</p>
+        <p style="margin-top:.75rem;"><strong>Ce problemă concretă va apărea:</strong> acum, în <code>Program.cs</code>, instanțiați manual toate dependențele: <code>new SqliteTaskRepository()</code>, <code>new TaskValidator()</code>, <code>new TaskService(repo, validator, notifiers)</code>. Dacă adăugați o nouă dependență undeva în lanț, trebuie să modificați și <code>Program.cs</code>. Aceasta este o altă problemă de design — și tot Cursul 4 o rezolvă.</p>
+        <p style="margin-top:.75rem;color:var(--text3);font-size:13px;">Nu trebuie să știți acum cum se rezolvă. Construiți proiectul conform cerințelor de mai sus, structurat și compilabil. La Laboratorul 4 rezolvăm împreună cele două probleme de mai sus pe codul vostru real.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUESTIONS -->
+  <div class="questions-box">
+    <div class="questions-title">💬 Teme de Discuție</div>
+    <ol>
+      <li>SRP spune „un singur motiv de schimbare" — dar cum identifici concret actorii unui sistem real? Luați un exemplu din practică.</li>
+      <li>OCP pare să contrazică YAGNI: creezi extensibilitate înainte să o ai nevoie. Cum reconciliați cele două principii?</li>
+      <li>LSP: relația matematică IS-A nu coincide întotdeauna cu relația OOP IS-A. Mai dați un exemplu din domenii diferite (bănci, HR, e-commerce).</li>
+      <li>Există situații în care a <em>nu</em> respecta SRP este decizia corectă? Care ar fi acelea?</li>
+    </ol>
+  </div>
+
+  <!-- RESOURCES -->
+  <div class="resources">
+    <div class="resources-title">Resurse</div>
+    <div class="resource-list">
+      <div class="resource-item">Clean Architecture — Robert C. Martin (cap. 7, 8, 9)</div>
+      <div class="resource-item">Agile Software Development, Principles, Patterns, and Practices — Robert C. Martin</div>
+      <div class="resource-item">refactoring.guru/refactoring/smells — catalog complet de code smells cu exemple</div>
+      <div class="resource-item">Barbara Liskov, Jeannette Wing — „A Behavioral Notion of Subtyping" (1994) — articolul original</div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const el = document.documentElement;
+    document.getElementById('scroll-prog').style.transform =
+      `scaleX(${el.scrollTop / (el.scrollHeight - el.clientHeight)})`;
+  });
+  const sections = document.querySelectorAll('section[id]');
+  const links = document.querySelectorAll('.sidebar-link[href^="#"]');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector(`.sidebar-link[href="#${e.target.id}"]`);
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

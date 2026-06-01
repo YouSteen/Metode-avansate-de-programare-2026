@@ -1,53 +1,36 @@
-# Laborator Curs 2 — Modelare UML (Sistem Gestiune Comenzi)
+# Metode avansate de programare — 2026
 
-Proiect MAP — Curs 2 UML. Cod C# + diagrame grupate **pe cerinte**.
+Repository pentru cursurile MAP: materiale HTML + laboratoare grupate pe foldere.
 
-## Unde gasesti livrabilele
+## Laboratoare
 
-| Cerinta | Unde |
-|---------|------|
-| **1** Use case | [docs/cerinta-1-diagrama-use-case/](docs/cerinta-1-diagrama-use-case/) → `use-case.svg` |
-| **2** Diagrama clasa | [docs/cerinta-2-diagrama-clasa/](docs/cerinta-2-diagrama-clasa/) → `class-diagram-before.svg`, `class-diagram-after.svg` |
-| **3** Secventa (2 fluxuri) | [docs/cerinta-3-diagrame-secventa/](docs/cerinta-3-diagrame-secventa/) → `sequence-*.md` (Mermaid) |
+| Folder | Curs | Status |
+|--------|------|--------|
+| [**Lab1-2/**](Lab1-2/) | Curs 2 — UML (gestiune comenzi) | Diagrame + `OrderManagement.Before` / `.After` |
+| [**Lab3/**](Lab3/) | Curs 3 — SOLID I (Task Manager) | SQLite, SRP/OCP/LSP, NUnit, consola Spectre |
 
-Index complet: [docs/README.md](docs/README.md)
+## Materiale curs
 
-## Structura proiect
+| Fișier | Subiect |
+|--------|---------|
+| [curs1_oop.html](curs1_oop.html) | Recapitulare OOP |
+| [curs2_uml.html](curs2_uml.html) | UML — laborator → **Lab1-2** |
+| [curs3_solid1.html](curs3_solid1.html) | SOLID I (SRP, OCP, LSP) — laborator → **Lab3** (viitor) |
 
-```
-OrderManagement.sln
-src/
-  OrderManagement.Before/     # cod modelat — stare actuala (God Class)
-  OrderManagement.After/      # cod modelat — structura propusa
-docs/
-  cerinta-1-diagrama-use-case/
-  cerinta-2-diagrama-clasa/
-  cerinta-3-diagrame-secventa/
-  unelte/generate-png.ps1     # optional: export PNG din Mermaid
-```
-
-## Rulare cod C# (.NET 8)
+## Quick start — Lab 1–2
 
 ```bash
+cd Lab1-2
 dotnet run --project src/OrderManagement.Before
 dotnet run --project src/OrderManagement.After
 ```
 
-## Decizii de modelare (rezumat)
+Documentație: [Lab1-2/README.md](Lab1-2/README.md) · [Lab3/README.md](Lab3/README.md)
 
-### Cerinta 1
+## Quick start — Lab 3
 
-- **Include:** Plaseaza comanda → Verifica stoc, Proceseaza plata, Trimite email
-- **Extend:** Anuleaza comanda → Vizualizeaza comanda (optional, in prealabil)
-
-### Cerinta 2
-
-- **Before:** `OrderManager` centralizeaza tot (anti-pattern pentru Lab SOLID)
-- **After:** separare repository / stoc / plata / email + `OrderService`
-
-### Cerinta 3
-
-- **Place order:** `alt` stoc si plata; `opt` email
-- **Cancel order:** `alt` pentru `Shipped` (403) si comanda inexistenta (404)
-
-Detalii si diagrame embed: README din fiecare folder `docs/cerinta-*`.
+```bash
+cd Lab3
+dotnet test TaskManager.sln
+dotnet run --project src/TaskManager.UI
+```
