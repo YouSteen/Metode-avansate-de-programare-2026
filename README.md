@@ -10,6 +10,7 @@ Repository pentru cursurile MAP: materiale HTML + laboratoare grupate pe foldere
 | [**Lab3/**](Lab3/) | Curs 3 — SOLID I | Task Manager: SRP, OCP, LSP |
 | [**Lab4/**](Lab4/) | Curs 4 — SOLID II | Task Manager: ISP, DIP, IoC (extinde Lab 3) |
 | [**Lab5/**](Lab5/) | Curs 5 — Pattern-uri creationale | Generator documente (Factory, Builder, Prototype, Singleton) |
+| [**Lab6/**](Lab6/) | Curs 6 — Pattern-uri structurale I | Procesor documente (Adapter, Decorator, Facade) |
 
 ## Materiale curs
 
@@ -20,6 +21,7 @@ Repository pentru cursurile MAP: materiale HTML + laboratoare grupate pe foldere
 | [curs3_solid1.html](curs3_solid1.html) | SOLID I → **Lab3** |
 | [curs4_solid2.html](curs4_solid2.html) | SOLID II → **Lab4** |
 | [curs5_patterns_creational.html](curs5_patterns_creational.html) | Pattern-uri creationale → **Lab5** |
+| [curs6_patterns_structural1.html](curs6_patterns_structural1.html) | Pattern-uri structurale I → **Lab6** |
 
 ## Quick start
 
@@ -44,4 +46,11 @@ dotnet test DocumentGenerator.sln
 dotnet run --project src/DocumentGenerator.App
 ```
 
-Documentatie: [Lab1-2/README.md](Lab1-2/README.md) · [Lab3/README.md](Lab3/README.md) · [Lab4/README.md](Lab4/README.md) · [Lab5/README.md](Lab5/README.md)
+**Lab 6 (Procesor documente):**
+```bash
+cd Lab6
+dotnet test DocumentProcessor.sln
+dotnet run --project src/DocumentProcessor.App
+```
+
+Documentatie: [Lab1-2/README.md](Lab1-2/README.md) · [Lab3/README.md](Lab3/README.md) · [Lab4/README.md](Lab4/README.md) · [Lab5/README.md](Lab5/README.md) · [Lab6/README.md](Lab6/README.md)

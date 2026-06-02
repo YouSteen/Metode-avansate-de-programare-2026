@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curs 6 — Design Patterns Structurale I | MAP</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;--bg4:#21262d;
+    --border:#30363d;--border2:#3d4450;
+    --accent:#58a6ff;--accent2:#79c0ff;--accent3:#1f6feb;
+    --green:#3fb950;--green-bg:#0d2a1a;--green-border:#1a4731;
+    --yellow:#d29922;--yellow-bg:#2a1f0a;--yellow-border:#4a3400;
+    --purple:#bc8cff;--purple-bg:#1a0d2e;--purple-border:#3a1f5a;
+    --red:#f85149;--red-bg:#2d0f0f;--red-border:#5a1e1e;--orange:#ffa657;
+    --text:#e6edf3;--text2:#8b949e;--text3:#6e7681;
+    --radius:8px;--radius2:12px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;font-size:15px;line-height:1.75;}
+
+  .topbar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,17,23,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 2rem;height:52px;display:flex;align-items:center;justify-content:space-between;}
+  .topbar-left{display:flex;align-items:center;gap:1rem;}
+  .course-badge{background:var(--accent3);color:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.05em;}
+  .course-title-nav{font-size:13px;color:var(--text2);font-weight:500;}
+  .topbar-right{display:flex;gap:.5rem;}
+  .nav-pill{font-size:11px;color:var(--text3);padding:4px 10px;border:1px solid var(--border);border-radius:20px;text-decoration:none;font-family:'JetBrains Mono',monospace;transition:all .2s;}
+  .nav-pill:hover{color:var(--accent);border-color:var(--accent3);background:rgba(31,111,235,.08);}
+
+  .layout{display:flex;margin-top:52px;}
+  .sidebar{width:255px;min-width:255px;height:calc(100vh - 52px);position:sticky;top:52px;overflow-y:auto;border-right:1px solid var(--border);padding:1.5rem 0;background:var(--bg);}
+  .sidebar::-webkit-scrollbar{width:3px;}
+  .sidebar::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+  .sidebar-heading{font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--text3);text-transform:uppercase;padding:.75rem 1.5rem .25rem;}
+  .sidebar-link{display:flex;align-items:center;gap:.6rem;padding:.42rem 1.5rem;color:var(--text2);text-decoration:none;font-size:13px;border-left:2px solid transparent;transition:all .15s;}
+  .sidebar-link:hover{color:var(--text);background:var(--bg2);border-left-color:var(--border2);}
+  .sidebar-link.active{color:var(--accent);background:rgba(88,166,255,.06);border-left-color:var(--accent);font-weight:500;}
+  .sidebar-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);min-width:18px;}
+  .sidebar-divider{border:none;border-top:1px solid var(--border);margin:.75rem 1.5rem;}
+
+  .main{flex:1;max-width:860px;padding:3rem 3.5rem 6rem;min-width:0;}
+  #scroll-prog{position:fixed;top:52px;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent3),var(--accent),var(--purple));transform-origin:left;transform:scaleX(0);z-index:99;transition:transform .1s;}
+
+  .hero{margin-bottom:2.5rem;padding-bottom:2rem;border-bottom:1px solid var(--border);}
+  .hero-meta{display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;flex-wrap:wrap;}
+  .tag{font-family:'JetBrains Mono',monospace;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;}
+  .tag-mod{background:rgba(255,166,87,.1);color:var(--orange);border:1px solid rgba(255,166,87,.2);}
+  .tag-lang{background:rgba(63,185,80,.1);color:var(--green);border:1px solid rgba(63,185,80,.2);}
+  .tag-n{background:var(--bg3);color:var(--text2);border:1px solid var(--border);}
+  .hero h1{font-size:2.2rem;font-weight:800;line-height:1.2;letter-spacing:-.02em;margin-bottom:.75rem;}
+  .hero h1 span{color:var(--orange);}
+  .hero-desc{font-size:15.5px;color:var(--text2);max-width:640px;}
+
+  .objectives{background:rgba(255,166,87,.05);border:1px solid rgba(255,166,87,.15);border-radius:var(--radius2);padding:1.5rem;margin-bottom:2.5rem;}
+  .objectives-title{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--orange);text-transform:uppercase;margin-bottom:1rem;}
+  .objectives ul{list-style:none;display:flex;flex-direction:column;gap:.5rem;}
+  .objectives li{display:flex;align-items:flex-start;gap:.75rem;font-size:14px;color:var(--text2);}
+  .objectives li::before{content:'→';color:var(--orange);font-weight:700;flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+
+  .section{margin-bottom:3rem;}
+  h2.stitle{font-size:1.35rem;font-weight:700;color:var(--text);margin-bottom:1.5rem;padding-bottom:.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem;letter-spacing:-.01em;}
+  h2.stitle .num{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--orange);background:rgba(255,166,87,.12);padding:2px 8px;border-radius:4px;}
+  h3.sub{font-size:1.05rem;font-weight:600;color:var(--text);margin:2rem 0 .75rem;display:flex;align-items:center;gap:.5rem;}
+  h3.sub .dot{width:6px;height:6px;border-radius:50%;background:var(--orange);flex-shrink:0;}
+
+  p{color:var(--text2);margin-bottom:.85rem;}
+  p:last-child{margin-bottom:0;}
+  strong{color:var(--text);font-weight:600;}
+  em{color:var(--orange);font-style:normal;font-weight:500;}
+  code{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--accent2);background:rgba(88,166,255,.08);padding:1px 6px;border-radius:4px;border:1px solid rgba(88,166,255,.12);}
+
+  /* PATTERN CARD */
+  .pattern-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;margin-bottom:3rem;}
+  .pattern-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1.25rem;}
+  .pattern-icon{font-size:2rem;flex-shrink:0;}
+  .pattern-name{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:.15rem;}
+  .pattern-intent{font-size:13px;color:var(--text2);line-height:1.5;}
+  .pattern-meta{display:flex;gap:.5rem;margin-top:.5rem;flex-wrap:wrap;}
+  .pattern-tag{font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;}
+  .pattern-tag.creational{background:rgba(88,166,255,.12);color:var(--accent2);}
+  .pattern-tag.structural{background:rgba(188,140,255,.12);color:var(--purple);}
+  .pattern-tag.gof{background:var(--bg4);color:var(--text3);border:1px solid var(--border);}
+  .pattern-body{padding:1.5rem;}
+
+  /* WHEN TO USE — 2 col grid */
+  .when-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:1rem 0;}
+  .when-card{border-radius:var(--radius);padding:.85rem 1rem;font-size:13px;line-height:1.55;}
+  .when-card.use{background:var(--green-bg);border:1px solid var(--green-border);color:var(--text2);}
+  .when-card.avoid{background:var(--red-bg);border:1px solid var(--red-border);color:var(--text2);}
+  .when-card-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+  .when-card.use .when-card-title{color:var(--green);}
+  .when-card.avoid .when-card-title{color:var(--red);}
+  @media(max-width:600px){.when-grid{grid-template-columns:1fr;}}
+
+  /* CODE BLOCK */
+  .code-block{background:#0d1117;border:1px solid var(--border);border-radius:var(--radius2);margin:1.25rem 0;overflow:hidden;}
+  .code-header{display:flex;align-items:center;justify-content:space-between;padding:.55rem 1rem;border-bottom:1px solid var(--border);background:var(--bg3);}
+  .code-fname{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2);display:flex;align-items:center;gap:.5rem;}
+  .code-lang-tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);background:var(--bg4);padding:2px 8px;border-radius:4px;}
+  pre{padding:1.25rem 1.5rem;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.65;}
+  pre::-webkit-scrollbar{height:4px;}
+  pre::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+  .kw{color:#ff7b72;}.tp{color:#79c0ff;}.ifc{color:#d2a8ff;}.mth{color:#d2a8ff;}
+  .str{color:#a5d6ff;}.num{color:#79c0ff;}.cmt{color:#6e7681;font-style:italic;}.prp{color:#e6edf3;}
+  .ann{color:#ffa657;}
+
+  /* CALLOUT */
+  .callout{border-radius:var(--radius);padding:1rem 1.25rem;margin:1.25rem 0;display:flex;gap:.85rem;align-items:flex-start;}
+  .callout-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
+  .callout-body{flex:1;}
+  .callout-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem;}
+  .callout p{font-size:13.5px;margin-bottom:0;}
+  .callout.info{background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.15);}
+  .callout.info .callout-title{color:var(--accent);}
+  .callout.warn{background:var(--yellow-bg);border:1px solid var(--yellow-border);}
+  .callout.warn .callout-title{color:var(--yellow);}
+  .callout.ok{background:var(--green-bg);border:1px solid var(--green-border);}
+  .callout.ok .callout-title{color:var(--green);}
+  .callout.danger{background:var(--red-bg);border:1px solid var(--red-border);}
+  .callout.danger .callout-title{color:var(--red);}
+  .callout.note{background:var(--purple-bg);border:1px solid var(--purple-border);}
+  .callout.note .callout-title{color:var(--purple);}
+
+  /* COMPARE */
+  .compare{display:flex;flex-direction:column;gap:1rem;margin:1.25rem 0;}
+  .compare-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:.35rem .75rem;border-radius:var(--radius) var(--radius) 0 0;display:flex;align-items:center;gap:.4rem;}
+  .compare-label.before{background:rgba(248,81,73,.12);color:var(--red);border:1px solid var(--red-border);border-bottom:none;}
+  .compare-label.after{background:rgba(63,185,80,.12);color:var(--green);border:1px solid var(--green-border);border-bottom:none;}
+  .compare-col .code-block{margin:0;border-radius:0 0 var(--radius2) var(--radius2);}
+  .compare-col.before .code-block{border-color:var(--red-border);}
+  .compare-col.after .code-block{border-color:var(--green-border);}
+
+  .cquote{border-left:3px solid var(--orange);padding:.75rem 1.25rem;background:rgba(255,166,87,.04);border-radius:0 var(--radius) var(--radius) 0;margin:1rem 0;font-size:15px;color:var(--text);line-height:1.6;}
+
+  /* OVERVIEW TABLE */
+  .patterns-overview{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:13.5px;}
+  .patterns-overview th{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);padding:.5rem 1rem;text-align:left;border-bottom:1px solid var(--border);}
+  .patterns-overview td{padding:.55rem 1rem;border-bottom:1px solid rgba(48,54,61,.4);vertical-align:top;color:var(--text2);}
+  .patterns-overview tr:last-child td{border-bottom:none;}
+  .patterns-overview tr:hover td{background:var(--bg2);}
+  .pat-name{font-family:'JetBrains Mono',monospace;color:var(--accent2);font-weight:600;}
+
+  /* LAB BOX */
+  .lab-box{background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius2);margin:2rem 0;}
+  .lab-header{background:rgba(63,185,80,.12);border-bottom:1px solid var(--green-border);padding:1rem 1.5rem;display:flex;align-items:center;gap:.75rem;}
+  .lab-header-icon{font-size:1.3rem;}
+  .lab-header-text h4{font-size:14px;font-weight:700;color:var(--green);margin-bottom:.1rem;}
+  .lab-header-text p{font-size:12px;color:var(--text2);margin:0;}
+  .lab-body{padding:1.25rem 1.25rem 1.5rem;}
+  .lab-body p{color:var(--text2);font-size:14px;}
+  .lab-section{margin-top:1.25rem;}
+  .lab-section-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:.6rem;}
+  .lab-req{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;margin:.75rem 0;}
+  .lab-req-header{padding:.6rem 1rem;background:var(--bg4);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.65rem;}
+  .lab-req-badge{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;flex-shrink:0;}
+  .lab-req-badge.factory{background:rgba(88,166,255,.15);color:var(--accent2);}
+  .lab-req-badge.builder{background:rgba(63,185,80,.12);color:var(--green);}
+  .lab-req-badge.singleton{background:rgba(210,153,34,.15);color:var(--yellow);}
+  .lab-req-badge.proto{background:rgba(188,140,255,.12);color:var(--purple);}
+  .lab-req-badge.test{background:rgba(248,81,73,.1);color:var(--red);}
+  .lab-req-title{font-size:13.5px;font-weight:600;color:var(--text);}
+  .lab-req-body{padding:.9rem 1.1rem;overflow:hidden;}
+  .lab-req-body ul{list-style:none;display:block;margin:0;padding:0;}
+  .lab-req-body li{font-size:13px;color:var(--text2);line-height:1.6;padding-left:1.2rem;position:relative;overflow-wrap:break-word;margin-bottom:.45rem;}
+  .lab-req-body li:last-child{margin-bottom:0;}
+  .lab-req-body li::before{content:'▸';color:var(--green);font-size:11px;position:absolute;left:0;top:3px;}
+  .lab-deliverable{margin-top:1.25rem;padding:1rem;background:rgba(63,185,80,.06);border:1px solid rgba(63,185,80,.15);border-radius:var(--radius);}
+  .lab-deliverable-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green);margin-bottom:.5rem;}
+  .lab-deliverable p{font-size:13px;color:var(--text2);margin:0;}
+
+  .questions-box{background:var(--purple-bg);border:1px solid var(--purple-border);border-radius:var(--radius2);padding:1.5rem;margin-top:2rem;}
+  .questions-title{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--purple);text-transform:uppercase;margin-bottom:1rem;}
+  .questions-box ol{padding-left:1.5rem;display:flex;flex-direction:column;gap:.6rem;}
+  .questions-box li{color:var(--text2);font-size:14px;}
+
+  .resources{border-top:1px solid var(--border);padding-top:1.5rem;margin-top:2rem;}
+  .resources-title{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:1rem;}
+  .resource-list{display:flex;flex-direction:column;gap:.5rem;}
+  .resource-item{display:flex;align-items:center;gap:.75rem;font-size:13px;color:var(--text2);}
+  .resource-item::before{content:'📖';font-size:14px;}
+
+  .progress-bar{height:3px;background:linear-gradient(90deg,var(--accent3),var(--orange),var(--purple));border-radius:2px;margin-bottom:2.5rem;width:calc(6/14*100%);opacity:.8;}
+
+  @media(max-width:900px){.sidebar{display:none;}.main{padding:2rem 1.5rem 4rem;}}
+
+  .structure-tree{font-family:'JetBrains Mono',monospace;font-size:12.5px;background:#0d1117;border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;line-height:2;margin:.75rem 0;overflow-x:auto;white-space:pre;}
+  .st-folder{color:var(--accent2);}
+  .st-file{color:var(--text2);}
+  .st-comment{color:var(--text3);font-size:11.5px;}
+  /* UML DIAGRAMS */
+  .uml-wrap{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0 2rem;}
+  .uml-container{background:#0d1117;border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;}
+  .uml-title{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);background:var(--bg3);border-bottom:1px solid var(--border);padding:.45rem 1rem;}
+  .uml-container svg{display:block;padding:.75rem;}
+  @media(max-width:700px){.uml-wrap{grid-template-columns:1fr;}}
+
+  /* UML DIAGRAMS */
+  .uml-wrap{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0;}
+  .uml-container{background:#0d1117;border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;}
+  .uml-title{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);background:var(--bg3);border-bottom:1px solid var(--border);padding:.45rem 1rem;}
+  .uml-container svg{display:block;padding:.75rem;}
+  @media(max-width:700px){.uml-wrap{grid-template-columns:1fr;}}
+
+</style>
+</head>
+<body>
+<div id="scroll-prog"></div>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="course-badge">MAP</span>
+    <span class="course-title-nav">Metode Avansate de Programare</span>
+  </div>
+  <div class="topbar-right">
+    <a href="curs5_patterns_creational.html" class="nav-pill">← Curs 5</a>
+    <a href="curs7_patterns_structural2.html" class="nav-pill">Curs 7 →</a>
+  </div>
+</div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div>
+    <div class="sidebar-heading">Conținut</div>
+    <a href="#intro"     class="sidebar-link active"><span class="sidebar-num">01</span>Pattern-uri structurale</a>
+    <a href="#adapter"   class="sidebar-link"><span class="sidebar-num">02</span>Adapter</a>
+    <a href="#decorator" class="sidebar-link"><span class="sidebar-num">03</span>Decorator</a>
+    <a href="#facade"    class="sidebar-link"><span class="sidebar-num">04</span>Facade</a>
+    <a href="#comparatie" class="sidebar-link"><span class="sidebar-num">05</span>Comparație</a>
+    <a href="#lab"       class="sidebar-link"><span class="sidebar-num">06</span>Laborator 6</a>
+  </div>
+  <hr class="sidebar-divider">
+  <div>
+    <div class="sidebar-heading">Cursurile MAP</div>
+    <a href="curs1_oop.html"                  class="sidebar-link"><span class="sidebar-num">01</span>Recapitulare OOP</a>
+    <a href="curs2_uml.html"                  class="sidebar-link"><span class="sidebar-num">02</span>UML</a>
+    <a href="curs3_solid1.html"               class="sidebar-link"><span class="sidebar-num">03</span>SOLID I</a>
+    <a href="curs4_solid2.html"               class="sidebar-link"><span class="sidebar-num">04</span>SOLID II</a>
+    <a href="curs5_patterns_creational.html"  class="sidebar-link"><span class="sidebar-num">05</span>Patterns Creaționale</a>
+    <a href="curs6_patterns_structural1.html" class="sidebar-link active"><span class="sidebar-num">06</span>Patterns Structurale I</a>
+    <a href="#" class="sidebar-link" style="opacity:.4;pointer-events:none"><span class="sidebar-num">07</span>Patterns Structurale II</a>
+    <a href="#" class="sidebar-link" style="opacity:.4;pointer-events:none"><span class="sidebar-num">08</span>Patterns Comportamentale I</a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="progress-bar"></div>
+
+  <header class="hero">
+    <div class="hero-meta">
+      <span class="tag tag-mod">Modul: Design Patterns</span>
+      <span class="tag tag-lang">C#</span>
+      <span class="tag tag-n">Curs 6 din 14</span>
+    </div>
+    <h1>Design Patterns <span>Structurale</span> — Partea I</h1>
+    <p class="hero-desc">Pattern-urile structurale descriu cum se compun clasele și obiectele pentru a forma structuri mai mari și mai flexibile. Astăzi acoperim trei din cele șapte: <em>Adapter</em> — face compatibile interfețe incompatibile; <em>Decorator</em> — adaugă responsabilități fără moștenire; <em>Facade</em> — simplifică accesul la un subsistem complex.</p>
+  </header>
+
+  <div class="objectives">
+    <div class="objectives-title">Obiective</div>
+    <ul>
+      <li>Înțelegeți rolul pattern-urilor structurale și cum diferă de cele creaționale</li>
+      <li>Aplicați Adapter pentru a integra componente cu interfețe incompatibile</li>
+      <li>Distingeți Object Adapter (compoziție) de Class Adapter (moștenire) și știți când să le alegeți</li>
+      <li>Folosiți Decorator pentru a extinde comportamentul la runtime fără subclasare</li>
+      <li>Implementați Facade pentru a reduce cuplarea dintre client și un subsistem complex</li>
+    </ul>
+  </div>
+
+  <!-- ── SECTION 1: INTRO ── -->
+  <section class="section" id="intro">
+    <h2 class="stitle"><span class="num">01</span>Pattern-uri structurale — context</h2>
+
+    <p>Pattern-urile <strong>creaționale</strong> răspundeau la întrebarea <em>„cum creăm obiectele?"</em>. Pattern-urile <strong>structurale</strong> răspund la o altă întrebare: <em>„cum compunem clasele și obiectele în structuri mai mari, fără să pierdem flexibilitatea?"</em></p>
+
+    <p>GoF definește șapte pattern-uri structurale. Le parcurgem în două cursuri:</p>
+
+    <table class="patterns-overview">
+      <thead>
+        <tr><th>Pattern</th><th>Problema rezolvată</th><th>Curs</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="pat-name">Adapter</span></td><td>Interfețe incompatibile — face două componente să colaboreze</td><td>6 — astăzi</td></tr>
+        <tr><td><span class="pat-name">Decorator</span></td><td>Adaugă responsabilități unui obiect dinamic, fără moștenire</td><td>6 — astăzi</td></tr>
+        <tr><td><span class="pat-name">Facade</span></td><td>Simplifică accesul la un subsistem complex</td><td>6 — astăzi</td></tr>
+        <tr><td><span class="pat-name">Composite</span></td><td>Tratează uniform obiecte individuale și colecții arborescente</td><td>7</td></tr>
+        <tr><td><span class="pat-name">Proxy</span></td><td>Controlează accesul la un obiect prin intermediar</td><td>7</td></tr>
+        <tr><td><span class="pat-name">Bridge</span></td><td>Separă abstracția de implementare — variază independent</td><td>7</td></tr>
+        <tr><td><span class="pat-name">Flyweight</span></td><td>Partajează starea comună între multe obiecte mici</td><td>7</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── SECTION 2: ADAPTER ── -->
+  <section class="section" id="adapter">
+    <h2 class="stitle"><span class="num">02</span>Adapter</h2>
+
+    <div class="pattern-card">
+      <div class="pattern-header">
+        <span class="pattern-icon">🔌</span>
+        <div>
+          <div class="pattern-name">Adapter</div>
+          <div class="pattern-intent">Convertește interfața unei clase în interfața pe care clienții o așteaptă. Permite colaborarea claselor cu interfețe incompatibile.</div>
+          <div class="pattern-meta">
+            <span class="pattern-tag structural">Structural</span>
+            <span class="pattern-tag gof">GoF</span>
+          </div>
+        </div>
+      </div>
+      <div class="pattern-body">
+
+        <p>Scenariul apare frecvent la integrarea de biblioteci externe sau sisteme legacy: aveți o componentă care funcționează corect, dar cu o interfață diferită de cea pe care o așteaptă sistemul vostru. Rescrierea componentei nu este fezabilă — Adapter o integrează fără să o modifice.</p>
+
+        <h3 class="sub"><span class="dot"></span>Structura generică (GoF)</h3>
+
+        <div class="uml-wrap">
+          <div class="uml-container">
+            <div class="uml-title">Diagramă de clase — structura statică</div>
+            <div class="mermaid uml-mermaid">
+classDiagram
+    class Target {
+        &lt;&lt;interface&gt;&gt;
+        +request()
+    }
+    class Adapter {
+        -adaptee Adaptee
+        +request()
+    }
+    class Adaptee {
+        +specificRequest()
+    }
+    class Client
+    Target <|.. Adapter
+    Adapter --> Adaptee : wraps
+    Client ..> Target : uses
+            </div>
+          </div>
+          <div class="uml-container">
+            <div class="uml-title">Diagramă de secvență — interacțiunea obiectelor</div>
+            <div class="mermaid uml-mermaid">
+sequenceDiagram
+    participant C as Client
+    participant A as Adapter
+    participant Ad as Adaptee
+    C->>A: request()
+    A->>Ad: specificRequest()
+    Ad-->>A: rezultat brut
+    A-->>C: rezultat adaptat
+            </div>
+          </div>
+        </div>
+        
+        <h3 class="sub"><span class="dot"></span>Structura C# — participanți canonici</h3>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname">Adapter — structura generică</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="cmt">// ── Target ───────────────────────────────────────────────────────────
+// Interfața pe care clientul o cunoaște și o folosește</span>
+<span class="kw">public interface</span> <span class="ifc">ITarget</span>
+{
+    <span class="tp">string</span> <span class="mth">Request</span>();
+}
+
+<span class="cmt">// ── Adaptee ───────────────────────────────────────────────────────────
+// Clasa existentă cu interfața incompatibilă — nu o modificăm</span>
+<span class="kw">public class</span> <span class="tp">Adaptee</span>
+{
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">SpecificRequest</span>()
+        => <span class="str">"rezultat din Adaptee"</span>;
+}
+
+<span class="cmt">// ── Object Adapter ────────────────────────────────────────────────────
+// Implementează Target, conține Adaptee prin compoziție (varianta preferată)</span>
+<span class="kw">public class</span> <span class="tp">Adapter</span> : <span class="ifc">ITarget</span>
+{
+    <span class="kw">private readonly</span> <span class="tp">Adaptee</span> _adaptee;
+
+    <span class="kw">public</span> <span class="mth">Adapter</span>(<span class="tp">Adaptee</span> adaptee) => _adaptee = adaptee;
+
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">Request</span>()
+    {
+        <span class="cmt">// Traduce apelul din interfața Target în apelul specific Adaptee</span>
+        <span class="kw">var</span> result = _adaptee.<span class="mth">SpecificRequest</span>();
+        <span class="kw">return</span> <span class="str">$"Adapter: [{result}]"</span>;
+    }
+}
+
+<span class="cmt">// ── Client ────────────────────────────────────────────────────────────
+// Depinde exclusiv de ITarget — nu știe că în spate există Adaptee</span>
+<span class="kw">public class</span> <span class="tp">Client</span>
+{
+    <span class="kw">private readonly</span> <span class="ifc">ITarget</span> _target;
+
+    <span class="kw">public</span> <span class="mth">Client</span>(<span class="ifc">ITarget</span> target) => _target = target;
+
+    <span class="kw">public void</span> <span class="mth">Run</span>() => <span class="tp">Console</span>.<span class="mth">WriteLine</span>(_target.<span class="mth">Request</span>());
+}
+
+<span class="cmt">// ── Asamblare ─────────────────────────────────────────────────────────</span>
+<span class="kw">var</span> adaptee = <span class="kw">new</span> <span class="tp">Adaptee</span>();
+<span class="kw">var</span> adapter = <span class="kw">new</span> <span class="tp">Adapter</span>(adaptee);
+<span class="kw">var</span> client  = <span class="kw">new</span> <span class="tp">Client</span>(adapter);
+client.<span class="mth">Run</span>(); <span class="cmt">// Output: Adapter: [rezultat din Adaptee]</span></pre>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Object Adapter vs Class Adapter</h3>
+
+        <p>Există două variante ale pattern-ului. <strong>Object Adapter</strong> folosește compoziția — este varianta preferată, funcționează și cu subclasele lui Adaptee și respectă principiul „favorizează compoziția față de moștenire". <strong>Class Adapter</strong> folosește moștenirea — în C# nu este posibilă moștenirea multiplă din clase concrete, deci este aplicabil doar când Adaptee este o interfață.</p>
+
+        <div class="compare">
+          <div class="compare-col before">
+            <div class="compare-label before">❌ Fără Adapter — interfețe incompatibile</div>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-fname bad">incompatibilitate directă</span>
+                <span class="code-lang-tag">C#</span>
+              </div>
+              <pre><span class="cmt">// Interfața așteptată de sistemul nostru</span>
+<span class="kw">public interface</span> <span class="ifc">IPaymentProcessor</span>
+{
+    <span class="kw">bool</span> <span class="mth">ProcessPayment</span>(<span class="tp">decimal</span> amount);
+}
+
+<span class="cmt">// Biblioteca externă — nu putem modifica</span>
+<span class="kw">public class</span> <span class="tp">PayPalGateway</span>
+{
+    <span class="kw">public</span> <span class="tp">PayPalResponse</span> <span class="mth">MakePayment</span>(
+        <span class="tp">double</span> amount, <span class="tp">string</span> currency) { ... }
+}
+
+<span class="cmt">// ❌ PayPalGateway nu implementează IPaymentProcessor:</span>
+<span class="cmt">// - type mismatch: decimal vs double</span>
+<span class="cmt">// - signature diferită: parametru currency în plus</span>
+<span class="cmt">// - return type diferit: PayPalResponse vs bool</span></pre>
+            </div>
+          </div>
+          <div class="compare-col after">
+            <div class="compare-label after">✅ Object Adapter — compatibilitate prin compoziție</div>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-fname ok">PayPalAdapter.cs</span>
+                <span class="code-lang-tag">C#</span>
+              </div>
+              <pre><span class="kw">public class</span> <span class="tp">PayPalAdapter</span> : <span class="ifc">IPaymentProcessor</span>
+{
+    <span class="kw">private readonly</span> <span class="tp">PayPalGateway</span> _gateway;
+
+    <span class="kw">public</span> <span class="mth">PayPalAdapter</span>(<span class="tp">PayPalGateway</span> gateway)
+        => _gateway = gateway;
+
+    <span class="kw">public bool</span> <span class="mth">ProcessPayment</span>(<span class="tp">decimal</span> amount)
+    {
+        <span class="cmt">// decimal → double + adăugare currency</span>
+        <span class="kw">var</span> response = _gateway.<span class="mth">MakePayment</span>(
+            (<span class="tp">double</span>)amount, <span class="str">"EUR"</span>);
+        <span class="cmt">// PayPalResponse → bool</span>
+        <span class="kw">return</span> response.StatusCode == <span class="str">"SUCCESS"</span>;
+    }
+}
+
+<span class="cmt">// OrderService nu știe că în spate e PayPal</span>
+<span class="ifc">IPaymentProcessor</span> processor =
+    <span class="kw">new</span> <span class="tp">PayPalAdapter</span>(<span class="kw">new</span> <span class="tp">PayPalGateway</span>());
+orderService.<span class="mth">PlaceOrder</span>(cart, processor);</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout info">
+          <span class="callout-icon">🔗</span>
+          <div class="callout-body">
+            <div class="callout-title">Relație cu DIP și OCP</div>
+            <p><code>OrderService</code> depinde de <code>IPaymentProcessor</code> — respectă DIP. Adăugarea unui nou furnizor de plăți (Stripe, Braintree) înseamnă un nou Adapter, fără modificarea <code>OrderService</code> — respectă OCP. Adapter este mecanismul prin care DIP devine practic în contexte de integrare.</p>
+          </div>
+        </div>
+
+        <div class="when-grid">
+          <div class="when-card use">
+            <div class="when-card-title">✓ Când se folosește</div>
+            Când trebuie să integrați o clasă existentă cu o interfață incompatibilă și nu puteți modifica sursa. Când reutilizați cod legacy sau biblioteci externe fără control asupra codului sursă.
+          </div>
+          <div class="when-card avoid">
+            <div class="when-card-title">✗ Când nu se potrivește</div>
+            Când diferența dintre interfețe este atât de mare încât adaptarea necesită business logic complex — atunci e nevoie de un Anti-Corruption Layer, nu de un simplu Adapter.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 3: DECORATOR ── -->
+  <section class="section" id="decorator">
+    <h2 class="stitle"><span class="num">03</span>Decorator</h2>
+
+    <div class="pattern-card">
+      <div class="pattern-header">
+        <span class="pattern-icon">🎁</span>
+        <div>
+          <div class="pattern-name">Decorator</div>
+          <div class="pattern-intent">Adaugă responsabilități suplimentare unui obiect în mod dinamic. Decoratorii sunt o alternativă flexibilă la moștenire pentru extinderea funcționalității.</div>
+          <div class="pattern-meta">
+            <span class="pattern-tag structural">Structural</span>
+            <span class="pattern-tag gof">GoF</span>
+          </div>
+        </div>
+      </div>
+      <div class="pattern-body">
+
+        <p>Moștenirea extinde funcționalitatea la <em>compile-time</em> și produce un număr exponențial de subclase. Dacă aveți un cititor de date și vreți să adăugați opțional criptare, compresie și logging — prin moștenire aveți nevoie de 7 subclase pentru toate combinațiile posibile. Decorator rezolvă asta prin <em>wrapping</em> la runtime.</p>
+
+        <h3 class="sub"><span class="dot"></span>Structura generică (GoF)</h3>
+
+        <div class="uml-wrap">
+          <div class="uml-container">
+            <div class="uml-title">Diagramă de clase — structura statică</div>
+            <div class="mermaid uml-mermaid">
+classDiagram
+    class Component {
+        &lt;&lt;interface&gt;&gt;
+        +operation()
+    }
+    class ConcreteComponent {
+        +operation()
+    }
+    class Decorator {
+        &lt;&lt;abstract&gt;&gt;
+        -component Component
+        +operation()
+    }
+    class ConcreteDecoratorA {
+        +operation()
+        +addedBehavior()
+    }
+    class ConcreteDecoratorB {
+        +operation()
+    }
+    Component <|.. ConcreteComponent
+    Component <|.. Decorator
+    Decorator --> Component : wraps
+    Decorator <|-- ConcreteDecoratorA
+    Decorator <|-- ConcreteDecoratorB
+            </div>
+          </div>
+          <div class="uml-container">
+            <div class="uml-title">Diagramă de secvență — interacțiunea obiectelor</div>
+            <div class="mermaid uml-mermaid">
+sequenceDiagram
+    participant C as Client
+    participant DA as DecoratorA
+    participant DB as DecoratorB
+    participant CC as ConcreteComponent
+    C->>DA: operation()
+    DA->>DB: operation()
+    DB->>CC: operation()
+    CC-->>DB: rezultat de baza
+    DB-->>DA: rezultat + comportament B
+    DA-->>C: rezultat + comportament A si B
+            </div>
+          </div>
+        </div>
+        
+        <h3 class="sub"><span class="dot"></span>Structura C# — participanți canonici</h3>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname">Decorator — structura generică</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="cmt">// ── Component ─────────────────────────────────────────────────────────
+// Interfața comună pentru ConcreteComponent și toți decoratorii</span>
+<span class="kw">public interface</span> <span class="ifc">IComponent</span>
+{
+    <span class="tp">string</span> <span class="mth">Operation</span>();
+}
+
+<span class="cmt">// ── ConcreteComponent ─────────────────────────────────────────────────
+// Obiectul de bază care face munca reală</span>
+<span class="kw">public class</span> <span class="tp">ConcreteComponent</span> : <span class="ifc">IComponent</span>
+{
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">Operation</span>() => <span class="str">"ConcreteComponent"</span>;
+}
+
+<span class="cmt">// ── Decorator (abstract) ──────────────────────────────────────────────
+// Menține referința la IComponent și implementează aceeași interfață</span>
+<span class="kw">public abstract class</span> <span class="tp">Decorator</span> : <span class="ifc">IComponent</span>
+{
+    <span class="kw">protected readonly</span> <span class="ifc">IComponent</span> _inner;
+
+    <span class="kw">protected</span> <span class="mth">Decorator</span>(<span class="ifc">IComponent</span> inner) => _inner = inner;
+
+    <span class="cmt">// Implicit delega la inner — subclasele suprascriu și adaugă comportament</span>
+    <span class="kw">public virtual</span> <span class="tp">string</span> <span class="mth">Operation</span>() => _inner.<span class="mth">Operation</span>();
+}
+
+<span class="cmt">// ── ConcreteDecoratorA ────────────────────────────────────────────────</span>
+<span class="kw">public class</span> <span class="tp">ConcreteDecoratorA</span> : <span class="tp">Decorator</span>
+{
+    <span class="kw">public</span> <span class="mth">ConcreteDecoratorA</span>(<span class="ifc">IComponent</span> inner) : <span class="kw">base</span>(inner) {}
+
+    <span class="kw">public override</span> <span class="tp">string</span> <span class="mth">Operation</span>()
+    {
+        <span class="kw">var</span> result = <span class="kw">base</span>.<span class="mth">Operation</span>(); <span class="cmt">// apelează inner</span>
+        <span class="kw">return</span> <span class="str">$"DecoratorA({result})"</span>;  <span class="cmt">// adaugă comportament</span>
+    }
+}
+
+<span class="cmt">// ── ConcreteDecoratorB ────────────────────────────────────────────────</span>
+<span class="kw">public class</span> <span class="tp">ConcreteDecoratorB</span> : <span class="tp">Decorator</span>
+{
+    <span class="kw">public</span> <span class="mth">ConcreteDecoratorB</span>(<span class="ifc">IComponent</span> inner) : <span class="kw">base</span>(inner) {}
+
+    <span class="kw">public override</span> <span class="tp">string</span> <span class="mth">Operation</span>()
+    {
+        <span class="kw">var</span> result = <span class="kw">base</span>.<span class="mth">Operation</span>();
+        <span class="kw">return</span> <span class="str">$"DecoratorB({result})"</span>;
+    }
+}
+
+<span class="cmt">// ── Asamblare — ordinea învelirilor definește ordinea execuției ────────</span>
+<span class="ifc">IComponent</span> component =
+    <span class="kw">new</span> <span class="tp">ConcreteDecoratorA</span>(
+        <span class="kw">new</span> <span class="tp">ConcreteDecoratorB</span>(
+            <span class="kw">new</span> <span class="tp">ConcreteComponent</span>()));
+
+<span class="tp">Console</span>.<span class="mth">WriteLine</span>(component.<span class="mth">Operation</span>());
+<span class="cmt">// Output: DecoratorA(DecoratorB(ConcreteComponent))</span></pre>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Exemplu — cititor de date cu decoratori</h3>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname">IDataReader.cs + decoratori</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="cmt">// Interfața comună — Component</span>
+<span class="kw">public interface</span> <span class="ifc">IDataReader</span>
+{
+    <span class="tp">string</span> <span class="mth">Read</span>();
+}
+
+<span class="cmt">// Implementare de bază — ConcreteComponent</span>
+<span class="kw">public class</span> <span class="tp">FileDataReader</span> : <span class="ifc">IDataReader</span>
+{
+    <span class="kw">private readonly</span> <span class="tp">string</span> _path;
+    <span class="kw">public</span> <span class="mth">FileDataReader</span>(<span class="tp">string</span> path) => _path = path;
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">Read</span>() => <span class="tp">File</span>.<span class="mth">ReadAllText</span>(_path);
+}
+
+<span class="cmt">// Decorator de bază — abstract, menține referința la component</span>
+<span class="kw">public abstract class</span> <span class="tp">DataReaderDecorator</span> : <span class="ifc">IDataReader</span>
+{
+    <span class="kw">protected readonly</span> <span class="ifc">IDataReader</span> _inner;
+    <span class="kw">protected</span> <span class="mth">DataReaderDecorator</span>(<span class="ifc">IDataReader</span> inner) => _inner = inner;
+    <span class="kw">public abstract</span> <span class="tp">string</span> <span class="mth">Read</span>();
+}
+
+<span class="cmt">// Decorator 1: decriptează după citire</span>
+<span class="kw">public class</span> <span class="tp">EncryptedDataReader</span> : <span class="tp">DataReaderDecorator</span>
+{
+    <span class="kw">public</span> <span class="mth">EncryptedDataReader</span>(<span class="ifc">IDataReader</span> inner) : <span class="kw">base</span>(inner) {}
+    <span class="kw">public override</span> <span class="tp">string</span> <span class="mth">Read</span>()
+        => <span class="mth">Decrypt</span>(_inner.<span class="mth">Read</span>());
+    <span class="kw">private</span> <span class="tp">string</span> <span class="mth">Decrypt</span>(<span class="tp">string</span> data) => <span class="cmt">/* AES decrypt */</span> data;
+}
+
+<span class="cmt">// Decorator 2: decomprimă după citire</span>
+<span class="kw">public class</span> <span class="tp">CompressedDataReader</span> : <span class="tp">DataReaderDecorator</span>
+{
+    <span class="kw">public</span> <span class="mth">CompressedDataReader</span>(<span class="ifc">IDataReader</span> inner) : <span class="kw">base</span>(inner) {}
+    <span class="kw">public override</span> <span class="tp">string</span> <span class="mth">Read</span>()
+        => <span class="mth">Decompress</span>(_inner.<span class="mth">Read</span>());
+    <span class="kw">private</span> <span class="tp">string</span> <span class="mth">Decompress</span>(<span class="tp">string</span> d) => <span class="cmt">/* GZip decompress */</span> d;
+}
+
+<span class="cmt">// Combinare la runtime — ordinea contează!</span>
+<span class="ifc">IDataReader</span> reader =
+    <span class="kw">new</span> <span class="tp">EncryptedDataReader</span>(             <span class="cmt">// 3. decriptează</span>
+        <span class="kw">new</span> <span class="tp">CompressedDataReader</span>(          <span class="cmt">// 2. decomprimă</span>
+            <span class="kw">new</span> <span class="tp">FileDataReader</span>(<span class="str">"data.bin"</span>)  <span class="cmt">// 1. citește fișier</span>
+        ));
+
+<span class="tp">string</span> result = reader.<span class="mth">Read</span>(); <span class="cmt">// traversează întreg lanțul</span></pre>
+        </div>
+
+        <div class="callout warn">
+          <span class="callout-icon">⚠️</span>
+          <div class="callout-body">
+            <div class="callout-title">Ordinea decoratorilor contează</div>
+            <p>Fișierul a fost mai întâi comprimat, apoi criptat la scriere — deci la citire trebuie mai întâi decriptat, apoi decomprimat. Dacă inversați ordinea decoratorilor, obțineți date corupte fără nicio eroare la compile time. Această dependență de ordine este responsabilitatea codului care asamblează lanțul.</p>
+          </div>
+        </div>
+
+        <div class="callout ok">
+          <span class="callout-icon">✓</span>
+          <div class="callout-body">
+            <div class="callout-title">Decorator este implementarea canonică a OCP</div>
+            <p>Adăugarea unui <code>LoggingDataReader</code> nu modifică nicio clasă existentă. Se creează o clasă nouă care extinde <code>DataReaderDecorator</code> și se include în lanț. Codul existent nu știe că există noul decorator.</p>
+          </div>
+        </div>
+
+        <div class="when-grid">
+          <div class="when-card use">
+            <div class="when-card-title">✓ Când se folosește</div>
+            Când trebuie să adăugați comportamente unui obiect fără să modificați clasa sa. Când combinațiile de comportamente sunt multiple și variabile la runtime. Când moștenirea ar produce o explozie de subclase.
+          </div>
+          <div class="when-card avoid">
+            <div class="when-card-title">✗ Când nu se potrivește</div>
+            Când ordinea decoratorilor este critică și greu de gestionat. Când există un singur comportament suplimentar fix — o subclasă simplă este mai clară. Lanțurile lungi de decoratori pot fi dificil de depanat.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 4: FACADE ── -->
+  <section class="section" id="facade">
+    <h2 class="stitle"><span class="num">04</span>Facade</h2>
+
+    <div class="pattern-card">
+      <div class="pattern-header">
+        <span class="pattern-icon">🏛</span>
+        <div>
+          <div class="pattern-name">Facade</div>
+          <div class="pattern-intent">Oferă o interfață simplificată către un subsistem complex. Facade definește o interfață de nivel înalt care face subsistemul mai ușor de utilizat.</div>
+          <div class="pattern-meta">
+            <span class="pattern-tag structural">Structural</span>
+            <span class="pattern-tag gof">GoF</span>
+          </div>
+        </div>
+      </div>
+      <div class="pattern-body">
+
+        <p>Un subsistem complex are zeci de clase cu relații complicate între ele. Clientul nu ar trebui să cunoască toate aceste detalii pentru a realiza o operație de nivel înalt. Facade expune operațiile comune printr-o interfață simplă, ascunzând complexitatea internă.</p>
+
+        <h3 class="sub"><span class="dot"></span>Structura generică (GoF)</h3>
+
+        <div class="uml-wrap">
+          <div class="uml-container">
+            <div class="uml-title">Diagramă de clase — structura statică</div>
+            <div class="mermaid uml-mermaid">
+classDiagram
+    class Facade {
+        +operationA()
+        +operationB()
+    }
+    class SubsystemA {
+        +featureA1()
+        +featureA2()
+    }
+    class SubsystemB {
+        +featureB1()
+    }
+    class SubsystemC {
+        +featureC1()
+    }
+    class Client
+    Client ..> Facade : uses
+    Facade --> SubsystemA
+    Facade --> SubsystemB
+    Facade --> SubsystemC
+            </div>
+          </div>
+          <div class="uml-container">
+            <div class="uml-title">Diagramă de secvență — interacțiunea obiectelor</div>
+            <div class="mermaid uml-mermaid">
+sequenceDiagram
+    participant C as Client
+    participant F as OrderFacade
+    participant I as InventoryService
+    participant P as PaymentService
+    participant S as ShippingService
+    participant N as NotificationService
+    C->>F: PlaceOrder(cart, payment)
+    F->>I: Reserve(cart)
+    I-->>F: ok
+    F->>P: Charge(payment)
+    P-->>F: transactionId
+    F->>S: Schedule(cart, address)
+    S-->>F: trackingCode
+    F->>N: SendConfirmation(email)
+    F-->>C: OrderResult
+            </div>
+          </div>
+        </div>
+        
+        <h3 class="sub"><span class="dot"></span>Structura C# — participanți canonici</h3>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname">Facade — structura generică</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="cmt">// ── Subsisteme ────────────────────────────────────────────────────────
+// Clase complexe cu logică internă — clientul nu le cunoaște direct</span>
+<span class="kw">public class</span> <span class="tp">SubsystemA</span>
+{
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">OperationA1</span>() => <span class="str">"SubsystemA: OperationA1"</span>;
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">OperationA2</span>() => <span class="str">"SubsystemA: OperationA2"</span>;
+}
+
+<span class="kw">public class</span> <span class="tp">SubsystemB</span>
+{
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">OperationB1</span>() => <span class="str">"SubsystemB: OperationB1"</span>;
+}
+
+<span class="kw">public class</span> <span class="tp">SubsystemC</span>
+{
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">OperationC1</span>() => <span class="str">"SubsystemC: OperationC1"</span>;
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">OperationC2</span>() => <span class="str">"SubsystemC: OperationC2"</span>;
+}
+
+<span class="cmt">// ── Facade ────────────────────────────────────────────────────────────
+// Interfață simplificată — orchestrează subsistemele, expune operații de nivel înalt</span>
+<span class="kw">public class</span> <span class="tp">Facade</span>
+{
+    <span class="kw">private readonly</span> <span class="tp">SubsystemA</span> _a;
+    <span class="kw">private readonly</span> <span class="tp">SubsystemB</span> _b;
+    <span class="kw">private readonly</span> <span class="tp">SubsystemC</span> _c;
+
+    <span class="kw">public</span> <span class="mth">Facade</span>(<span class="tp">SubsystemA</span> a, <span class="tp">SubsystemB</span> b, <span class="tp">SubsystemC</span> c)
+        => (_a, _b, _c) = (a, b, c);
+
+    <span class="cmt">// Operație de nivel înalt — clientul apelează doar aceasta</span>
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">Operation</span>()
+    {
+        <span class="kw">var</span> results = <span class="kw">new</span> <span class="tp">List</span>&lt;<span class="tp">string</span>&gt;
+        {
+            _a.<span class="mth">OperationA1</span>(),
+            _b.<span class="mth">OperationB1</span>(),
+            _c.<span class="mth">OperationC1</span>(),
+            _c.<span class="mth">OperationC2</span>(),
+            _a.<span class="mth">OperationA2</span>(),
+        };
+        <span class="kw">return</span> <span class="tp">string</span>.<span class="mth">Join</span>(<span class="str">"
+"</span>, results);
+    }
+}
+
+<span class="cmt">// ── Client ────────────────────────────────────────────────────────────
+// Nu cunoaște SubsystemA/B/C — depinde doar de Facade</span>
+<span class="kw">var</span> facade = <span class="kw">new</span> <span class="tp">Facade</span>(<span class="kw">new</span> <span class="tp">SubsystemA</span>(), <span class="kw">new</span> <span class="tp">SubsystemB</span>(), <span class="kw">new</span> <span class="tp">SubsystemC</span>());
+<span class="tp">Console</span>.<span class="mth">WriteLine</span>(facade.<span class="mth">Operation</span>());</pre>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Exemplu — sistem de comenzi online</h3>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname">OrderFacade.cs</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="cmt">// Subsisteme individuale cu responsabilități clare</span>
+<span class="kw">public class</span> <span class="tp">InventoryService</span>
+{
+    <span class="kw">public bool</span> <span class="mth">Reserve</span>(<span class="tp">Cart</span> cart) => <span class="kw">true</span>;
+    <span class="kw">public void</span> <span class="mth">Release</span>(<span class="tp">Cart</span> cart) { }
+}
+<span class="kw">public class</span> <span class="tp">PaymentService</span>
+{
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">Charge</span>(<span class="tp">PaymentInfo</span> info, <span class="tp">decimal</span> amount) => <span class="str">"TXN-001"</span>;
+    <span class="kw">public void</span>   <span class="mth">Refund</span>(<span class="tp">string</span> transactionId) { }
+}
+<span class="kw">public class</span> <span class="tp">ShippingService</span>
+{
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">Schedule</span>(<span class="tp">Cart</span> cart, <span class="tp">Address</span> addr) => <span class="str">"TRACK-001"</span>;
+}
+<span class="kw">public class</span> <span class="tp">NotificationService</span>
+{
+    <span class="kw">public void</span> <span class="mth">SendConfirmation</span>(<span class="tp">string</span> email, <span class="tp">OrderResult</span> r) { }
+}
+
+<span class="cmt">// ── Facade — orchestrează toate subsistemele ─────────────────────────</span>
+<span class="kw">public class</span> <span class="tp">OrderFacade</span>
+{
+    <span class="kw">private readonly</span> <span class="tp">InventoryService</span>    _inventory;
+    <span class="kw">private readonly</span> <span class="tp">PaymentService</span>      _payment;
+    <span class="kw">private readonly</span> <span class="tp">ShippingService</span>     _shipping;
+    <span class="kw">private readonly</span> <span class="tp">NotificationService</span> _notification;
+
+    <span class="kw">public</span> <span class="mth">OrderFacade</span>(<span class="tp">InventoryService</span> inv, <span class="tp">PaymentService</span> pay,
+                       <span class="tp">ShippingService</span> ship, <span class="tp">NotificationService</span> notif)
+    { _inventory = inv; _payment = pay; _shipping = ship; _notification = notif; }
+
+    <span class="cmt">// Operație de nivel înalt — clientul apelează doar aceasta</span>
+    <span class="kw">public</span> <span class="tp">OrderResult</span> <span class="mth">PlaceOrder</span>(<span class="tp">Cart</span> cart, <span class="tp">PaymentInfo</span> payment, <span class="tp">Address</span> address)
+    {
+        <span class="kw">if</span> (!_inventory.<span class="mth">Reserve</span>(cart))
+            <span class="kw">throw new</span> <span class="tp">InvalidOperationException</span>(<span class="str">"Stoc insuficient"</span>);
+
+        <span class="tp">string</span> transactionId;
+        <span class="kw">try</span>
+        {
+            transactionId = _payment.<span class="mth">Charge</span>(payment, cart.<span class="mth">Total</span>());
+        }
+        <span class="kw">catch</span>
+        {
+            _inventory.<span class="mth">Release</span>(cart); <span class="cmt">// rollback stoc</span>
+            <span class="kw">throw</span>;
+        }
+
+        <span class="kw">var</span> trackingCode = _shipping.<span class="mth">Schedule</span>(cart, address);
+        <span class="kw">var</span> result = <span class="kw">new</span> <span class="tp">OrderResult</span>(transactionId, trackingCode);
+        _notification.<span class="mth">SendConfirmation</span>(payment.Email, result);
+        <span class="kw">return</span> result;
+    }
+}
+
+<span class="cmt">// Client — o singură linie, zero cunoaștere a subsistemelor</span>
+<span class="kw">var</span> result = orderFacade.<span class="mth">PlaceOrder</span>(cart, paymentInfo, address);</pre>
+        </div>
+
+        <div class="callout info">
+          <span class="callout-icon">💡</span>
+          <div class="callout-body">
+            <div class="callout-title">Facade nu interzice accesul direct</div>
+            <p>Facade nu blochează accesul la subsisteme. Clienții avansați pot în continuare să folosească <code>InventoryService</code> sau <code>PaymentService</code> direct dacă au nevoie de control granular (fine-grained access). Facade oferă o cale simplă pentru cazul comun — nu o barieră obligatorie.</p>
+          </div>
+        </div>
+
+        <div class="callout note">
+          <span class="callout-icon">🧭</span>
+          <div class="callout-body">
+            <div class="callout-title">Adapter vs Decorator vs Facade</div>
+            <p><strong>Adapter</strong> rezolvă o problemă de <em>incompatibilitate</em> — traduce o interfață în alta. <strong>Decorator</strong> rezolvă o problemă de <em>extensibilitate</em> — adaugă comportamente la runtime. <strong>Facade</strong> rezolvă o problemă de <em>complexitate</em> — simplifică accesul la un subsistem. Cele trei răspund la întrebări diferite, chiar dacă structural toate „învelesc" ceva.</p>
+          </div>
+        </div>
+
+        <div class="when-grid">
+          <div class="when-card use">
+            <div class="when-card-title">✓ Când se folosește</div>
+            Când un subsistem complex expune prea multe detalii clientului. Când vreți să reduceți cuplarea dintre niveluri arhitecturale. La granița dintre straturi: UI → Service, Service → Infrastructure.
+          </div>
+          <div class="when-card avoid">
+            <div class="when-card-title">✗ Când nu se potrivește</div>
+            Când Facade devine un „god object" cu zeci de metode care știe de tot — semnalează că subsistemul nu este bine structurat. Facade nu înlocuiește separarea corectă a responsabilităților.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 5: COMPARATIE ── -->
+  <section class="section" id="comparatie">
+    <h2 class="stitle"><span class="num">05</span>Comparație și ghid de alegere</h2>
+
+    <p>Cele trei pattern-uri par similare la suprafață — toate fac wrap la un obiect sau un set de obiecte. Diferența stă în <em>intenție</em>:</p>
+
+    <table class="patterns-overview">
+      <thead>
+        <tr><th>Întrebare</th><th>Pattern</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Am o componentă cu interfața greșită și nu pot să o modific</td>
+          <td><span class="pat-name">Adapter</span></td>
+        </tr>
+        <tr>
+          <td>Vreau să adaug comportament unui obiect, combinabil la runtime, fără subclassing</td>
+          <td><span class="pat-name">Decorator</span></td>
+        </tr>
+        <tr>
+          <td>Am un subsistem complex și vreau să ofer clienților un singur punct de acces simplu</td>
+          <td><span class="pat-name">Facade</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="cquote">
+      Adapter schimbă interfața unui obiect. Decorator adaugă responsabilități unui obiect. Facade definește o nouă interfață pentru un întreg subsistem. — GoF
+    </div>
+
+    <p>În <strong>Cursul 7</strong> acoperim restul pattern-urilor structurale: <em>Composite</em>, <em>Proxy</em>, <em>Bridge</em> și <em>Flyweight</em>.</p>
+  </section>
+
+  <!-- ── SECTION 6: LAB ── -->
+  <section class="section" id="lab">
+    <h2 class="stitle"><span class="num">06</span>Laborator 6</h2>
+
+    <p>Proiect independent de la zero care aplică explicit cele trei pattern-uri structurale. Tema: un <strong>sistem de procesare a documentelor</strong> — parsing, validare, transformare, salvare — cu suport pentru formate multiple și comportamente opționale.</p>
+
+    <div class="lab-box">
+      <div class="lab-header">
+        <span class="lab-header-icon">🔬</span>
+        <div class="lab-header-text">
+          <h4>Sistem de Procesare a Documentelor</h4>
+          <p>Laborator 6 — aplicație .NET cu Adapter, Decorator și Facade</p>
+        </div>
+      </div>
+      <div class="lab-body">
+
+        <p>Sistemul procesează documente din surse diferite (fișiere XML legacy, fișiere JSON), le validează, le transformă în format intern și le salvează. Fiecare etapă poate fi decorată cu comportamente suplimentare: logging, caching, validare.</p>
+
+        <div class="lab-section">
+          <div class="lab-section-title">Cerințe</div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge" style="background:rgba(88,166,255,.15);color:var(--accent2);">ADAPTER</span>
+              <span class="lab-req-title">Cerința 1 — Integrarea unui parser legacy</span>
+            </div>
+            <div class="lab-req-body">
+              <ul>
+                <li>Interfața sistemului: <code>IDocumentParser</code> cu metoda <code>Parse(string content): Document</code></li>
+                <li>Parser extern legacy (nu se poate modifica): <code>LegacyXmlParser</code> cu metoda <code>ParseXml(XmlDocument xml): LegacyDocument</code></li>
+                <li>Implementați <code>XmlParserAdapter : IDocumentParser</code> care convertește <code>string → XmlDocument</code>, apelează <code>LegacyXmlParser</code> și convertește <code>LegacyDocument → Document</code></li>
+                <li>Adăugați și un <code>JsonDocumentParser : IDocumentParser</code> nativ — demonstrând că cele două parsere sunt interschimbabile față de restul sistemului</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge" style="background:rgba(188,140,255,.12);color:var(--purple);">DECORATOR</span>
+              <span class="lab-req-title">Cerința 2 — Comportamente opționale la parsare</span>
+            </div>
+            <div class="lab-req-body">
+              <ul>
+                <li>Implementați clasa de bază abstractă <code>DocumentParserDecorator : IDocumentParser</code></li>
+                <li><code>LoggingDocumentParser</code> — loghează în consolă timpul de start, end și dimensiunea documentului rezultat</li>
+                <li><code>ValidationDocumentParser</code> — validează documentul după parsare (titlu nenul, conținut minim 10 caractere); aruncă <code>ValidationException</code> dacă nu este valid</li>
+                <li><code>CachingDocumentParser</code> — cacheează rezultatul pe baza unui hash al conținutului; al doilea apel cu același conținut nu mai declanșează parsing-ul</li>
+                <li>Demonstrați combinarea: <code>new LoggingDocumentParser(new ValidationDocumentParser(new XmlParserAdapter(...)))</code></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge" style="background:rgba(63,185,80,.12);color:var(--green);">FACADE</span>
+              <span class="lab-req-title">Cerința 3 — Orchestrare prin Facade</span>
+            </div>
+            <div class="lab-req-body">
+              <ul>
+                <li>Implementați <code>DocumentProcessingFacade</code> cu metoda <code>Process(string filePath): ProcessingResult</code></li>
+                <li>Facade detectează formatul fișierului (XML/JSON), selectează parserul cu decoratorii potriviți, validează, transformă și salvează rezultatul</li>
+                <li>Clientul apelează o singură metodă și primește un <code>ProcessingResult</code> cu status și calea fișierului salvat</li>
+                <li>Erorile sunt tratate în Facade: dacă parsarea sau validarea eșuează, <code>ProcessingResult.IsSuccess = false</code> cu mesajul corespunzător — fără excepție propagată la client</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge" style="background:rgba(248,81,73,.1);color:var(--red);">TESTE</span>
+              <span class="lab-req-title">Cerința 4 — Teste NUnit</span>
+            </div>
+            <div class="lab-req-body">
+              <ul>
+                <li>Test: <code>XmlParserAdapter</code> și <code>JsonDocumentParser</code> returnează același tip <code>Document</code> pentru input echivalent — demonstrează interschimbabilitatea (Adapter)</li>
+                <li>Test: <code>ValidationDocumentParser</code> aruncă <code>ValidationException</code> pentru un document cu titlu gol (Decorator — izolare comportament)</li>
+                <li>Test: <code>CachingDocumentParser</code> apelează parserul interior o singură dată pentru același conținut — al doilea apel vine din cache (Decorator — verificare cu mock)</li>
+                <li>Test: <code>DocumentProcessingFacade.Process()</code> returnează <code>IsSuccess = false</code> pentru conținut invalid, fără excepție (Facade — gestionare erori)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="lab-section">
+          <div class="lab-section-title">Structura soluției</div>
+          <div class="structure-tree">
+<span class="st-folder">DocumentProcessor.sln</span>
+├── <span class="st-folder">src/</span>
+│   ├── <span class="st-folder">DocumentProcessor.Core/</span>
+│   │   ├── <span class="st-folder">Models/</span>
+│   │   │   ├── <span class="st-file">Document.cs</span>
+│   │   │   ├── <span class="st-file">LegacyDocument.cs</span>
+│   │   │   └── <span class="st-file">ProcessingResult.cs</span>
+│   │   ├── <span class="st-folder">Interfaces/</span>
+│   │   │   └── <span class="st-file">IDocumentParser.cs</span>
+│   │   ├── <span class="st-folder">Adapter/</span>
+│   │   │   ├── <span class="st-file">LegacyXmlParser.cs</span>     <span class="st-comment">← simulat ca legacy, nu se modifică</span>
+│   │   │   └── <span class="st-file">XmlParserAdapter.cs</span>
+│   │   ├── <span class="st-folder">Parsers/</span>
+│   │   │   └── <span class="st-file">JsonDocumentParser.cs</span>
+│   │   ├── <span class="st-folder">Decorators/</span>
+│   │   │   ├── <span class="st-file">DocumentParserDecorator.cs</span>
+│   │   │   ├── <span class="st-file">LoggingDocumentParser.cs</span>
+│   │   │   ├── <span class="st-file">ValidationDocumentParser.cs</span>
+│   │   │   └── <span class="st-file">CachingDocumentParser.cs</span>
+│   │   └── <span class="st-folder">Facade/</span>
+│   │       └── <span class="st-file">DocumentProcessingFacade.cs</span>
+│   └── <span class="st-folder">DocumentProcessor.App/</span>
+│       └── <span class="st-file">Program.cs</span>
+└── <span class="st-folder">tests/</span>
+    └── <span class="st-folder">DocumentProcessor.Tests/</span>
+        ├── <span class="st-file">AdapterTests.cs</span>
+        ├── <span class="st-file">DecoratorTests.cs</span>
+        └── <span class="st-file">FacadeTests.cs</span>
+          </div>
+        </div>
+
+        <div class="lab-deliverable">
+          <div class="lab-deliverable-title">📦 Livrabil</div>
+          <p>Repository GitHub nou — <code>DocumentProcessor</code>. <code>README.md</code> cu câte o secțiune pentru fiecare pattern aplicat: ce problemă concretă rezolvă și unde se regăsește în cod. Proiectul compilează și toate testele trec la <code>dotnet test</code>.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- QUESTIONS -->
+  <div class="questions-box">
+    <div class="questions-title">💬 Teme de Discuție</div>
+    <ol>
+      <li>Adapter și Decorator au structuri de cod similare — ambele învelesc un obiect și implementează aceeași interfață. Care este diferența fundamentală în intenție și când ați alege unul față de celălalt?</li>
+      <li>Facade poate deveni cu ușurință un „god object" care știe de tot. Cum identificați semnul că un Facade și-a depășit rolul? Ce refactorizare ați aplica?</li>
+      <li>Decorator implică că toți decoratorii și componenta de bază au aceeași interfață. Ce se întâmplă când un decorator trebuie să adauge o metodă nouă care nu există în interfața de bază — mai este Decorator pattern-ul potrivit?</li>
+      <li>În ASP.NET Core, middleware-ul este un exemplu clasic de Decorator aplicat pe request pipeline. Identificați alte exemple de pattern-uri structurale în framework-urile .NET pe care le folosiți.</li>
+    </ol>
+  </div>
+
+  <!-- RESOURCES -->
+  <div class="resources">
+    <div class="resources-title">Resurse</div>
+    <div class="resource-list">
+      <div class="resource-item">Design Patterns: Elements of Reusable Object-Oriented Software — Gamma, Helm, Johnson, Vlissides (GoF), cap. Structural Patterns</div>
+      <div class="resource-item">refactoring.guru/design-patterns/structural-patterns — exemple vizuale pentru toate pattern-urile structurale</div>
+      <div class="resource-item">refactoring.guru/design-patterns/adapter — comparație Object Adapter vs Class Adapter cu exemple în C#</div>
+      <div class="resource-item">docs.microsoft.com — ASP.NET Core Middleware: exemplu real de Decorator în producție</div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const el = document.documentElement;
+    document.getElementById('scroll-prog').style.transform =
+      'scaleX(' + (el.scrollTop / (el.scrollHeight - el.clientHeight)) + ')';
+  });
+  const sections = document.querySelectorAll('section[id]');
+  const links    = document.querySelectorAll('.sidebar-link[href^="#"]');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector('.sidebar-link[href="#' + e.target.id + '"]');
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        background: '#161b22',
+        primaryColor: '#1c2128',
+        primaryTextColor: '#e6edf3',
+        primaryBorderColor: '#3d4450',
+        lineColor: '#8b949e',
+        secondaryColor: '#0d1117',
+        actorBkg: '#1c2128',
+        actorBorder: '#3d4450',
+        actorTextColor: '#e6edf3',
+        signalColor: '#79c0ff',
+        signalTextColor: '#e6edf3',
+        labelBoxBkgColor: '#1c2128',
+        labelBoxBorderColor: '#3d4450',
+        labelTextColor: '#e6edf3',
+        noteBkgColor: '#2a1f0a',
+        noteBorderColor: '#4a3400',
+        noteTextColor: '#ffa657',
+        classText: '#e6edf3',
+        edgeLabelBackground: '#161b22',
+      },
+      sequence: { actorFontSize: 13, messageFontSize: 12, mirrorActors: false },
+      classDiagram: { fontSize: 13 }
+    });
+  });
+</script>
+</body>
+</html>
