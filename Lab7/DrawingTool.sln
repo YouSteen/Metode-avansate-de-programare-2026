@@ -1,0 +1,29 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DrawingTool.Core", "src\DrawingTool.Core\DrawingTool.Core.csproj", "{A7A7A7A7-B8B8-C9C9-D0D0-D1D1D1D1D1D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DrawingTool.App", "src\DrawingTool.App\DrawingTool.App.csproj", "{B8B8B8B8-C9C9-D0D0-E1E1-E2E2E2E2E2E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DrawingTool.Tests", "tests\DrawingTool.Tests\DrawingTool.Tests.csproj", "{C9C9C9C9-D0D0-E1E1-F2F2-F3F3F3F3F3F3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A7A7A7A7-B8B8-C9C9-D0D0-D1D1D1D1D1D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7A7A7A7-B8B8-C9C9-D0D0-D1D1D1D1D1D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7A7A7A7-B8B8-C9C9-D0D0-D1D1D1D1D1D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7A7A7A7-B8B8-C9C9-D0D0-D1D1D1D1D1D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8B8B8B8-C9C9-D0D0-E1E1-E2E2E2E2E2E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8B8B8B8-C9C9-D0D0-E1E1-E2E2E2E2E2E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8B8B8B8-C9C9-D0D0-E1E1-E2E2E2E2E2E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8B8B8B8-C9C9-D0D0-E1E1-E2E2E2E2E2E2E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9C9C9C9-D0D0-E1E1-F2F2-F3F3F3F3F3F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9C9C9C9-D0D0-E1E1-F2F2-F3F3F3F3F3F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9C9C9C9-D0D0-E1E1-F2F2-F3F3F3F3F3F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9C9C9C9-D0D0-E1E1-F2F2-F3F3F3F3F3F3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

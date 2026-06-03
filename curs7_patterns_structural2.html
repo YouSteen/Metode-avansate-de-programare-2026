@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curs 7 — Design Patterns Structurale II | MAP</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;--bg4:#21262d;
+    --border:#30363d;--border2:#3d4450;
+    --accent:#58a6ff;--accent2:#79c0ff;--accent3:#1f6feb;
+    --green:#3fb950;--green-bg:#0d2a1a;--green-border:#1a4731;
+    --yellow:#d29922;--yellow-bg:#2a1f0a;--yellow-border:#4a3400;
+    --purple:#bc8cff;--purple-bg:#1a0d2e;--purple-border:#3a1f5a;
+    --red:#f85149;--red-bg:#2d0f0f;--red-border:#5a1e1e;--orange:#ffa657;
+    --text:#e6edf3;--text2:#8b949e;--text3:#6e7681;
+    --radius:8px;--radius2:12px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;font-size:15px;line-height:1.75;}
+
+  .topbar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,17,23,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 2rem;height:52px;display:flex;align-items:center;justify-content:space-between;}
+  .topbar-left{display:flex;align-items:center;gap:1rem;}
+  .course-badge{background:var(--accent3);color:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.05em;}
+  .course-title-nav{font-size:13px;color:var(--text2);font-weight:500;}
+  .topbar-right{display:flex;gap:.5rem;}
+  .nav-pill{font-size:11px;color:var(--text3);padding:4px 10px;border:1px solid var(--border);border-radius:20px;text-decoration:none;font-family:'JetBrains Mono',monospace;transition:all .2s;}
+  .nav-pill:hover{color:var(--accent);border-color:var(--accent3);background:rgba(31,111,235,.08);}
+
+  .layout{display:flex;margin-top:52px;}
+  .sidebar{width:255px;min-width:255px;height:calc(100vh - 52px);position:sticky;top:52px;overflow-y:auto;border-right:1px solid var(--border);padding:1.5rem 0;background:var(--bg);}
+  .sidebar::-webkit-scrollbar{width:3px;}
+  .sidebar::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+  .sidebar-heading{font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--text3);text-transform:uppercase;padding:.75rem 1.5rem .25rem;}
+  .sidebar-link{display:flex;align-items:center;gap:.6rem;padding:.42rem 1.5rem;color:var(--text2);text-decoration:none;font-size:13px;border-left:2px solid transparent;transition:all .15s;}
+  .sidebar-link:hover{color:var(--text);background:var(--bg2);border-left-color:var(--border2);}
+  .sidebar-link.active{color:var(--accent);background:rgba(88,166,255,.06);border-left-color:var(--accent);font-weight:500;}
+  .sidebar-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);min-width:18px;}
+  .sidebar-divider{border:none;border-top:1px solid var(--border);margin:.75rem 1.5rem;}
+
+  .main{flex:1;max-width:860px;padding:3rem 3.5rem 6rem;min-width:0;}
+  #scroll-prog{position:fixed;top:52px;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent3),var(--accent),var(--purple));transform-origin:left;transform:scaleX(0);z-index:99;transition:transform .1s;}
+
+  .hero{margin-bottom:2.5rem;padding-bottom:2rem;border-bottom:1px solid var(--border);}
+  .hero-meta{display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;flex-wrap:wrap;}
+  .tag{font-family:'JetBrains Mono',monospace;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;}
+  .tag-mod{background:rgba(255,166,87,.1);color:var(--orange);border:1px solid rgba(255,166,87,.2);}
+  .tag-lang{background:rgba(63,185,80,.1);color:var(--green);border:1px solid rgba(63,185,80,.2);}
+  .tag-n{background:var(--bg3);color:var(--text2);border:1px solid var(--border);}
+  .hero h1{font-size:2.2rem;font-weight:800;line-height:1.2;letter-spacing:-.02em;margin-bottom:.75rem;}
+  .hero h1 span{color:var(--orange);}
+  .hero-desc{font-size:15.5px;color:var(--text2);max-width:640px;}
+
+  .objectives{background:rgba(255,166,87,.05);border:1px solid rgba(255,166,87,.15);border-radius:var(--radius2);padding:1.5rem;margin-bottom:2.5rem;}
+  .objectives-title{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--orange);text-transform:uppercase;margin-bottom:1rem;}
+  .objectives ul{list-style:none;display:flex;flex-direction:column;gap:.5rem;}
+  .objectives li{display:flex;align-items:flex-start;gap:.75rem;font-size:14px;color:var(--text2);}
+  .objectives li::before{content:'→';color:var(--orange);font-weight:700;flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+
+  .section{margin-bottom:3rem;}
+  h2.stitle{font-size:1.35rem;font-weight:700;color:var(--text);margin-bottom:1.5rem;padding-bottom:.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem;letter-spacing:-.01em;}
+  h2.stitle .num{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--orange);background:rgba(255,166,87,.12);padding:2px 8px;border-radius:4px;}
+  h3.sub{font-size:1.05rem;font-weight:600;color:var(--text);margin:2rem 0 .75rem;display:flex;align-items:center;gap:.5rem;}
+  h3.sub .dot{width:6px;height:6px;border-radius:50%;background:var(--orange);flex-shrink:0;}
+  h4.subsub{font-size:.95rem;font-weight:600;color:var(--text2);margin:1.5rem 0 .5rem;padding-left:.75rem;border-left:2px solid var(--border2);}
+
+  p{color:var(--text2);margin-bottom:.85rem;}
+  p:last-child{margin-bottom:0;}
+  strong{color:var(--text);font-weight:600;}
+  em{color:var(--orange);font-style:normal;font-weight:500;}
+  code{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--accent2);background:rgba(88,166,255,.08);padding:1px 6px;border-radius:4px;border:1px solid rgba(88,166,255,.12);}
+
+  /* PATTERN CARD */
+  .pattern-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;margin-bottom:2.5rem;}
+  .pattern-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1.25rem;}
+  .pattern-icon{font-size:2rem;flex-shrink:0;}
+  .pattern-name{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:.15rem;}
+  .pattern-intent{font-size:13px;color:var(--text2);line-height:1.5;}
+  .pattern-meta{display:flex;gap:.5rem;margin-top:.5rem;flex-wrap:wrap;}
+  .pattern-tag{font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;}
+  .pattern-tag.structural{background:rgba(188,140,255,.12);color:var(--purple);}
+  .pattern-tag.gof{background:var(--bg4);color:var(--text3);border:1px solid var(--border);}
+  .pattern-body{padding:1.5rem;}
+
+  /* EXAMPLE BOX */
+  .example-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;margin:1.5rem 0;}
+  .example-header{padding:.6rem 1rem;background:var(--bg4);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.65rem;}
+  .example-num{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(255,166,87,.12);color:var(--orange);}
+  .example-title{font-size:13.5px;font-weight:600;color:var(--text);}
+  .example-body{padding:1rem 1.25rem;}
+
+  /* CODE */
+  .code-block{background:#0d1117;border:1px solid var(--border);border-radius:var(--radius2);margin:1.25rem 0;overflow:hidden;}
+  .code-header{display:flex;align-items:center;justify-content:space-between;padding:.55rem 1rem;border-bottom:1px solid var(--border);background:var(--bg3);}
+  .code-fname{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2);display:flex;align-items:center;gap:.5rem;}
+  .code-fname .ok{color:var(--green);}
+  .code-fname .bad{color:var(--red);}
+  .code-lang-tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);background:var(--bg4);padding:2px 8px;border-radius:4px;}
+  pre{padding:1.25rem 1.5rem;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.65;}
+  pre::-webkit-scrollbar{height:4px;}
+  pre::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+  .kw{color:#ff7b72;}.tp{color:#79c0ff;}.ifc{color:#d2a8ff;}.mth{color:#d2a8ff;}
+  .str{color:#a5d6ff;}.num{color:#79c0ff;}.cmt{color:#6e7681;font-style:italic;}.prp{color:#e6edf3;}
+  .ann{color:#ffa657;}
+
+  /* CALLOUT */
+  .callout{border-radius:var(--radius);padding:1rem 1.25rem;margin:1.25rem 0;display:flex;gap:.85rem;align-items:flex-start;}
+  .callout-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
+  .callout-body{flex:1;}
+  .callout-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem;}
+  .callout p{font-size:13.5px;margin-bottom:0;}
+  .callout.info{background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.15);}
+  .callout.info .callout-title{color:var(--accent);}
+  .callout.warn{background:var(--yellow-bg);border:1px solid var(--yellow-border);}
+  .callout.warn .callout-title{color:var(--yellow);}
+  .callout.ok{background:var(--green-bg);border:1px solid var(--green-border);}
+  .callout.ok .callout-title{color:var(--green);}
+  .callout.danger{background:var(--red-bg);border:1px solid var(--red-border);}
+  .callout.danger .callout-title{color:var(--red);}
+  .callout.note{background:var(--purple-bg);border:1px solid var(--purple-border);}
+  .callout.note .callout-title{color:var(--purple);}
+
+  /* WHEN GRID */
+  .when-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:1rem 0;}
+  .when-card{border-radius:var(--radius);padding:.85rem 1rem;font-size:13px;line-height:1.55;}
+  .when-card.use{background:var(--green-bg);border:1px solid var(--green-border);color:var(--text2);}
+  .when-card.avoid{background:var(--red-bg);border:1px solid var(--red-border);color:var(--text2);}
+  .when-card-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+  .when-card.use .when-card-title{color:var(--green);}
+  .when-card.avoid .when-card-title{color:var(--red);}
+  @media(max-width:600px){.when-grid{grid-template-columns:1fr;}}
+
+  /* COMPARE */
+  .compare{display:flex;flex-direction:column;gap:1rem;margin:1.25rem 0;}
+  .compare-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:.35rem .75rem;border-radius:var(--radius) var(--radius) 0 0;display:flex;align-items:center;gap:.4rem;}
+  .compare-label.before{background:rgba(248,81,73,.12);color:var(--red);border:1px solid var(--red-border);border-bottom:none;}
+  .compare-label.after{background:rgba(63,185,80,.12);color:var(--green);border:1px solid var(--green-border);border-bottom:none;}
+  .compare-col .code-block{margin:0;border-radius:0 0 var(--radius2) var(--radius2);}
+  .compare-col.before .code-block{border-color:var(--red-border);}
+  .compare-col.after .code-block{border-color:var(--green-border);}
+  .cquote{border-left:3px solid var(--orange);padding:.75rem 1.25rem;background:rgba(255,166,87,.04);border-radius:0 var(--radius) var(--radius) 0;margin:1rem 0;font-size:15px;color:var(--text);line-height:1.6;}
+
+  /* UML */
+  .uml-wrap{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0 2rem;}
+  .uml-container{background:#161b22;border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;}
+  .uml-title{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);background:var(--bg3);border-bottom:1px solid var(--border);padding:.45rem 1rem;}
+  .uml-mermaid{padding:.75rem;overflow-x:auto;}
+  .uml-mermaid svg{max-width:100%;height:auto;display:block;}
+  @media(max-width:700px){.uml-wrap{grid-template-columns:1fr;}}
+
+  /* OVERVIEW TABLE */
+  .patterns-overview{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:13.5px;}
+  .patterns-overview th{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);padding:.5rem 1rem;text-align:left;border-bottom:1px solid var(--border);}
+  .patterns-overview td{padding:.55rem 1rem;border-bottom:1px solid rgba(48,54,61,.4);vertical-align:top;color:var(--text2);}
+  .patterns-overview tr:last-child td{border-bottom:none;}
+  .patterns-overview tr:hover td{background:var(--bg2);}
+  .pat-name{font-family:'JetBrains Mono',monospace;color:var(--accent2);font-weight:600;}
+  .pat-done{color:var(--green);}
+  .pat-today{color:var(--orange);}
+
+  /* LAB */
+  .lab-box{background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius2);margin:2rem 0;}
+  .lab-header{background:rgba(63,185,80,.12);border-bottom:1px solid var(--green-border);padding:1rem 1.5rem;display:flex;align-items:center;gap:.75rem;}
+  .lab-header-icon{font-size:1.3rem;}
+  .lab-header-text h4{font-size:14px;font-weight:700;color:var(--green);margin-bottom:.1rem;}
+  .lab-header-text p{font-size:12px;color:var(--text2);margin:0;}
+  .lab-body{padding:1.25rem 1.25rem 1.5rem;}
+  .lab-body p{color:var(--text2);font-size:14px;}
+  .lab-section{margin-top:1.25rem;}
+  .lab-section-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:.6rem;}
+  .lab-req{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;margin:.75rem 0;}
+  .lab-req-header{padding:.6rem 1rem;background:var(--bg4);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.65rem;}
+  .lab-req-badge{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;flex-shrink:0;}
+  .lab-req-title{font-size:13.5px;font-weight:600;color:var(--text);}
+  .lab-req-body{padding:.9rem 1.1rem;overflow:hidden;}
+  .lab-req-body ul{list-style:none;display:block;margin:0;padding:0;}
+  .lab-req-body li{font-size:13px;color:var(--text2);line-height:1.6;padding-left:1.2rem;position:relative;overflow-wrap:break-word;margin-bottom:.45rem;}
+  .lab-req-body li:last-child{margin-bottom:0;}
+  .lab-req-body li::before{content:'▸';color:var(--green);font-size:11px;position:absolute;left:0;top:3px;}
+  .lab-deliverable{margin-top:1.25rem;padding:1rem;background:rgba(63,185,80,.06);border:1px solid rgba(63,185,80,.15);border-radius:var(--radius);}
+  .lab-deliverable-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green);margin-bottom:.5rem;}
+  .lab-deliverable p{font-size:13px;color:var(--text2);margin:0;}
+
+  /* STRUCTURE TREE */
+  .structure-tree{font-family:'JetBrains Mono',monospace;font-size:12.5px;background:#0d1117;border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;line-height:2;margin:.75rem 0;overflow-x:auto;white-space:pre;}
+  .st-folder{color:var(--accent2);}
+  .st-file{color:var(--text2);}
+  .st-comment{color:var(--text3);font-size:11.5px;}
+
+  /* QUESTIONS & RESOURCES */
+  .questions-box{background:var(--purple-bg);border:1px solid var(--purple-border);border-radius:var(--radius2);padding:1.5rem;margin-top:2rem;}
+  .questions-title{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--purple);text-transform:uppercase;margin-bottom:1rem;}
+  .questions-box ol{padding-left:1.5rem;display:flex;flex-direction:column;gap:.6rem;}
+  .questions-box li{color:var(--text2);font-size:14px;}
+  .resources{border-top:1px solid var(--border);padding-top:1.5rem;margin-top:2rem;}
+  .resources-title{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:1rem;}
+  .resource-list{display:flex;flex-direction:column;gap:.5rem;}
+  .resource-item{display:flex;align-items:center;gap:.75rem;font-size:13px;color:var(--text2);}
+  .resource-item::before{content:'📖';font-size:14px;}
+
+  .progress-bar{height:3px;background:linear-gradient(90deg,var(--accent3),var(--orange),var(--purple));border-radius:2px;margin-bottom:2.5rem;width:calc(7/14*100%);opacity:.8;}
+
+  @media(max-width:900px){.sidebar{display:none;}.main{padding:2rem 1.5rem 4rem;}}
+</style>
+</head>
+<body>
+<div id="scroll-prog"></div>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="course-badge">MAP</span>
+    <span class="course-title-nav">Metode Avansate de Programare</span>
+  </div>
+  <div class="topbar-right">
+    <a href="curs6_patterns_structural1.html" class="nav-pill">← Curs 6</a>
+    <a href="curs8_patterns_behavioral1.html"  class="nav-pill">Curs 8 →</a>
+  </div>
+</div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div>
+    <div class="sidebar-heading">Conținut</div>
+    <a href="#intro"     class="sidebar-link active"><span class="sidebar-num">01</span>Context</a>
+    <a href="#composite" class="sidebar-link"><span class="sidebar-num">02</span>Composite</a>
+    <a href="#proxy"     class="sidebar-link"><span class="sidebar-num">03</span>Proxy</a>
+    <a href="#bridge"    class="sidebar-link"><span class="sidebar-num">04</span>Bridge</a>
+    <a href="#flyweight" class="sidebar-link"><span class="sidebar-num">05</span>Flyweight</a>
+    <a href="#comparatie" class="sidebar-link"><span class="sidebar-num">06</span>Comparație</a>
+    <a href="#lab"       class="sidebar-link"><span class="sidebar-num">07</span>Laborator 7</a>
+  </div>
+  <hr class="sidebar-divider">
+  <div>
+    <div class="sidebar-heading">Cursurile MAP</div>
+    <a href="curs1_oop.html"                  class="sidebar-link"><span class="sidebar-num">01</span>Recapitulare OOP</a>
+    <a href="curs2_uml.html"                  class="sidebar-link"><span class="sidebar-num">02</span>UML</a>
+    <a href="curs3_solid1.html"               class="sidebar-link"><span class="sidebar-num">03</span>SOLID I</a>
+    <a href="curs4_solid2.html"               class="sidebar-link"><span class="sidebar-num">04</span>SOLID II</a>
+    <a href="curs5_patterns_creational.html"  class="sidebar-link"><span class="sidebar-num">05</span>Patterns Creaționale</a>
+    <a href="curs6_patterns_structural1.html" class="sidebar-link"><span class="sidebar-num">06</span>Patterns Structurale I</a>
+    <a href="curs7_patterns_structural2.html" class="sidebar-link active"><span class="sidebar-num">07</span>Patterns Structurale II</a>
+    <a href="#" class="sidebar-link" style="opacity:.4;pointer-events:none"><span class="sidebar-num">08</span>Patterns Comportamentale I</a>
+    <a href="#" class="sidebar-link" style="opacity:.4;pointer-events:none"><span class="sidebar-num">09</span>Patterns Comportamentale II</a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="progress-bar"></div>
+
+  <header class="hero">
+    <div class="hero-meta">
+      <span class="tag tag-mod">Modul: Design Patterns</span>
+      <span class="tag tag-lang">C#</span>
+      <span class="tag tag-n">Curs 7 din 14</span>
+    </div>
+    <h1>Design Patterns <span>Structurale</span> — Partea II</h1>
+    <p class="hero-desc">Ultimele patru pattern-uri structurale din catalogul GoF: <em>Composite</em> — structuri arborescente uniforme; <em>Proxy</em> — control de acces prin intermediar; <em>Bridge</em> — abstracție și implementare care variază independent; <em>Flyweight</em> — partajarea stării comune între mii de obiecte.</p>
+  </header>
+
+  <div class="objectives">
+    <div class="objectives-title">Obiective</div>
+    <ul>
+      <li>Modelați structuri arborescente recursiv cu Composite și aplicați-l pe trei domenii diferite</li>
+      <li>Distingeți cele trei variante de Proxy și știți când se potrivește fiecare</li>
+      <li>Aplicați Bridge pentru a separa două axe de variație independente</li>
+      <li>Înțelegeți distincția intrinsec/extrinsec din Flyweight și când justifică complexitatea adăugată</li>
+    </ul>
+  </div>
+
+  <!-- ── SECTION 1: INTRO ── -->
+  <section class="section" id="intro">
+    <h2 class="stitle"><span class="num">01</span>Context — pattern-urile structurale complete</h2>
+
+    <table class="patterns-overview">
+      <thead>
+        <tr><th>Pattern</th><th>Problema rezolvată</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="pat-name">Adapter</span></td><td>Interfețe incompatibile — integrează fără modificare</td><td class="pat-done">✓ Curs 6</td></tr>
+        <tr><td><span class="pat-name">Decorator</span></td><td>Adaugă comportamente la runtime fără subclassing</td><td class="pat-done">✓ Curs 6</td></tr>
+        <tr><td><span class="pat-name">Facade</span></td><td>Punct unic de acces la un subsistem complex</td><td class="pat-done">✓ Curs 6</td></tr>
+        <tr><td><span class="pat-name">Composite</span></td><td>Tratează uniform primitive și compozițiile lor</td><td class="pat-today">← astăzi</td></tr>
+        <tr><td><span class="pat-name">Proxy</span></td><td>Controlează accesul la un obiect prin intermediar</td><td class="pat-today">← astăzi</td></tr>
+        <tr><td><span class="pat-name">Bridge</span></td><td>Separă abstracția de implementare — variază independent</td><td class="pat-today">← astăzi</td></tr>
+        <tr><td><span class="pat-name">Flyweight</span></td><td>Partajează starea comună între mii de obiecte</td><td class="pat-today">← astăzi</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── SECTION 2: COMPOSITE ── -->
+  <section class="section" id="composite">
+    <h2 class="stitle"><span class="num">02</span>Composite</h2>
+
+    <div class="pattern-card">
+      <div class="pattern-header">
+        <span class="pattern-icon">🌳</span>
+        <div>
+          <div class="pattern-name">Composite</div>
+          <div class="pattern-intent">Compune obiectele în structuri arborescente pentru a reprezenta ierarhii parte-întreg. Permite clienților să trateze uniform obiectele individuale și compozițiile lor.</div>
+          <div class="pattern-meta">
+            <span class="pattern-tag structural">Structural</span>
+            <span class="pattern-tag gof">GoF</span>
+          </div>
+        </div>
+      </div>
+      <div class="pattern-body">
+
+        <p>Forța pattern-ului stă în faptul că <strong>clientul nu știe și nu trebuie să știe</strong> dacă lucrează cu un nod frunză sau cu un nod compus — apelează aceeași operație pe aceeași interfață, iar structura arborelui se ocupă de restul recursiv.</p>
+
+        <h3 class="sub"><span class="dot"></span>Structura generică (GoF)</h3>
+
+        <div class="uml-wrap">
+          <div class="uml-container">
+            <div class="uml-title">Diagramă de clase</div>
+            <div class="mermaid uml-mermaid">
+classDiagram
+    class Component {
+        &lt;&lt;interface&gt;&gt;
+        +operation()
+        +add(Component)
+        +remove(Component)
+    }
+    class Leaf {
+        +operation()
+    }
+    class Composite {
+        -children List~Component~
+        +operation()
+        +add(Component)
+        +remove(Component)
+    }
+    class Client
+    Component <|.. Leaf
+    Component <|.. Composite
+    Composite o--> Component : children
+    Client ..> Component : uses
+            </div>
+          </div>
+          <div class="uml-container">
+            <div class="uml-title">Diagramă de secvență</div>
+            <div class="mermaid uml-mermaid">
+sequenceDiagram
+    participant C as Client
+    participant Comp as Composite
+    participant L1 as Leaf1
+    participant L2 as Leaf2
+    C->>Comp: operation()
+    Comp->>L1: operation()
+    L1-->>Comp: rezultat1
+    Comp->>L2: operation()
+    L2-->>Comp: rezultat2
+    Comp-->>C: rezultat combinat
+            </div>
+          </div>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Structura C# — participanți canonici</h3>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname">Composite — structura generică</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="cmt">// Component — interfața comună pentru Leaf și Composite</span>
+<span class="kw">public interface</span> <span class="ifc">IComponent</span>
+{
+    <span class="tp">string</span> <span class="mth">Operation</span>();
+}
+
+<span class="cmt">// Leaf — nod terminal, nu are copii</span>
+<span class="kw">public class</span> <span class="tp">Leaf</span> : <span class="ifc">IComponent</span>
+{
+    <span class="kw">private readonly</span> <span class="tp">string</span> _name;
+    <span class="kw">public</span> <span class="mth">Leaf</span>(<span class="tp">string</span> name) => _name = name;
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">Operation</span>() => _name;
+}
+
+<span class="cmt">// Composite — nod intern, conține alți IComponent (Leaf sau Composite)</span>
+<span class="kw">public class</span> <span class="tp">Composite</span> : <span class="ifc">IComponent</span>
+{
+    <span class="kw">private readonly</span> <span class="tp">string</span> _name;
+    <span class="kw">private readonly</span> <span class="tp">List</span>&lt;<span class="ifc">IComponent</span>&gt; _children = <span class="kw">new</span>();
+
+    <span class="kw">public</span> <span class="mth">Composite</span>(<span class="tp">string</span> name) => _name = name;
+
+    <span class="kw">public void</span> <span class="mth">Add</span>(<span class="ifc">IComponent</span> c)    => _children.<span class="mth">Add</span>(c);
+    <span class="kw">public void</span> <span class="mth">Remove</span>(<span class="ifc">IComponent</span> c) => _children.<span class="mth">Remove</span>(c);
+
+    <span class="cmt">// Operația se propagă recursiv la toți copiii</span>
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">Operation</span>()
+    {
+        <span class="kw">var</span> results = _children.<span class="mth">Select</span>(c => c.<span class="mth">Operation</span>());
+        <span class="kw">return</span> <span class="str">$"{_name}({string.Join(", ", results)})"</span>;
+    }
+}
+
+<span class="cmt">// Client — tratează uniform Leaf și Composite prin IComponent</span>
+<span class="ifc">IComponent</span> tree =
+    <span class="kw">new</span> <span class="tp">Composite</span>(<span class="str">"root"</span>)
+    {
+        <span class="cmt">// Add() se poate apela și cu sintaxă de inițializare</span>
+    };
+(<span class="tp">Composite</span>)tree.<span class="mth">Add</span>(<span class="kw">new</span> <span class="tp">Leaf</span>(<span class="str">"A"</span>));
+(<span class="tp">Composite</span>)tree.<span class="mth">Add</span>(<span class="kw">new</span> <span class="tp">Leaf</span>(<span class="str">"B"</span>));
+<span class="tp">Console</span>.<span class="mth">WriteLine</span>(tree.<span class="mth">Operation</span>()); <span class="cmt">// root(A, B)</span></pre>
+        </div>
+
+        <!-- EXAMPLE 1: FILE SYSTEM -->
+        <div class="example-box">
+          <div class="example-header">
+            <span class="example-num">Exemplul 1</span>
+            <span class="example-title">Sistem de fișiere — GetSize() recursiv</span>
+          </div>
+          <div class="example-body">
+            <p>Un director calculează dimensiunea totală prin delegare recursivă la copii. Clientul apelează <code>GetSize()</code> fără să știe dacă lucrează cu un fișier simplu sau o structură de directoare imbricate.</p>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-fname">FileSystem.cs</span>
+                <span class="code-lang-tag">C#</span>
+              </div>
+              <pre><span class="kw">public interface</span> <span class="ifc">IFileSystemEntry</span>
+{
+    <span class="tp">string</span>  <span class="prp">Name</span>    { <span class="kw">get</span>; }
+    <span class="tp">long</span>    <span class="mth">GetSize</span>();
+    <span class="kw">void</span>    <span class="mth">Print</span>(<span class="tp">int</span> indent = <span class="num">0</span>);
+}
+
+<span class="cmt">// Leaf — fișier simplu</span>
+<span class="kw">public class</span> <span class="tp">File</span> : <span class="ifc">IFileSystemEntry</span>
+{
+    <span class="kw">public</span> <span class="tp">string</span> <span class="prp">Name</span> { <span class="kw">get</span>; }
+    <span class="kw">private readonly</span> <span class="tp">long</span> _size;
+
+    <span class="kw">public</span> <span class="mth">File</span>(<span class="tp">string</span> name, <span class="tp">long</span> sizeBytes) => (<span class="prp">Name</span>, _size) = (name, sizeBytes);
+
+    <span class="kw">public long</span> <span class="mth">GetSize</span>() => _size;
+    <span class="kw">public void</span> <span class="mth">Print</span>(<span class="tp">int</span> indent = <span class="num">0</span>)
+        => <span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">$"{new string(' ', indent * 2)}📄 {Name} ({_size} bytes)"</span>);
+}
+
+<span class="cmt">// Composite — director care poate conține fișiere sau alte directoare</span>
+<span class="kw">public class</span> <span class="tp">Directory</span> : <span class="ifc">IFileSystemEntry</span>
+{
+    <span class="kw">public</span> <span class="tp">string</span> <span class="prp">Name</span> { <span class="kw">get</span>; }
+    <span class="kw">private readonly</span> <span class="tp">List</span>&lt;<span class="ifc">IFileSystemEntry</span>&gt; _entries = <span class="kw">new</span>();
+
+    <span class="kw">public</span> <span class="mth">Directory</span>(<span class="tp">string</span> name) => <span class="prp">Name</span> = name;
+
+    <span class="kw">public void</span> <span class="mth">Add</span>(<span class="ifc">IFileSystemEntry</span> entry) => _entries.<span class="mth">Add</span>(entry);
+
+    <span class="cmt">// Dimensiunea unui director = suma recursivă a tuturor copiilor</span>
+    <span class="kw">public long</span> <span class="mth">GetSize</span>() => _entries.<span class="mth">Sum</span>(e => e.<span class="mth">GetSize</span>());
+
+    <span class="kw">public void</span> <span class="mth">Print</span>(<span class="tp">int</span> indent = <span class="num">0</span>)
+    {
+        <span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">$"{new string(' ', indent * 2)}📁 {Name}/ ({GetSize()} bytes)"</span>);
+        <span class="kw">foreach</span> (<span class="kw">var</span> entry <span class="kw">in</span> _entries)
+            entry.<span class="mth">Print</span>(indent + <span class="num">1</span>);
+    }
+}
+
+<span class="cmt">// Construire arbore</span>
+<span class="kw">var</span> root = <span class="kw">new</span> <span class="tp">Directory</span>(<span class="str">"proiect"</span>);
+<span class="kw">var</span> src  = <span class="kw">new</span> <span class="tp">Directory</span>(<span class="str">"src"</span>);
+src.<span class="mth">Add</span>(<span class="kw">new</span> <span class="tp">File</span>(<span class="str">"Program.cs"</span>,  <span class="num">4_200</span>));
+src.<span class="mth">Add</span>(<span class="kw">new</span> <span class="tp">File</span>(<span class="str">"Service.cs"</span>,  <span class="num">8_500</span>));
+root.<span class="mth">Add</span>(src);
+root.<span class="mth">Add</span>(<span class="kw">new</span> <span class="tp">File</span>(<span class="str">"README.md"</span>, <span class="num">1_200</span>));
+
+root.<span class="mth">Print</span>();
+<span class="cmt">// 📁 proiect/ (13900 bytes)
+//   📁 src/ (12700 bytes)
+//     📄 Program.cs (4200 bytes)
+//     📄 Service.cs (8500 bytes)
+//   📄 README.md (1200 bytes)</span>
+<span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">$"Total: {root.GetSize()} bytes"</span>);</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXAMPLE 2: ARITHMETIC EXPRESSIONS -->
+        <div class="example-box">
+          <div class="example-header">
+            <span class="example-num">Exemplul 2</span>
+            <span class="example-title">Expresii aritmetice — evaluare și parcurgere în trei ordini</span>
+          </div>
+          <div class="example-body">
+            <p>Un arbore de expresii este cel mai natural exemplu de structură recursivă. Nodurile frunză sunt valori numerice, nodurile interne sunt operatori binari. Aceeași interfață <code>IExpression</code> suportă evaluarea și afișarea în cele trei ordini de parcurgere.</p>
+
+            <div class="callout info">
+              <span class="callout-icon">💡</span>
+              <div class="callout-body">
+                <div class="callout-title">Cele trei ordini de parcurgere</div>
+                <p><strong>Inordine</strong> (stânga → rădăcină → dreapta): produce expresia infixată, lizibilă pentru oameni — <code>(3 + 4) * 2</code>. <strong>Preordine</strong> (rădăcină → stânga → dreapta): notație poloneză — operatorul precede operanzii — <code>* + 3 4 2</code>. <strong>Postordine</strong> (stânga → dreapta → rădăcină): notație poloneză inversă — operatorul urmează operanzilor — <code>3 4 + 2 *</code>, folosită de calculatoarele cu stivă.</p>
+              </div>
+            </div>
+
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-fname">ExpressionTree.cs</span>
+                <span class="code-lang-tag">C#</span>
+              </div>
+              <pre><span class="kw">public interface</span> <span class="ifc">IExpression</span>
+{
+    <span class="tp">double</span> <span class="mth">Evaluate</span>();
+    <span class="tp">string</span> <span class="mth">Inorder</span>();    <span class="cmt">// (stânga op dreapta)</span>
+    <span class="tp">string</span> <span class="mth">Preorder</span>();   <span class="cmt">// op stânga dreapta</span>
+    <span class="tp">string</span> <span class="mth">Postorder</span>(); <span class="cmt">// stânga dreapta op</span>
+}
+
+<span class="cmt">// Leaf — valoare numerică</span>
+<span class="kw">public class</span> <span class="tp">NumberExpression</span> : <span class="ifc">IExpression</span>
+{
+    <span class="kw">private readonly</span> <span class="tp">double</span> _value;
+    <span class="kw">public</span> <span class="mth">NumberExpression</span>(<span class="tp">double</span> value) => _value = value;
+
+    <span class="kw">public double</span> <span class="mth">Evaluate</span>()  => _value;
+    <span class="kw">public string</span> <span class="mth">Inorder</span>()   => _value.<span class="mth">ToString</span>();
+    <span class="kw">public string</span> <span class="mth">Preorder</span>()  => _value.<span class="mth">ToString</span>();
+    <span class="kw">public string</span> <span class="mth">Postorder</span>() => _value.<span class="mth">ToString</span>();
+}
+
+<span class="cmt">// Composite — operator binar cu doi operanzi IExpression</span>
+<span class="kw">public class</span> <span class="tp">BinaryExpression</span> : <span class="ifc">IExpression</span>
+{
+    <span class="kw">private readonly</span> <span class="ifc">IExpression</span> _left, _right;
+    <span class="kw">private readonly</span> <span class="tp">char</span> _op;
+
+    <span class="kw">public</span> <span class="mth">BinaryExpression</span>(<span class="ifc">IExpression</span> left, <span class="tp">char</span> op, <span class="ifc">IExpression</span> right)
+        => (_left, _op, _right) = (left, op, right);
+
+    <span class="kw">public double</span> <span class="mth">Evaluate</span>() => _op <span class="kw">switch</span>
+    {
+        <span class="str">'+'</span> => _left.<span class="mth">Evaluate</span>() + _right.<span class="mth">Evaluate</span>(),
+        <span class="str">'-'</span> => _left.<span class="mth">Evaluate</span>() - _right.<span class="mth">Evaluate</span>(),
+        <span class="str">'*'</span> => _left.<span class="mth">Evaluate</span>() * _right.<span class="mth">Evaluate</span>(),
+        <span class="str">'/'</span> => _right.<span class="mth">Evaluate</span>() == <span class="num">0</span>
+                  ? <span class="kw">throw new</span> <span class="tp">DivideByZeroException</span>()
+                  : _left.<span class="mth">Evaluate</span>() / _right.<span class="mth">Evaluate</span>(),
+        _ => <span class="kw">throw new</span> <span class="tp">NotSupportedException</span>(<span class="str">$"Operator necunoscut: {_op}"</span>)
+    };
+
+    <span class="cmt">// Inordine: adăugăm paranteze pentru claritate</span>
+    <span class="kw">public string</span> <span class="mth">Inorder</span>()   => <span class="str">$"({_left.Inorder()} {_op} {_right.Inorder()})"</span>;
+    <span class="kw">public string</span> <span class="mth">Preorder</span>()  => <span class="str">$"{_op} {_left.Preorder()} {_right.Preorder()}"</span>;
+    <span class="kw">public string</span> <span class="mth">Postorder</span>() => <span class="str">$"{_left.Postorder()} {_right.Postorder()} {_op}"</span>;
+}
+
+<span class="cmt">// Construim arborele pentru (3 + 4) * 2</span>
+<span class="ifc">IExpression</span> expr = <span class="kw">new</span> <span class="tp">BinaryExpression</span>(
+    <span class="kw">new</span> <span class="tp">BinaryExpression</span>(
+        <span class="kw">new</span> <span class="tp">NumberExpression</span>(<span class="num">3</span>),
+        <span class="str">'+'</span>,
+        <span class="kw">new</span> <span class="tp">NumberExpression</span>(<span class="num">4</span>)
+    ),
+    <span class="str">'*'</span>,
+    <span class="kw">new</span> <span class="tp">NumberExpression</span>(<span class="num">2</span>)
+);
+
+<span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">$"Evaluate:  {expr.Evaluate()}"</span>);  <span class="cmt">// 14</span>
+<span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">$"Inorder:   {expr.Inorder()}"</span>);   <span class="cmt">// ((3 + 4) * 2)</span>
+<span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">$"Preorder:  {expr.Preorder()}"</span>);  <span class="cmt">// * + 3 4 2</span>
+<span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">$"Postorder: {expr.Postorder()}"</span>); <span class="cmt">// 3 4 + 2 *</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXAMPLE 3: GRAPHIC SHAPES -->
+        <div class="example-box">
+          <div class="example-header">
+            <span class="example-num">Exemplul 3</span>
+            <span class="example-title">Forme grafice — primitive și picturi compuse</span>
+          </div>
+          <div class="example-body">
+            <p>Primitivele grafice (Line, Circle, Rectangle) sunt noduri frunză. O <code>Picture</code> este un nod compus care poate conține orice mix de primitive și alte picturi. Operațiile <code>Draw()</code>, <code>Move()</code> și <code>Scale()</code> se propagă recursiv — clientul nu distinge între o primitivă și o pictură complexă.</p>
+
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-fname">Shapes.cs</span>
+                <span class="code-lang-tag">C#</span>
+              </div>
+              <pre><span class="cmt">// Component — interfața comună pentru orice formă</span>
+<span class="kw">public interface</span> <span class="ifc">IShape</span>
+{
+    <span class="kw">void</span>   <span class="mth">Draw</span>();
+    <span class="kw">void</span>   <span class="mth">Move</span>(<span class="tp">double</span> dx, <span class="tp">double</span> dy);
+    <span class="kw">void</span>   <span class="mth">Scale</span>(<span class="tp">double</span> factor);
+    <span class="tp">string</span> <span class="mth">Describe</span>();
+}
+
+<span class="cmt">// ── Primitive (Leaf) ──────────────────────────────────────────────────</span>
+<span class="kw">public class</span> <span class="tp">Circle</span> : <span class="ifc">IShape</span>
+{
+    <span class="kw">public double</span> <span class="prp">X</span>, <span class="prp">Y</span>, <span class="prp">Radius</span>;
+
+    <span class="kw">public</span> <span class="mth">Circle</span>(<span class="tp">double</span> x, <span class="tp">double</span> y, <span class="tp">double</span> radius)
+        => (<span class="prp">X</span>, <span class="prp">Y</span>, <span class="prp">Radius</span>) = (x, y, radius);
+
+    <span class="kw">public void</span> <span class="mth">Draw</span>()                          => <span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="mth">Describe</span>());
+    <span class="kw">public void</span> <span class="mth">Move</span>(<span class="tp">double</span> dx, <span class="tp">double</span> dy)     => (<span class="prp">X</span>, <span class="prp">Y</span>) = (<span class="prp">X</span> + dx, <span class="prp">Y</span> + dy);
+    <span class="kw">public void</span> <span class="mth">Scale</span>(<span class="tp">double</span> f)               => <span class="prp">Radius</span> *= f;
+    <span class="kw">public string</span> <span class="mth">Describe</span>() => <span class="str">$"Circle  center=({X:F1},{Y:F1}) r={Radius:F1}"</span>;
+}
+
+<span class="kw">public class</span> <span class="tp">Line</span> : <span class="ifc">IShape</span>
+{
+    <span class="kw">public double</span> <span class="prp">X1</span>, <span class="prp">Y1</span>, <span class="prp">X2</span>, <span class="prp">Y2</span>;
+
+    <span class="kw">public</span> <span class="mth">Line</span>(<span class="tp">double</span> x1, <span class="tp">double</span> y1, <span class="tp">double</span> x2, <span class="tp">double</span> y2)
+        => (<span class="prp">X1</span>, <span class="prp">Y1</span>, <span class="prp">X2</span>, <span class="prp">Y2</span>) = (x1, y1, x2, y2);
+
+    <span class="kw">public void</span> <span class="mth">Draw</span>()                        => <span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="mth">Describe</span>());
+    <span class="kw">public void</span> <span class="mth">Move</span>(<span class="tp">double</span> dx, <span class="tp">double</span> dy)   => (<span class="prp">X1</span>, <span class="prp">Y1</span>, <span class="prp">X2</span>, <span class="prp">Y2</span>) = (<span class="prp">X1</span>+dx, <span class="prp">Y1</span>+dy, <span class="prp">X2</span>+dx, <span class="prp">Y2</span>+dy);
+    <span class="kw">public void</span> <span class="mth">Scale</span>(<span class="tp">double</span> f)              => (<span class="prp">X1</span>, <span class="prp">Y1</span>, <span class="prp">X2</span>, <span class="prp">Y2</span>) = (<span class="prp">X1</span>*f, <span class="prp">Y1</span>*f, <span class="prp">X2</span>*f, <span class="prp">Y2</span>*f);
+    <span class="kw">public string</span> <span class="mth">Describe</span>() => <span class="str">$"Line    ({X1:F1},{Y1:F1})→({X2:F1},{Y2:F1})"</span>;
+}
+
+<span class="kw">public class</span> <span class="tp">Rectangle</span> : <span class="ifc">IShape</span>
+{
+    <span class="kw">public double</span> <span class="prp">X</span>, <span class="prp">Y</span>, <span class="prp">Width</span>, <span class="prp">Height</span>;
+
+    <span class="kw">public</span> <span class="mth">Rectangle</span>(<span class="tp">double</span> x, <span class="tp">double</span> y, <span class="tp">double</span> w, <span class="tp">double</span> h)
+        => (<span class="prp">X</span>, <span class="prp">Y</span>, <span class="prp">Width</span>, <span class="prp">Height</span>) = (x, y, w, h);
+
+    <span class="kw">public void</span> <span class="mth">Draw</span>()                        => <span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="mth">Describe</span>());
+    <span class="kw">public void</span> <span class="mth">Move</span>(<span class="tp">double</span> dx, <span class="tp">double</span> dy)   => (<span class="prp">X</span>, <span class="prp">Y</span>) = (<span class="prp">X</span> + dx, <span class="prp">Y</span> + dy);
+    <span class="kw">public void</span> <span class="mth">Scale</span>(<span class="tp">double</span> f)              => (<span class="prp">Width</span>, <span class="prp">Height</span>) = (<span class="prp">Width</span>*f, <span class="prp">Height</span>*f);
+    <span class="kw">public string</span> <span class="mth">Describe</span>() => <span class="str">$"Rect    ({X:F1},{Y:F1}) {Width:F1}x{Height:F1}"</span>;
+}
+
+<span class="cmt">// ── Composite — grupare de forme ───────────────────────────────────────</span>
+<span class="kw">public class</span> <span class="tp">Picture</span> : <span class="ifc">IShape</span>
+{
+    <span class="kw">private readonly</span> <span class="tp">string</span> _name;
+    <span class="kw">private readonly</span> <span class="tp">List</span>&lt;<span class="ifc">IShape</span>&gt; _shapes = <span class="kw">new</span>();
+
+    <span class="kw">public</span> <span class="mth">Picture</span>(<span class="tp">string</span> name) => _name = name;
+
+    <span class="kw">public void</span> <span class="mth">Add</span>(<span class="ifc">IShape</span> s)    => _shapes.<span class="mth">Add</span>(s);
+    <span class="kw">public void</span> <span class="mth">Remove</span>(<span class="ifc">IShape</span> s) => _shapes.<span class="mth">Remove</span>(s);
+    <span class="kw">public int</span>  <span class="prp">Count</span>           => _shapes.<span class="prp">Count</span>;
+
+    <span class="cmt">// Toate operațiile se propagă recursiv la fiecare formă din grup</span>
+    <span class="kw">public void</span> <span class="mth">Draw</span>()
+    {
+        <span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">$"── Picture: {_name} ({_shapes.Count} shapes) ──"</span>);
+        <span class="kw">foreach</span> (<span class="kw">var</span> s <span class="kw">in</span> _shapes) s.<span class="mth">Draw</span>();
+    }
+
+    <span class="kw">public void</span> <span class="mth">Move</span>(<span class="tp">double</span> dx, <span class="tp">double</span> dy)
+        => _shapes.<span class="mth">ForEach</span>(s => s.<span class="mth">Move</span>(dx, dy));
+
+    <span class="kw">public void</span> <span class="mth">Scale</span>(<span class="tp">double</span> factor)
+        => _shapes.<span class="mth">ForEach</span>(s => s.<span class="mth">Scale</span>(factor));
+
+    <span class="kw">public string</span> <span class="mth">Describe</span>() => <span class="str">$"Picture '{_name}' [{_shapes.Count} shapes]"</span>;
+}
+
+<span class="cmt">// ── Utilizare — clientul tratează totul ca IShape ─────────────────────</span>
+<span class="kw">var</span> logo = <span class="kw">new</span> <span class="tp">Picture</span>(<span class="str">"logo"</span>);
+logo.<span class="mth">Add</span>(<span class="kw">new</span> <span class="tp">Circle</span>(<span class="num">50</span>, <span class="num">50</span>, <span class="num">30</span>));
+logo.<span class="mth">Add</span>(<span class="kw">new</span> <span class="tp">Rectangle</span>(<span class="num">20</span>, <span class="num">80</span>, <span class="num">60</span>, <span class="num">20</span>));
+
+<span class="kw">var</span> scene = <span class="kw">new</span> <span class="tp">Picture</span>(<span class="str">"scenă"</span>);
+scene.<span class="mth">Add</span>(logo);                        <span class="cmt">// Picture în Picture</span>
+scene.<span class="mth">Add</span>(<span class="kw">new</span> <span class="tp">Line</span>(<span class="num">0</span>, <span class="num">0</span>, <span class="num">200</span>, <span class="num">0</span>));   <span class="cmt">// primitivă alături</span>
+
+scene.<span class="mth">Draw</span>();
+scene.<span class="mth">Scale</span>(<span class="num">2.0</span>);   <span class="cmt">// scalează tot: logo + linie</span>
+scene.<span class="mth">Move</span>(<span class="num">10</span>, <span class="num">5</span>); <span class="cmt">// mută tot cu (10, 5)</span>
+scene.<span class="mth">Draw</span>();      <span class="cmt">// clientul nu știe ce e în interior</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="when-grid">
+          <div class="when-card use">
+            <div class="when-card-title">✓ Când se folosește</div>
+            Când structura problemei este naturalmente ierarhică și recursivă. Când clientul trebuie să trateze uniform elementele simple și colecțiile lor. Arbori de expresii, sisteme de fișiere, ierarhii UI, structuri organizaționale.
+          </div>
+          <div class="when-card avoid">
+            <div class="when-card-title">✗ Când nu se potrivește</div>
+            Când componentele din ierarhie sunt fundamental diferite și nu pot partaja o interfață comună fără constrângeri artificiale. Când adâncimea arborelui este fixă și mică — o structură simplă e mai clară.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 3: PROXY ── -->
+  <section class="section" id="proxy">
+    <h2 class="stitle"><span class="num">03</span>Proxy</h2>
+
+    <div class="pattern-card">
+      <div class="pattern-header">
+        <span class="pattern-icon">🛡</span>
+        <div>
+          <div class="pattern-name">Proxy</div>
+          <div class="pattern-intent">Furnizează un înlocuitor sau placeholder pentru un alt obiect, pentru a controla accesul la acesta.</div>
+          <div class="pattern-meta">
+            <span class="pattern-tag structural">Structural</span>
+            <span class="pattern-tag gof">GoF</span>
+          </div>
+        </div>
+      </div>
+      <div class="pattern-body">
+
+        <p>Proxy implementează aceeași interfață ca obiectul real (Subject) și îl înlocuiește în ochii clientului. Totul trece prin Proxy — care poate amâna crearea, controla accesul, adăuga logging sau cache, înainte/după delegarea apelului.</p>
+
+        <h3 class="sub"><span class="dot"></span>Structura generică (GoF)</h3>
+
+        <div class="uml-wrap">
+          <div class="uml-container">
+            <div class="uml-title">Diagramă de clase</div>
+            <div class="mermaid uml-mermaid">
+classDiagram
+    class Subject {
+        &lt;&lt;interface&gt;&gt;
+        +request()
+    }
+    class RealSubject {
+        +request()
+    }
+    class Proxy {
+        -realSubject RealSubject
+        +request()
+    }
+    class Client
+    Subject <|.. RealSubject
+    Subject <|.. Proxy
+    Proxy --> RealSubject : delegates
+    Client ..> Subject : uses
+            </div>
+          </div>
+          <div class="uml-container">
+            <div class="uml-title">Diagramă de secvență</div>
+            <div class="mermaid uml-mermaid">
+sequenceDiagram
+    participant C as Client
+    participant P as Proxy
+    participant R as RealSubject
+    C->>P: request()
+    Note over P: control acces / lazy init
+    P->>R: request()
+    R-->>P: rezultat
+    Note over P: post-procesare optionala
+    P-->>C: rezultat
+            </div>
+          </div>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Structura C# — participanți canonici</h3>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname">Proxy — structura generică</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="cmt">// Subject — interfața comună pentru RealSubject și Proxy</span>
+<span class="kw">public interface</span> <span class="ifc">ISubject</span>
+{
+    <span class="tp">string</span> <span class="mth">Request</span>();
+}
+
+<span class="cmt">// RealSubject — obiectul real, potențial costisitor de creat sau accesat</span>
+<span class="kw">public class</span> <span class="tp">RealSubject</span> : <span class="ifc">ISubject</span>
+{
+    <span class="kw">public</span> <span class="mth">RealSubject</span>()
+        => <span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">"RealSubject: instanțiat (operație costisitoare)"</span>);
+
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">Request</span>() => <span class="str">"RealSubject: rezultat"</span>;
+}
+
+<span class="cmt">// Proxy — controlează accesul la RealSubject</span>
+<span class="kw">public class</span> <span class="tp">Proxy</span> : <span class="ifc">ISubject</span>
+{
+    <span class="kw">private</span> <span class="tp">RealSubject</span>? _real; <span class="cmt">// null până la primul apel (lazy)</span>
+
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">Request</span>()
+    {
+        <span class="cmt">// Lazy initialization — RealSubject creat doar când e nevoie</span>
+        _real ??= <span class="kw">new</span> <span class="tp">RealSubject</span>();
+        <span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">"Proxy: delegare la RealSubject"</span>);
+        <span class="kw">return</span> _real.<span class="mth">Request</span>();
+    }
+}
+
+<span class="cmt">// Client — lucrează cu ISubject; nu știe că e Proxy</span>
+<span class="ifc">ISubject</span> subject = <span class="kw">new</span> <span class="tp">Proxy</span>(); <span class="cmt">// RealSubject NU e creat încă</span>
+<span class="tp">Console</span>.<span class="mth">WriteLine</span>(subject.<span class="mth">Request</span>()); <span class="cmt">// abia acum se instanțiază</span>
+<span class="tp">Console</span>.<span class="mth">WriteLine</span>(subject.<span class="mth">Request</span>()); <span class="cmt">// refolosește instanța existentă</span></pre>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Cele trei variante principale</h3>
+
+        <div class="example-box">
+          <div class="example-header">
+            <span class="example-num">Virtual Proxy</span>
+            <span class="example-title">Amână instanțierea costisitoare (lazy initialization)</span>
+          </div>
+          <div class="example-body">
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-fname">LazyReportProxy.cs</span>
+                <span class="code-lang-tag">C#</span>
+              </div>
+              <pre><span class="kw">public interface</span> <span class="ifc">IReportGenerator</span>
+{
+    <span class="tp">string</span> <span class="mth">Generate</span>(<span class="tp">string</span> reportType);
+}
+
+<span class="cmt">// RealSubject — conectare la DB, inițializare cache: durează 2-3 secunde</span>
+<span class="kw">public class</span> <span class="tp">ReportGenerator</span> : <span class="ifc">IReportGenerator</span>
+{
+    <span class="kw">public</span> <span class="mth">ReportGenerator</span>()
+    {
+        <span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">"ReportGenerator: inițializare (conectare DB, cache...)"</span>);
+        <span class="tp">Thread</span>.<span class="mth">Sleep</span>(<span class="num">2000</span>); <span class="cmt">// simulăm operație lentă</span>
+    }
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">Generate</span>(<span class="tp">string</span> type) => <span class="str">$"Raport [{type}] generat"</span>;
+}
+
+<span class="cmt">// Virtual Proxy — amână crearea până la primul apel Generate()</span>
+<span class="kw">public class</span> <span class="tp">LazyReportProxy</span> : <span class="ifc">IReportGenerator</span>
+{
+    <span class="kw">private</span> <span class="tp">ReportGenerator</span>? _generator;
+
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">Generate</span>(<span class="tp">string</span> type)
+    {
+        _generator ??= <span class="kw">new</span> <span class="tp">ReportGenerator</span>(); <span class="cmt">// creat doar când e nevoie</span>
+        <span class="kw">return</span> _generator.<span class="mth">Generate</span>(type);
+    }
+}
+
+<span class="cmt">// Aplicația pornește instant — ReportGenerator nu e creat până la primul raport</span>
+<span class="ifc">IReportGenerator</span> gen = <span class="kw">new</span> <span class="tp">LazyReportProxy</span>();
+<span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">"Aplicație pornită. Apăsați Enter pentru raport..."</span>);
+<span class="tp">Console</span>.<span class="mth">ReadLine</span>(); <span class="cmt">// abia acum se inițializează ReportGenerator</span>
+<span class="tp">Console</span>.<span class="mth">WriteLine</span>(gen.<span class="mth">Generate</span>(<span class="str">"lunar"</span>));</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <div class="example-header">
+            <span class="example-num">Protection Proxy</span>
+            <span class="example-title">Controlează accesul pe baza permisiunilor</span>
+          </div>
+          <div class="example-body">
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-fname">SecureEmployeeProxy.cs</span>
+                <span class="code-lang-tag">C#</span>
+              </div>
+              <pre><span class="kw">public interface</span> <span class="ifc">IEmployeeRepository</span>
+{
+    <span class="tp">decimal</span> <span class="mth">GetSalary</span>(<span class="tp">int</span> employeeId);
+    <span class="tp">string</span>  <span class="mth">GetName</span>(<span class="tp">int</span> employeeId);
+}
+
+<span class="kw">public class</span> <span class="tp">EmployeeRepository</span> : <span class="ifc">IEmployeeRepository</span>
+{
+    <span class="kw">public decimal</span> <span class="mth">GetSalary</span>(<span class="tp">int</span> id) => <span class="num">5000m</span> + id * <span class="num">100m</span>;
+    <span class="kw">public string</span>  <span class="mth">GetName</span>(<span class="tp">int</span> id)   => <span class="str">$"Angajat #{id}"</span>;
+}
+
+<span class="cmt">// Protection Proxy — datele salariale sunt vizibile doar pentru rolul HR</span>
+<span class="kw">public class</span> <span class="tp">SecureEmployeeProxy</span> : <span class="ifc">IEmployeeRepository</span>
+{
+    <span class="kw">private readonly</span> <span class="tp">EmployeeRepository</span> _repo = <span class="kw">new</span>();
+    <span class="kw">private readonly</span> <span class="tp">string</span> _currentUserRole;
+
+    <span class="kw">public</span> <span class="mth">SecureEmployeeProxy</span>(<span class="tp">string</span> role) => _currentUserRole = role;
+
+    <span class="kw">public decimal</span> <span class="mth">GetSalary</span>(<span class="tp">int</span> id)
+    {
+        <span class="kw">if</span> (_currentUserRole != <span class="str">"HR"</span>)
+            <span class="kw">throw new</span> <span class="tp">UnauthorizedAccessException</span>(
+                <span class="str">"Accesul la date salariale este permis doar rolului HR."</span>);
+        <span class="kw">return</span> _repo.<span class="mth">GetSalary</span>(id);
+    }
+
+    <span class="cmt">// GetName() este accesibil oricui — nicio restricție</span>
+    <span class="kw">public string</span> <span class="mth">GetName</span>(<span class="tp">int</span> id) => _repo.<span class="mth">GetName</span>(id);
+}
+
+<span class="ifc">IEmployeeRepository</span> hrView  = <span class="kw">new</span> <span class="tp">SecureEmployeeProxy</span>(<span class="str">"HR"</span>);
+<span class="ifc">IEmployeeRepository</span> devView = <span class="kw">new</span> <span class="tp">SecureEmployeeProxy</span>(<span class="str">"Developer"</span>);
+
+<span class="tp">Console</span>.<span class="mth">WriteLine</span>(hrView.<span class="mth">GetSalary</span>(<span class="num">1</span>));  <span class="cmt">// 5100 — OK</span>
+<span class="tp">Console</span>.<span class="mth">WriteLine</span>(devView.<span class="mth">GetName</span>(<span class="num">1</span>));  <span class="cmt">// "Angajat #1" — OK</span>
+devView.<span class="mth">GetSalary</span>(<span class="num">1</span>);                    <span class="cmt">// UnauthorizedAccessException</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <div class="example-header">
+            <span class="example-num">Remote Proxy</span>
+            <span class="example-title">Reprezintă local un obiect aflat la distanță</span>
+          </div>
+          <div class="example-body">
+            <p>Remote Proxy oferă clientului o interfață locală pentru un serviciu aflat pe altă mașină sau proces. Clientul apelează metode ca și cum ar lucra local — Proxy-ul se ocupă de comunicarea în rețea, serializare și tratarea erorilor de conexiune.</p>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-fname">RemoteWeatherProxy.cs</span>
+                <span class="code-lang-tag">C#</span>
+              </div>
+              <pre><span class="kw">public interface</span> <span class="ifc">IWeatherService</span>
+{
+    <span class="tp">string</span> <span class="mth">GetForecast</span>(<span class="tp">string</span> city);
+}
+
+<span class="cmt">// RealSubject — serviciu real, rulează pe alt server</span>
+<span class="cmt">// Clientul nu îl poate instanția direct</span>
+<span class="kw">public class</span> <span class="tp">WeatherService</span> : <span class="ifc">IWeatherService</span>
+{
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">GetForecast</span>(<span class="tp">string</span> city) => <span class="str">$"Sunny, 22°C in {city}"</span>;
+}
+
+<span class="cmt">// Remote Proxy — simulează un apel HTTP către serviciul extern</span>
+<span class="kw">public class</span> <span class="tp">RemoteWeatherProxy</span> : <span class="ifc">IWeatherService</span>
+{
+    <span class="kw">private readonly</span> <span class="tp">string</span> _baseUrl;
+    <span class="kw">private readonly</span> <span class="tp">HttpClient</span> _http = <span class="kw">new</span>();
+
+    <span class="kw">public</span> <span class="mth">RemoteWeatherProxy</span>(<span class="tp">string</span> baseUrl) => _baseUrl = baseUrl;
+
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">GetForecast</span>(<span class="tp">string</span> city)
+    {
+        <span class="kw">try</span>
+        {
+            <span class="cmt">// Clientul face un apel local — Proxy traduce în HTTP</span>
+            <span class="kw">var</span> url      = <span class="str">$"{_baseUrl}/forecast?city={Uri.EscapeDataString(city)}"</span>;
+            <span class="kw">var</span> response = _http.<span class="mth">GetStringAsync</span>(url).<span class="mth">GetAwaiter</span>().<span class="mth">GetResult</span>();
+            <span class="kw">return</span> response;
+        }
+        <span class="kw">catch</span> (<span class="tp">HttpRequestException</span> ex)
+        {
+            <span class="cmt">// Proxy gestionează erorile de rețea — clientul nu le vede</span>
+            <span class="kw">return</span> <span class="str">$"[Offline] Date indisponibile: {ex.Message}"</span>;
+        }
+    }
+}
+
+<span class="cmt">// Client — apelează IWeatherService fără să știe că e un serviciu distant</span>
+<span class="ifc">IWeatherService</span> weather = <span class="kw">new</span> <span class="tp">RemoteWeatherProxy</span>(<span class="str">"https://api.weather.example.com"</span>);
+<span class="tp">Console</span>.<span class="mth">WriteLine</span>(weather.<span class="mth">GetForecast</span>(<span class="str">"București"</span>));</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <div class="example-header">
+            <span class="example-num">Caching Proxy</span>
+            <span class="example-title">Reține rezultatele costisitoare și le returnează din cache</span>
+          </div>
+          <div class="example-body">
+            <p>Caching Proxy interceptează apelurile și returnează rezultatul stocat dacă există deja. Apelul real către RealSubject se face doar la prima cerere sau când cache-ul expiră. Clientul nu știe că lucrează cu un cache — interfața este identică.</p>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-fname">CachingWeatherProxy.cs</span>
+                <span class="code-lang-tag">C#</span>
+              </div>
+              <pre><span class="cmt">// Caching Proxy — stochează rezultatele pentru un interval de timp</span>
+<span class="kw">public class</span> <span class="tp">CachingWeatherProxy</span> : <span class="ifc">IWeatherService</span>
+{
+    <span class="kw">private readonly</span> <span class="ifc">IWeatherService</span> _inner;
+    <span class="kw">private readonly</span> <span class="tp">TimeSpan</span>         _ttl;     <span class="cmt">// durata de viață a intrărilor</span>
+
+    <span class="kw">private readonly</span> <span class="tp">Dictionary</span>&lt;<span class="tp">string</span>, (<span class="tp">string</span> Result, <span class="tp">DateTime</span> CachedAt)&gt; _cache = <span class="kw">new</span>();
+
+    <span class="kw">public</span> <span class="mth">CachingWeatherProxy</span>(<span class="ifc">IWeatherService</span> inner, <span class="tp">TimeSpan</span> ttl)
+        => (_inner, _ttl) = (inner, ttl);
+
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">GetForecast</span>(<span class="tp">string</span> city)
+    {
+        <span class="kw">if</span> (_cache.<span class="mth">TryGetValue</span>(city, <span class="kw">out var</span> entry) &&
+            <span class="tp">DateTime</span>.UtcNow - entry.CachedAt &lt; _ttl)
+        {
+            <span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">$"[CACHE HIT] {city}"</span>);
+            <span class="kw">return</span> entry.Result; <span class="cmt">// returnăm din cache, fără apel real</span>
+        }
+
+        <span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">$"[CACHE MISS] {city} — apel real"</span>);
+        <span class="kw">var</span> result = _inner.<span class="mth">GetForecast</span>(city);
+        _cache[city] = (result, <span class="tp">DateTime</span>.UtcNow);
+        <span class="kw">return</span> result;
+    }
+
+    <span class="kw">public int</span>  <span class="prp">CacheSize</span>  => _cache.<span class="prp">Count</span>;
+    <span class="kw">public void</span> <span class="mth">Invalidate</span>(<span class="tp">string</span> city) => _cache.<span class="mth">Remove</span>(city);
+    <span class="kw">public void</span> <span class="mth">InvalidateAll</span>()          => _cache.<span class="mth">Clear</span>();
+}
+
+<span class="cmt">// Combinare: Remote Proxy + Caching Proxy în lanț</span>
+<span class="ifc">IWeatherService</span> weather =
+    <span class="kw">new</span> <span class="tp">CachingWeatherProxy</span>(
+        <span class="kw">new</span> <span class="tp">RemoteWeatherProxy</span>(<span class="str">"https://api.weather.example.com"</span>),
+        ttl: <span class="tp">TimeSpan</span>.<span class="mth">FromMinutes</span>(<span class="num">10</span>)
+    );
+
+weather.<span class="mth">GetForecast</span>(<span class="str">"București"</span>); <span class="cmt">// CACHE MISS — apel HTTP</span>
+weather.<span class="mth">GetForecast</span>(<span class="str">"București"</span>); <span class="cmt">// CACHE HIT  — din memorie</span>
+weather.<span class="mth">GetForecast</span>(<span class="str">"Cluj"</span>);       <span class="cmt">// CACHE MISS — apel HTTP</span>
+weather.<span class="mth">GetForecast</span>(<span class="str">"Cluj"</span>);       <span class="cmt">// CACHE HIT  — din memorie</span></pre>
+            </div>
+
+            <div class="callout info">
+              <span class="callout-icon">💡</span>
+              <div class="callout-body">
+                <div class="callout-title">Caching Proxy vs Decorator</div>
+                <p>Un Caching Proxy arată identic structural cu un Decorator — amândouă învelesc un obiect prin aceeași interfață. Distincția este din nou de <em>intenție</em>: Caching Proxy controlează <em>când</em> se apelează RealSubject (îl evită când are deja răspunsul), pe când Decorator adaugă comportament <em>la fiecare</em> apel. Când cache-ul are intrarea, RealSubject nu mai este apelat deloc — lucru imposibil într-un Decorator pur.</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="callout note">
+          <span class="callout-icon">🧭</span>
+          <div class="callout-body">
+            <div class="callout-title">Proxy vs Decorator</div>
+            <p><strong>Proxy</strong> controlează accesul la obiectul real — de obicei gestionează și ciclul de viață al acestuia (lazy init, distrugere). <strong>Decorator</strong> adaugă comportament unui obiect deja existent și accesibil — nu se ocupă de ciclul de viață. Structural sunt identice; intenția le diferențiază.</p>
+          </div>
+        </div>
+
+        <div class="when-grid">
+          <div class="when-card use">
+            <div class="when-card-title">✓ Cele patru variante</div>
+            <strong>Virtual Proxy</strong> — obiect costisitor de creat, folosit rar (lazy init). <strong>Protection Proxy</strong> — control de acces pe baza rolurilor sau permisiunilor. <strong>Remote Proxy</strong> — obiect aflat pe alt server sau proces, accesat transparent. <strong>Caching Proxy</strong> — rezultate costisitoare, cerute repetat în interval scurt.
+          </div>
+          <div class="when-card avoid">
+            <div class="when-card-title">✗ Când nu se potrivește</div>
+            Când adăugarea unui nivel de indirectare produce latență inacceptabilă pe căi critice de performanță. Dacă scopul este adăugarea de comportament, nu controlul accesului — Decorator e mai potrivit.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 4: BRIDGE ── -->
+  <section class="section" id="bridge">
+    <h2 class="stitle"><span class="num">04</span>Bridge</h2>
+
+    <div class="pattern-card">
+      <div class="pattern-header">
+        <span class="pattern-icon">🌉</span>
+        <div>
+          <div class="pattern-name">Bridge</div>
+          <div class="pattern-intent">Decuplează o abstracție de implementarea sa, astfel încât cele două să poată varia independent.</div>
+          <div class="pattern-meta">
+            <span class="pattern-tag structural">Structural</span>
+            <span class="pattern-tag gof">GoF</span>
+          </div>
+        </div>
+      </div>
+      <div class="pattern-body">
+
+        <p>Când o clasă are două axe de variație independente, moștenirea produce o explozie combinatorială. Bridge separă cele două dimensiuni în ierarhii distincte conectate printr-o referință (bridge-ul). Fiecare poate evolua separat, fără să afecteze cealaltă.</p>
+
+        <h3 class="sub"><span class="dot"></span>Structura generică (GoF)</h3>
+
+        <div class="uml-wrap">
+          <div class="uml-container">
+            <div class="uml-title">Diagramă de clase</div>
+            <div class="mermaid uml-mermaid">
+classDiagram
+    class Abstraction {
+        -impl Implementor
+        +operation()
+    }
+    class RefinedAbstraction {
+        +operation()
+        +extendedOperation()
+    }
+    class Implementor {
+        &lt;&lt;interface&gt;&gt;
+        +operationImpl()
+    }
+    class ConcreteImplementorA {
+        +operationImpl()
+    }
+    class ConcreteImplementorB {
+        +operationImpl()
+    }
+    Abstraction <|-- RefinedAbstraction
+    Abstraction --> Implementor : impl
+    Implementor <|.. ConcreteImplementorA
+    Implementor <|.. ConcreteImplementorB
+            </div>
+          </div>
+          <div class="uml-container">
+            <div class="uml-title">Diagramă de secvență</div>
+            <div class="mermaid uml-mermaid">
+sequenceDiagram
+    participant C as Client
+    participant A as Abstraction
+    participant I as Implementor
+    C->>A: operation()
+    A->>I: operationImpl()
+    I-->>A: rezultat
+    A-->>C: rezultat procesat
+            </div>
+          </div>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Structura C# — participanți canonici</h3>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname">Bridge — structura generică</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="cmt">// Implementor — interfața pentru axa de implementare</span>
+<span class="kw">public interface</span> <span class="ifc">IImplementor</span>
+{
+    <span class="tp">string</span> <span class="mth">OperationImpl</span>();
+}
+
+<span class="kw">public class</span> <span class="tp">ConcreteImplementorA</span> : <span class="ifc">IImplementor</span>
+{
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">OperationImpl</span>() => <span class="str">"ImplementorA"</span>;
+}
+
+<span class="kw">public class</span> <span class="tp">ConcreteImplementorB</span> : <span class="ifc">IImplementor</span>
+{
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">OperationImpl</span>() => <span class="str">"ImplementorB"</span>;
+}
+
+<span class="cmt">// Abstraction — axa de abstracție, conține implementorul prin compoziție</span>
+<span class="kw">public abstract class</span> <span class="tp">Abstraction</span>
+{
+    <span class="kw">protected readonly</span> <span class="ifc">IImplementor</span> _impl;
+
+    <span class="kw">protected</span> <span class="mth">Abstraction</span>(<span class="ifc">IImplementor</span> impl) => _impl = impl;
+
+    <span class="kw">public virtual</span> <span class="tp">string</span> <span class="mth">Operation</span>()
+        => <span class="str">$"Abstraction + {_impl.OperationImpl()}"</span>;
+}
+
+<span class="cmt">// RefinedAbstraction — extinde abstracția fără să știe de implementări concrete</span>
+<span class="kw">public class</span> <span class="tp">RefinedAbstraction</span> : <span class="tp">Abstraction</span>
+{
+    <span class="kw">public</span> <span class="mth">RefinedAbstraction</span>(<span class="ifc">IImplementor</span> impl) : <span class="kw">base</span>(impl) {}
+
+    <span class="kw">public override</span> <span class="tp">string</span> <span class="mth">Operation</span>()
+        => <span class="str">$"RefinedAbstraction + {_impl.OperationImpl()}"</span>;
+}
+
+<span class="cmt">// Combinare liberă: oricare Abstraction × oricare Implementor</span>
+<span class="tp">Abstraction</span> ab1 = <span class="kw">new</span> <span class="tp">RefinedAbstraction</span>(<span class="kw">new</span> <span class="tp">ConcreteImplementorA</span>());
+<span class="tp">Abstraction</span> ab2 = <span class="kw">new</span> <span class="tp">RefinedAbstraction</span>(<span class="kw">new</span> <span class="tp">ConcreteImplementorB</span>());
+<span class="tp">Console</span>.<span class="mth">WriteLine</span>(ab1.<span class="mth">Operation</span>()); <span class="cmt">// RefinedAbstraction + ImplementorA</span>
+<span class="tp">Console</span>.<span class="mth">WriteLine</span>(ab2.<span class="mth">Operation</span>()); <span class="cmt">// RefinedAbstraction + ImplementorB</span></pre>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Exemplu — sistem de notificări cu două axe</h3>
+
+        <p>Avem două dimensiuni de variație independente: <strong>tipul de notificare</strong> (urgentă, programată) și <strong>canalul de livrare</strong> (email, SMS). Prin moștenire: 2 × 2 = 4 clase. Cu Bridge: 2 + 2 + interfața = mai puțin, și fiecare axă poate crește independent.</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname">Notifications.cs</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="cmt">// Implementor — canalul de livrare</span>
+<span class="kw">public interface</span> <span class="ifc">IMessageSender</span>
+{
+    <span class="kw">void</span> <span class="mth">Send</span>(<span class="tp">string</span> recipient, <span class="tp">string</span> message);
+}
+
+<span class="kw">public class</span> <span class="tp">EmailSender</span> : <span class="ifc">IMessageSender</span>
+{
+    <span class="kw">public void</span> <span class="mth">Send</span>(<span class="tp">string</span> to, <span class="tp">string</span> msg)
+        => <span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">$"[EMAIL → {to}] {msg}"</span>);
+}
+
+<span class="kw">public class</span> <span class="tp">SmsSender</span> : <span class="ifc">IMessageSender</span>
+{
+    <span class="kw">public void</span> <span class="mth">Send</span>(<span class="tp">string</span> to, <span class="tp">string</span> msg)
+        => <span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">$"[SMS → {to}] {msg}"</span>);
+}
+
+<span class="cmt">// Abstraction — tipul de notificare, conține IMessageSender</span>
+<span class="kw">public abstract class</span> <span class="tp">Notification</span>
+{
+    <span class="kw">protected readonly</span> <span class="ifc">IMessageSender</span> _sender;
+    <span class="kw">protected</span> <span class="mth">Notification</span>(<span class="ifc">IMessageSender</span> sender) => _sender = sender;
+    <span class="kw">public abstract void</span> <span class="mth">Notify</span>(<span class="tp">string</span> recipient, <span class="tp">string</span> message);
+}
+
+<span class="cmt">// RefinedAbstraction 1 — notificare urgentă</span>
+<span class="kw">public class</span> <span class="tp">UrgentNotification</span> : <span class="tp">Notification</span>
+{
+    <span class="kw">public</span> <span class="mth">UrgentNotification</span>(<span class="ifc">IMessageSender</span> sender) : <span class="kw">base</span>(sender) {}
+
+    <span class="kw">public override void</span> <span class="mth">Notify</span>(<span class="tp">string</span> recipient, <span class="tp">string</span> message)
+        => _sender.<span class="mth">Send</span>(recipient, <span class="str">$"[URGENT] {message}"</span>);
+}
+
+<span class="cmt">// RefinedAbstraction 2 — notificare programată</span>
+<span class="kw">public class</span> <span class="tp">ScheduledNotification</span> : <span class="tp">Notification</span>
+{
+    <span class="kw">private readonly</span> <span class="tp">DateTime</span> _scheduledAt;
+
+    <span class="kw">public</span> <span class="mth">ScheduledNotification</span>(<span class="ifc">IMessageSender</span> sender, <span class="tp">DateTime</span> at)
+        : <span class="kw">base</span>(sender) => _scheduledAt = at;
+
+    <span class="kw">public override void</span> <span class="mth">Notify</span>(<span class="tp">string</span> recipient, <span class="tp">string</span> message)
+        => _sender.<span class="mth">Send</span>(recipient, <span class="str">$"[La {_scheduledAt:HH:mm}] {message}"</span>);
+}
+
+<span class="cmt">// Combinare liberă: oricare tip × oricare canal</span>
+<span class="tp">Notification</span> n1 = <span class="kw">new</span> <span class="tp">UrgentNotification</span>(<span class="kw">new</span> <span class="tp">EmailSender</span>());
+<span class="tp">Notification</span> n2 = <span class="kw">new</span> <span class="tp">UrgentNotification</span>(<span class="kw">new</span> <span class="tp">SmsSender</span>());
+<span class="tp">Notification</span> n3 = <span class="kw">new</span> <span class="tp">ScheduledNotification</span>(<span class="kw">new</span> <span class="tp">EmailSender</span>(), <span class="tp">DateTime</span>.Now.<span class="mth">AddHours</span>(<span class="num">2</span>));
+
+n1.<span class="mth">Notify</span>(<span class="str">"ana@x.com"</span>, <span class="str">"Server down!"</span>); <span class="cmt">// [EMAIL → ana@x.com] [URGENT] Server down!</span>
+n2.<span class="mth">Notify</span>(<span class="str">"+40700000"</span>, <span class="str">"Server down!"</span>);  <span class="cmt">// [SMS → +40700000] [URGENT] Server down!</span>
+n3.<span class="mth">Notify</span>(<span class="str">"ion@x.com"</span>, <span class="str">"Raport lunar"</span>);  <span class="cmt">// [EMAIL → ion@x.com] [La 14:30] Raport lunar</span></pre>
+        </div>
+
+        <div class="callout note">
+          <span class="callout-icon">🧭</span>
+          <div class="callout-body">
+            <div class="callout-title">Bridge vs Adapter</div>
+            <p><strong>Adapter</strong> reconciliază interfețe incompatibile <em>existente</em> — este o soluție aplicată retroactiv. <strong>Bridge</strong> separă deliberat abstracția de implementare <em>din faza de design</em>, anticipând că ambele vor varia independent. Adapter rezolvă o problemă de compatibilitate; Bridge previne o problemă de rigiditate.</p>
+          </div>
+        </div>
+
+        <div class="when-grid">
+          <div class="when-card use">
+            <div class="when-card-title">✓ Când se folosește</div>
+            Când o clasă are două axe de variație independente care ar produce explozie combinatorială prin moștenire. Când vreți să schimbați implementarea la runtime. Când abstracția și implementarea trebuie să evolueze separat în echipe diferite.
+          </div>
+          <div class="when-card avoid">
+            <div class="when-card-title">✗ Când nu se potrivește</div>
+            Când există o singură axă de variație — simpla moștenire sau compoziție e suficientă. Bridge adaugă un nivel de indirectare care merită justificat prin numărul real de combinații necesare.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 5: FLYWEIGHT ── -->
+  <section class="section" id="flyweight">
+    <h2 class="stitle"><span class="num">05</span>Flyweight</h2>
+
+    <div class="pattern-card">
+      <div class="pattern-header">
+        <span class="pattern-icon">🪶</span>
+        <div>
+          <div class="pattern-name">Flyweight</div>
+          <div class="pattern-intent">Folosește partajarea pentru a suporta eficient un număr mare de obiecte fine-grained. Separă starea partajată (intrinsecă) de starea specifică fiecărei instanțe (extrinsecă).</div>
+          <div class="pattern-meta">
+            <span class="pattern-tag structural">Structural</span>
+            <span class="pattern-tag gof">GoF</span>
+          </div>
+        </div>
+      </div>
+      <div class="pattern-body">
+
+        <p>Conceptul central: un obiect Flyweight conține <strong>starea intrinsecă</strong> — datele care nu se schimbă între instanțe și pot fi partajate (font, dimensiune, culoare). <strong>Starea extrinsecă</strong> — datele specifice fiecărui context de utilizare (poziția unui caracter pe ecran) — este furnizată de client la fiecare apel, nu stocată în Flyweight.</p>
+
+        <h3 class="sub"><span class="dot"></span>Structura generică (GoF)</h3>
+
+        <div class="uml-wrap">
+          <div class="uml-container">
+            <div class="uml-title">Diagramă de clase</div>
+            <div class="mermaid uml-mermaid">
+classDiagram
+    class Flyweight {
+        &lt;&lt;interface&gt;&gt;
+        -intrinsicState
+        +operation(extrinsicState)
+    }
+    class ConcreteFlyweight {
+        -intrinsicState
+        +operation(extrinsicState)
+    }
+    class FlyweightFactory {
+        -pool Dict
+        +getFlyweight(key) Flyweight
+    }
+    class Client {
+        -extrinsicState
+    }
+    Flyweight <|.. ConcreteFlyweight
+    FlyweightFactory --> ConcreteFlyweight : manages
+    Client ..> FlyweightFactory : requests
+    Client ..> Flyweight : uses with extrinsicState
+            </div>
+          </div>
+          <div class="uml-container">
+            <div class="uml-title">Diagramă de secvență</div>
+            <div class="mermaid uml-mermaid">
+sequenceDiagram
+    participant C as Client
+    participant F as FlyweightFactory
+    participant FW as ConcreteFlyweight
+    C->>F: getFlyweight("Arial-12")
+    alt exista in pool
+        F-->>C: instanta existenta
+    else nu exista
+        F->>FW: new ConcreteFlyweight
+        F-->>C: instanta noua
+    end
+    C->>FW: operation(x=10, y=20)
+    Note over FW: starea extrinseca<br/>furnizata de client
+            </div>
+          </div>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Structura C# — participanți canonici</h3>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname">Flyweight — structura generică</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="cmt">// Flyweight — conține starea intrinsecă partajată</span>
+<span class="kw">public class</span> <span class="tp">ConcreteFlyweight</span>
+{
+    <span class="cmt">// Stare intrinsecă — imutabilă, partajată între toate utilizările</span>
+    <span class="kw">public</span> <span class="tp">string</span> <span class="prp">SharedState</span> { <span class="kw">get</span>; }
+
+    <span class="kw">public</span> <span class="mth">ConcreteFlyweight</span>(<span class="tp">string</span> sharedState) => <span class="prp">SharedState</span> = sharedState;
+
+    <span class="cmt">// Starea extrinsecă este furnizată la fiecare apel — nu e stocată</span>
+    <span class="kw">public void</span> <span class="mth">Operation</span>(<span class="tp">string</span> uniqueState)
+        => <span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">$"Flyweight({SharedState}) + context({uniqueState})"</span>);
+}
+
+<span class="cmt">// FlyweightFactory — pool de instanțe, creează sau returnează existente</span>
+<span class="kw">public class</span> <span class="tp">FlyweightFactory</span>
+{
+    <span class="kw">private readonly</span> <span class="tp">Dictionary</span>&lt;<span class="tp">string</span>, <span class="tp">ConcreteFlyweight</span>&gt; _pool = <span class="kw">new</span>();
+
+    <span class="kw">public</span> <span class="tp">ConcreteFlyweight</span> <span class="mth">GetFlyweight</span>(<span class="tp">string</span> key)
+    {
+        <span class="kw">if</span> (!_pool.<span class="mth">ContainsKey</span>(key))
+        {
+            <span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">$"FlyweightFactory: creare nouă instanță pentru '{key}'"</span>);
+            _pool[key] = <span class="kw">new</span> <span class="tp">ConcreteFlyweight</span>(key);
+        }
+        <span class="kw">return</span> _pool[key];
+    }
+
+    <span class="kw">public int</span> <span class="prp">PoolSize</span> => _pool.<span class="prp">Count</span>;
+}
+
+<span class="cmt">// Client furnizează starea extrinsecă la fiecare apel</span>
+<span class="kw">var</span> factory = <span class="kw">new</span> <span class="tp">FlyweightFactory</span>();
+
+<span class="kw">var</span> fw1 = factory.<span class="mth">GetFlyweight</span>(<span class="str">"shared-A"</span>); <span class="cmt">// creare nouă</span>
+<span class="kw">var</span> fw2 = factory.<span class="mth">GetFlyweight</span>(<span class="str">"shared-A"</span>); <span class="cmt">// returnează aceeași instanță</span>
+<span class="kw">var</span> fw3 = factory.<span class="mth">GetFlyweight</span>(<span class="str">"shared-B"</span>); <span class="cmt">// creare nouă</span>
+
+fw1.<span class="mth">Operation</span>(<span class="str">"context-1"</span>);
+fw2.<span class="mth">Operation</span>(<span class="str">"context-2"</span>); <span class="cmt">// același Flyweight, context diferit</span>
+fw3.<span class="mth">Operation</span>(<span class="str">"context-3"</span>);
+
+<span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">$"Instanțe în pool: {factory.PoolSize}"</span>); <span class="cmt">// 2, nu 3</span></pre>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Exemplu — editor de text cu milioane de caractere</h3>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname">TextEditor.cs</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="cmt">// Flyweight — starea intrinsecă: font, dimensiune, culoare (partajate)</span>
+<span class="kw">public class</span> <span class="tp">CharacterStyle</span>
+{
+    <span class="kw">public</span> <span class="tp">string</span> <span class="prp">Font</span>  { <span class="kw">get</span>; }
+    <span class="kw">public</span> <span class="tp">int</span>    <span class="prp">Size</span>  { <span class="kw">get</span>; }
+    <span class="kw">public</span> <span class="tp">string</span> <span class="prp">Color</span> { <span class="kw">get</span>; }
+
+    <span class="kw">public</span> <span class="mth">CharacterStyle</span>(<span class="tp">string</span> font, <span class="tp">int</span> size, <span class="tp">string</span> color)
+        => (<span class="prp">Font</span>, <span class="prp">Size</span>, <span class="prp">Color</span>) = (font, size, color);
+
+    <span class="cmt">// Starea extrinsecă (char, x, y) furnizată la randare — nu stocată</span>
+    <span class="kw">public void</span> <span class="mth">Draw</span>(<span class="tp">char</span> character, <span class="tp">int</span> x, <span class="tp">int</span> y)
+        => <span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">$"'{character}' [{Font} {Size}pt {Color}] la ({x},{y})"</span>);
+}
+
+<span class="cmt">// Factory — pool de stiluri; un milion de caractere pot folosi 3-4 stiluri</span>
+<span class="kw">public class</span> <span class="tp">CharacterStyleFactory</span>
+{
+    <span class="kw">private readonly</span> <span class="tp">Dictionary</span>&lt;<span class="tp">string</span>, <span class="tp">CharacterStyle</span>&gt; _pool = <span class="kw">new</span>();
+
+    <span class="kw">public</span> <span class="tp">CharacterStyle</span> <span class="mth">GetStyle</span>(<span class="tp">string</span> font, <span class="tp">int</span> size, <span class="tp">string</span> color)
+    {
+        <span class="kw">var</span> key = <span class="str">$"{font}-{size}-{color}"</span>;
+        <span class="kw">if</span> (!_pool.<span class="mth">TryGetValue</span>(key, <span class="kw">out var</span> style))
+        {
+            style = <span class="kw">new</span> <span class="tp">CharacterStyle</span>(font, size, color);
+            _pool[key] = style;
+        }
+        <span class="kw">return</span> style;
+    }
+
+    <span class="kw">public int</span> <span class="prp">UniqueStyles</span> => _pool.<span class="prp">Count</span>;
+}
+
+<span class="cmt">// Context — un caracter din document: referință la stil + poziție</span>
+<span class="kw">public record</span> <span class="tp">CharacterContext</span>(<span class="tp">char</span> Char, <span class="tp">int</span> X, <span class="tp">int</span> Y, <span class="tp">CharacterStyle</span> Style)
+{
+    <span class="kw">public void</span> <span class="mth">Draw</span>() => Style.<span class="mth">Draw</span>(Char, X, Y);
+}
+
+<span class="cmt">// Utilizare — un milion de caractere, câteva stiluri</span>
+<span class="kw">var</span> styleFactory = <span class="kw">new</span> <span class="tp">CharacterStyleFactory</span>();
+<span class="kw">var</span> normalStyle  = styleFactory.<span class="mth">GetStyle</span>(<span class="str">"Arial"</span>, <span class="num">12</span>, <span class="str">"black"</span>);
+<span class="kw">var</span> boldStyle    = styleFactory.<span class="mth">GetStyle</span>(<span class="str">"Arial"</span>, <span class="num">12</span>, <span class="str">"black"</span>); <span class="cmt">// aceeași instanță!</span>
+
+<span class="kw">var</span> document = <span class="kw">new</span> <span class="tp">List</span>&lt;<span class="tp">CharacterContext</span>&gt;
+{
+    <span class="kw">new</span>(<span class="str">'H'</span>, <span class="num">0</span>,  <span class="num">0</span>,  normalStyle),
+    <span class="kw">new</span>(<span class="str">'e'</span>, <span class="num">10</span>, <span class="num">0</span>,  normalStyle),
+    <span class="kw">new</span>(<span class="str">'l'</span>, <span class="num">18</span>, <span class="num">0</span>,  normalStyle),
+    <span class="cmt">// ... un milion de caractere, toate referind normalStyle</span>
+};
+
+<span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">$"Stiluri unice în memorie: {styleFactory.UniqueStyles}"</span>); <span class="cmt">// 1</span>
+<span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">$"Caractere în document:   {document.Count}"</span>);
+document.<span class="mth">ForEach</span>(c => c.<span class="mth">Draw</span>());</pre>
+        </div>
+
+        <div class="callout warn">
+          <span class="callout-icon">⚠️</span>
+          <div class="callout-body">
+            <div class="callout-title">Când Flyweight nu merită</div>
+            <p>Flyweight adaugă complexitate semnificativă: separarea stării intrinsece de cea extrinsecă, factory-ul cu pool, transmiterea stării extrinsece la fiecare apel. Se justifică doar când numărul de obiecte este cu adevărat mare (zeci de mii sau mai mult) și memoria este o constrângere reală. Pentru câteva sute de obiecte, costul complexității depășește beneficiul.</p>
+          </div>
+        </div>
+
+        <div class="when-grid">
+          <div class="when-card use">
+            <div class="when-card-title">✓ Când se justifică</div>
+            Aplicația creează un număr foarte mare de obiecte similare (>10.000). Obiectele consumă multă memorie. Starea lor poate fi separată clar în intrinsecă (partajată) și extrinsecă (furnizată de context). Editoare grafice, motoare de jocuri, parsere de texte mari.
+          </div>
+          <div class="when-card avoid">
+            <div class="when-card-title">✗ Când nu se potrivește</div>
+            Când numărul de obiecte este mic sau moderat. Când starea nu se poate separa natural în intrinsecă și extrinsecă. Flyweight face codul mai greu de înțeles și depanat — nu aplicați prematur.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 6: COMPARATIE ── -->
+  <section class="section" id="comparatie">
+    <h2 class="stitle"><span class="num">06</span>Comparație — toate 7 pattern-uri structurale</h2>
+
+    <table class="patterns-overview">
+      <thead>
+        <tr><th>Pattern</th><th>Problema rezolvată</th><th>Cuvânt cheie</th><th>Relație SOLID</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="pat-name">Adapter</span></td>
+          <td>Interfețe incompatibile — integrează fără modificare</td>
+          <td>traducere</td>
+          <td>OCP, DIP</td>
+        </tr>
+        <tr>
+          <td><span class="pat-name">Decorator</span></td>
+          <td>Extinde comportamentul la runtime fără subclassing</td>
+          <td>wrapping dinamic</td>
+          <td>OCP, SRP</td>
+        </tr>
+        <tr>
+          <td><span class="pat-name">Facade</span></td>
+          <td>Simplifică accesul la un subsistem complex</td>
+          <td>simplificare</td>
+          <td>SRP, DIP</td>
+        </tr>
+        <tr>
+          <td><span class="pat-name">Composite</span></td>
+          <td>Tratează uniform primitive și compozițiile lor</td>
+          <td>recursivitate</td>
+          <td>OCP, LSP</td>
+        </tr>
+        <tr>
+          <td><span class="pat-name">Proxy</span></td>
+          <td>Controlează accesul la un obiect prin intermediar</td>
+          <td>control acces</td>
+          <td>SRP, OCP</td>
+        </tr>
+        <tr>
+          <td><span class="pat-name">Bridge</span></td>
+          <td>Separă abstracția de implementare — variație independentă</td>
+          <td>decuplare</td>
+          <td>OCP, DIP</td>
+        </tr>
+        <tr>
+          <td><span class="pat-name">Flyweight</span></td>
+          <td>Partajează starea comună între mii de obiecte</td>
+          <td>partajare</td>
+          <td>SRP</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="cquote">
+      Toate pattern-urile structurale rezolvă probleme de compoziție — cum asamblezi obiectele. Diferența stă în <em>ce problemă de compoziție</em> rezolvă fiecare: compatibilitate, extensibilitate, simplitate, uniformitate, control, independență sau eficiență.
+    </div>
+  </section>
+
+  <!-- ── SECTION 7: LAB ── -->
+  <section class="section" id="lab">
+    <h2 class="stitle"><span class="num">07</span>Laborator 7</h2>
+
+    <p>Un instrument grafic de desenare forme — <strong>DrawingTool</strong> — care aplică Composite ca model central, Bridge pentru separarea randării de model, și Proxy pentru controlul accesului la operații de modificare.</p>
+
+    <div class="lab-box">
+      <div class="lab-header">
+        <span class="lab-header-icon">🔬</span>
+        <div class="lab-header-text">
+          <h4>DrawingTool — instrument grafic de desenare</h4>
+          <p>Laborator 7 — Composite + Bridge + Proxy pe un model de forme grafice</p>
+        </div>
+      </div>
+      <div class="lab-body">
+
+        <p>Sistemul permite construirea de scene grafice din primitive (<code>Line</code>, <code>Circle</code>, <code>Rectangle</code>, <code>Ellipse</code>) și picturi (<code>Picture</code>) care sunt grupuri de alte forme. Orice <code>Picture</code> poate conține alte picturi — ierarhie nelimitată. Operațiile <code>Draw()</code>, <code>Move()</code> și <code>Scale()</code> se propagă uniform prin întregul arbore.</p>
+
+        <div class="lab-section">
+          <div class="lab-section-title">Cerințe</div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge" style="background:rgba(188,140,255,.12);color:var(--purple);">COMPOSITE</span>
+              <span class="lab-req-title">Cerința 1 — Ierarhia de forme</span>
+            </div>
+            <div class="lab-req-body">
+              <ul>
+                <li>Interfața <code>IShape</code> cu metodele: <code>Draw(ICanvas)</code>, <code>Move(double dx, double dy)</code>, <code>Scale(double factor)</code>, <code>GetBoundingBox(): BoundingBox</code></li>
+                <li>Primitive (Leaf): <code>Line</code>, <code>Circle</code>, <code>Rectangle</code>, <code>Ellipse</code> — fiecare cu coordonate proprii și implementare directă a metodelor</li>
+                <li><code>Picture</code> (Composite): conține o listă de <code>IShape</code>, cu metode <code>Add(IShape)</code> și <code>Remove(IShape)</code>; <code>Move()</code> și <code>Scale()</code> se propagă la toți copiii; <code>GetBoundingBox()</code> returnează bounding box-ul unificat al tuturor copiilor</li>
+                <li>O <code>Picture</code> poate conține alte <code>Picture</code> — demonstrați cu o scenă imbricată pe cel puțin două niveluri</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge" style="background:rgba(88,166,255,.15);color:var(--accent2);">BRIDGE</span>
+              <span class="lab-req-title">Cerința 2 — Separarea randării de model</span>
+            </div>
+            <div class="lab-req-body">
+              <ul>
+                <li>Interfața <code>ICanvas</code> (Implementor): <code>DrawLine(x1,y1,x2,y2)</code>, <code>DrawCircle(cx,cy,r)</code>, <code>DrawRect(x,y,w,h)</code>, <code>DrawEllipse(cx,cy,rx,ry)</code></li>
+                <li><code>ConsoleCanvas</code>: afișează fiecare operație ca text în consolă — util pentru depanare</li>
+                <li><code>SvgCanvas</code>: acumulează elementele SVG și expune metoda <code>GetSvg(): string</code> care returnează un document SVG complet — util pentru export</li>
+                <li><code>Draw(ICanvas canvas)</code> pe orice <code>IShape</code> folosește canvas-ul primit — modelul nu știe cum se randează</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge" style="background:rgba(63,185,80,.12);color:var(--green);">PROXY</span>
+              <span class="lab-req-title">Cerința 3 — Forme blocate (read-only)</span>
+            </div>
+            <div class="lab-req-body">
+              <ul>
+                <li>Implementați <code>ReadOnlyShapeProxy : IShape</code> care învelește orice <code>IShape</code></li>
+                <li><code>Draw(canvas)</code> — delegă normal la shape-ul interior</li>
+                <li><code>Move()</code> și <code>Scale()</code> — aruncă <code>InvalidOperationException("Shape is locked")</code></li>
+                <li><code>GetBoundingBox()</code> — delegă normal</li>
+                <li>Demonstrați: un <code>Circle</code> învelit în <code>ReadOnlyShapeProxy</code> se poate desena dar nu poate fi mutat sau scalat</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge" style="background:rgba(248,81,73,.1);color:var(--red);">TESTE</span>
+              <span class="lab-req-title">Cerința 4 — Teste NUnit</span>
+            </div>
+            <div class="lab-req-body">
+              <ul>
+                <li>Test: <code>Picture</code> cu 3 primitive, <code>Scale(2.0)</code> → toate dimensiunile s-au dublat (Composite — propagare recursivă)</li>
+                <li>Test: <code>GetBoundingBox()</code> pe o <code>Picture</code> cu forme la coordonate cunoscute returnează bounding box-ul corect</li>
+                <li>Test: <code>SvgCanvas</code> după <code>Draw()</code> pe un <code>Circle</code> conține tagul <code>&lt;circle&gt;</code> în SVG-ul generat (Bridge)</li>
+                <li>Test: <code>ReadOnlyShapeProxy.Move()</code> aruncă <code>InvalidOperationException</code> (Proxy)</li>
+                <li>Test: <code>ReadOnlyShapeProxy.Draw()</code> nu aruncă excepție și delegă la shape-ul interior (Proxy — operație permisă)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="lab-section">
+          <div class="lab-section-title">Structura soluției</div>
+          <div class="structure-tree">
+<span class="st-folder">DrawingTool.sln</span>
+├── <span class="st-folder">src/</span>
+│   └── <span class="st-folder">DrawingTool.Core/</span>
+│       ├── <span class="st-folder">Interfaces/</span>
+│       │   ├── <span class="st-file">IShape.cs</span>
+│       │   └── <span class="st-file">ICanvas.cs</span>
+│       ├── <span class="st-folder">Models/</span>
+│       │   └── <span class="st-file">BoundingBox.cs</span>
+│       ├── <span class="st-folder">Shapes/</span>           <span class="st-comment">← Composite: Leaf</span>
+│       │   ├── <span class="st-file">Line.cs</span>
+│       │   ├── <span class="st-file">Circle.cs</span>
+│       │   ├── <span class="st-file">Rectangle.cs</span>
+│       │   └── <span class="st-file">Ellipse.cs</span>
+│       ├── <span class="st-folder">Composite/</span>
+│       │   └── <span class="st-file">Picture.cs</span>       <span class="st-comment">← Composite: nod compus</span>
+│       ├── <span class="st-folder">Canvas/</span>            <span class="st-comment">← Bridge: Implementor</span>
+│       │   ├── <span class="st-file">ConsoleCanvas.cs</span>
+│       │   └── <span class="st-file">SvgCanvas.cs</span>
+│       └── <span class="st-folder">Proxy/</span>
+│           └── <span class="st-file">ReadOnlyShapeProxy.cs</span>
+└── <span class="st-folder">tests/</span>
+    └── <span class="st-folder">DrawingTool.Tests/</span>
+        ├── <span class="st-file">CompositeTests.cs</span>
+        ├── <span class="st-file">BridgeTests.cs</span>
+        └── <span class="st-file">ProxyTests.cs</span>
+          </div>
+        </div>
+
+        <div class="lab-deliverable">
+          <div class="lab-deliverable-title">📦 Livrabil</div>
+          <p>Repository GitHub — <code>DrawingTool</code>. <code>README.md</code> cu: descrierea pattern-urilor aplicate, un exemplu de scenă construită în cod (primitive + picturi imbricate) și SVG-ul generat de <code>SvgCanvas</code>. Toate testele trec la <code>dotnet test</code>.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- QUESTIONS -->
+  <div class="questions-box">
+    <div class="questions-title">💬 Teme de Discuție</div>
+    <ol>
+      <li>Composite presupune că toate nodurile din arbore au aceeași interfață. Ce faceți când un nod compus trebuie să expună operații suplimentare față de nodurile frunză (ex: <code>Add()</code>, <code>Remove()</code>) — le includeți în interfața comună sau nu?</li>
+      <li>Proxy și Decorator sunt structural identice. Dați un exemplu concret din practică unde aceeași clasă ar putea fi interpretată ca ambele — și explicați de ce intenția contează mai mult decât structura.</li>
+      <li>Bridge introduce un nivel de indirectare care poate afecta performanța. Cum decideți dacă flexibilitatea adusă de Bridge justifică acest cost în contextul unui sistem cu cerințe stricte de latență?</li>
+      <li>Flyweight funcționează corect doar dacă starea intrinsecă este cu adevărat imutabilă. Ce se întâmplă dacă un client modifică un obiect Flyweight primit din pool? Cum preveniți această problemă în C#?</li>
+    </ol>
+  </div>
+
+  <!-- RESOURCES -->
+  <div class="resources">
+    <div class="resources-title">Resurse</div>
+    <div class="resource-list">
+      <div class="resource-item">Design Patterns: Elements of Reusable Object-Oriented Software — Gamma, Helm, Johnson, Vlissides (GoF), cap. Structural Patterns</div>
+      <div class="resource-item">refactoring.guru/design-patterns/composite — exemple interactive Composite cu arbori reali</div>
+      <div class="resource-item">refactoring.guru/design-patterns/proxy — cele trei variante de Proxy cu diagrame</div>
+      <div class="resource-item">refactoring.guru/design-patterns/flyweight — vizualizarea separării stării intrinsece de cea extrinsecă</div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const el = document.documentElement;
+    document.getElementById('scroll-prog').style.transform =
+      'scaleX(' + (el.scrollTop / (el.scrollHeight - el.clientHeight)) + ')';
+  });
+  const sections = document.querySelectorAll('section[id]');
+  const links    = document.querySelectorAll('.sidebar-link[href^="#"]');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector('.sidebar-link[href="#' + e.target.id + '"]');
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        background: '#161b22',
+        primaryColor: '#1c2128',
+        primaryTextColor: '#e6edf3',
+        primaryBorderColor: '#3d4450',
+        lineColor: '#8b949e',
+        secondaryColor: '#0d1117',
+        actorBkg: '#1c2128',
+        actorBorder: '#3d4450',
+        actorTextColor: '#e6edf3',
+        signalColor: '#79c0ff',
+        signalTextColor: '#e6edf3',
+        labelBoxBkgColor: '#1c2128',
+        labelBoxBorderColor: '#3d4450',
+        labelTextColor: '#e6edf3',
+        noteBkgColor: '#2a1f0a',
+        noteBorderColor: '#4a3400',
+        noteTextColor: '#ffa657',
+        classText: '#e6edf3',
+        edgeLabelBackground: '#161b22',
+      },
+      sequence: { actorFontSize: 13, messageFontSize: 12, mirrorActors: false },
+      classDiagram: { fontSize: 13 }
+    });
+  });
+</script>
+</body>
+</html>

@@ -11,6 +11,7 @@ Repository pentru cursurile MAP: materiale HTML + laboratoare grupate pe foldere
 | [**Lab4/**](Lab4/) | Curs 4 — SOLID II | Task Manager: ISP, DIP, IoC (extinde Lab 3) |
 | [**Lab5/**](Lab5/) | Curs 5 — Pattern-uri creationale | Generator documente (Factory, Builder, Prototype, Singleton) |
 | [**Lab6/**](Lab6/) | Curs 6 — Pattern-uri structurale I | Procesor documente (Adapter, Decorator, Facade) |
+| [**Lab7/**](Lab7/) | Curs 7 — Pattern-uri structurale II | DrawingTool (Composite, Bridge, Proxy) |
 
 ## Materiale curs
 
@@ -22,6 +23,7 @@ Repository pentru cursurile MAP: materiale HTML + laboratoare grupate pe foldere
 | [curs4_solid2.html](curs4_solid2.html) | SOLID II → **Lab4** |
 | [curs5_patterns_creational.html](curs5_patterns_creational.html) | Pattern-uri creationale → **Lab5** |
 | [curs6_patterns_structural1.html](curs6_patterns_structural1.html) | Pattern-uri structurale I → **Lab6** |
+| [curs7_patterns_structural2.html](curs7_patterns_structural2.html) | Pattern-uri structurale II → **Lab7** |
 
 ## Quick start
 
@@ -53,4 +55,11 @@ dotnet test DocumentProcessor.sln
 dotnet run --project src/DocumentProcessor.App
 ```
 
-Documentatie: [Lab1-2/README.md](Lab1-2/README.md) · [Lab3/README.md](Lab3/README.md) · [Lab4/README.md](Lab4/README.md) · [Lab5/README.md](Lab5/README.md) · [Lab6/README.md](Lab6/README.md)
+**Lab 7 (DrawingTool):**
+```bash
+cd Lab7
+dotnet test DrawingTool.sln
+dotnet run --project src/DrawingTool.App
+```
+
+Documentatie: [Lab1-2/README.md](Lab1-2/README.md) · [Lab3/README.md](Lab3/README.md) · [Lab4/README.md](Lab4/README.md) · [Lab5/README.md](Lab5/README.md) · [Lab6/README.md](Lab6/README.md) · [Lab7/README.md](Lab7/README.md)
