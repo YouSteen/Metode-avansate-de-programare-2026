@@ -12,6 +12,7 @@ Repository pentru cursurile MAP: materiale HTML + laboratoare grupate pe foldere
 | [**Lab5/**](Lab5/) | Curs 5 — Pattern-uri creationale | Generator documente (Factory, Builder, Prototype, Singleton) |
 | [**Lab6/**](Lab6/) | Curs 6 — Pattern-uri structurale I | Procesor documente (Adapter, Decorator, Facade) |
 | [**Lab7/**](Lab7/) | Curs 7 — Pattern-uri structurale II | DrawingTool (Composite, Bridge, Proxy) |
+| [**Lab8/**](Lab8/) | Curs 8 — Pattern-uri comportamentale I | MusicPlayer (Observer, Strategy, Command) |
 
 ## Materiale curs
 
@@ -24,6 +25,7 @@ Repository pentru cursurile MAP: materiale HTML + laboratoare grupate pe foldere
 | [curs5_patterns_creational.html](curs5_patterns_creational.html) | Pattern-uri creationale → **Lab5** |
 | [curs6_patterns_structural1.html](curs6_patterns_structural1.html) | Pattern-uri structurale I → **Lab6** |
 | [curs7_patterns_structural2.html](curs7_patterns_structural2.html) | Pattern-uri structurale II → **Lab7** |
+| [curs8_patterns_behavioral1.html](curs8_patterns_behavioral1.html) | Pattern-uri comportamentale I → **Lab8** |
 
 ## Quick start
 
@@ -62,4 +64,11 @@ dotnet test DrawingTool.sln
 dotnet run --project src/DrawingTool.App
 ```
 
-Documentatie: [Lab1-2/README.md](Lab1-2/README.md) · [Lab3/README.md](Lab3/README.md) · [Lab4/README.md](Lab4/README.md) · [Lab5/README.md](Lab5/README.md) · [Lab6/README.md](Lab6/README.md) · [Lab7/README.md](Lab7/README.md)
+**Lab 8 (MusicPlayer):**
+```bash
+cd Lab8
+dotnet test MusicPlayer.sln
+dotnet run --project src/MusicPlayer.App
+```
+
+Documentatie: [Lab1-2/README.md](Lab1-2/README.md) · [Lab3/README.md](Lab3/README.md) · [Lab4/README.md](Lab4/README.md) · [Lab5/README.md](Lab5/README.md) · [Lab6/README.md](Lab6/README.md) · [Lab7/README.md](Lab7/README.md) · [Lab8/README.md](Lab8/README.md)
