@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OrderProcessing - Lab 9</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="top">
+    <h1>OrderProcessing - Lab 9</h1>
+    <a href="/swagger" target="_blank" class="link">Swagger</a>
+  </header>
+  <main class="layout">
+    <aside class="col-left">
+      <button type="button" id="btnNew" class="btn primary">+ Comanda noua</button>
+      <div class="panel-label">Orders <span id="orderCount"></span></div>
+      <ul id="orderList" class="order-list"></ul>
+    </aside>
+    <section class="col-right" id="detailsPanel">
+      <p class="placeholder">Selecteaza o comanda din lista.</p>
+    </section>
+  </main>
+  <div id="toast" class="toast hidden"></div>
+  <div id="modal" class="modal hidden">
+    <div class="modal-box">
+      <h2>Comanda noua</h2>
+      <label>Nume client <input id="custName" type="text" value="Ion Popescu" /></label>
+      <label>Email <input id="custEmail" type="email" value="ion@example.com" /></label>
+      <label>Varsta <input id="custAge" type="number" value="25" /></label>
+      <label><input id="custTrusted" type="checkbox" /> Client trusted</label>
+      <label>Strada <input id="addrStreet" value="Str. Exemplu 12" /></label>
+      <label>Oras <input id="addrCity" value="Bucuresti" /></label>
+      <label>Cod postal <input id="addrPostal" value="010101" /></label>
+      <label>Tara <input id="addrCountry" value="Romania" /></label>
+      <div class="items-head">
+        <span>Produse</span>
+        <button type="button" id="btnAddItem" class="btn small">+ Linie</button>
+      </div>
+      <div id="itemsContainer"></div>
+      <div class="modal-actions">
+        <button type="button" id="btnCancelModal" class="btn">Anuleaza</button>
+        <button type="button" id="btnSubmitOrder" class="btn primary">Creeaza</button>
+      </div>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

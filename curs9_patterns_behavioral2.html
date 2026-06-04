@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curs 9 — Design Patterns Comportamentale II | MAP</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;--bg4:#21262d;
+    --border:#30363d;--border2:#3d4450;
+    --accent:#58a6ff;--accent2:#79c0ff;--accent3:#1f6feb;
+    --green:#3fb950;--green-bg:#0d2a1a;--green-border:#1a4731;
+    --yellow:#d29922;--yellow-bg:#2a1f0a;--yellow-border:#4a3400;
+    --purple:#bc8cff;--purple-bg:#1a0d2e;--purple-border:#3a1f5a;
+    --red:#f85149;--red-bg:#2d0f0f;--red-border:#5a1e1e;--orange:#ffa657;
+    --text:#e6edf3;--text2:#8b949e;--text3:#6e7681;
+    --radius:8px;--radius2:12px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;font-size:15px;line-height:1.75;}
+
+  .topbar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,17,23,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 2rem;height:52px;display:flex;align-items:center;justify-content:space-between;}
+  .topbar-left{display:flex;align-items:center;gap:1rem;}
+  .course-badge{background:var(--accent3);color:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.05em;}
+  .course-title-nav{font-size:13px;color:var(--text2);font-weight:500;}
+  .topbar-right{display:flex;gap:.5rem;}
+  .nav-pill{font-size:11px;color:var(--text3);padding:4px 10px;border:1px solid var(--border);border-radius:20px;text-decoration:none;font-family:'JetBrains Mono',monospace;transition:all .2s;}
+  .nav-pill:hover{color:var(--accent);border-color:var(--accent3);background:rgba(31,111,235,.08);}
+
+  .layout{display:flex;margin-top:52px;}
+  .sidebar{width:255px;min-width:255px;height:calc(100vh - 52px);position:sticky;top:52px;overflow-y:auto;border-right:1px solid var(--border);padding:1.5rem 0;background:var(--bg);}
+  .sidebar::-webkit-scrollbar{width:3px;}
+  .sidebar::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+  .sidebar-heading{font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--text3);text-transform:uppercase;padding:.75rem 1.5rem .25rem;}
+  .sidebar-link{display:flex;align-items:center;gap:.6rem;padding:.42rem 1.5rem;color:var(--text2);text-decoration:none;font-size:13px;border-left:2px solid transparent;transition:all .15s;}
+  .sidebar-link:hover{color:var(--text);background:var(--bg2);border-left-color:var(--border2);}
+  .sidebar-link.active{color:var(--accent);background:rgba(88,166,255,.06);border-left-color:var(--accent);font-weight:500;}
+  .sidebar-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);min-width:18px;}
+  .sidebar-divider{border:none;border-top:1px solid var(--border);margin:.75rem 1.5rem;}
+
+  .main{flex:1;max-width:860px;padding:3rem 3.5rem 6rem;min-width:0;}
+  #scroll-prog{position:fixed;top:52px;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent3),var(--accent),var(--purple));transform-origin:left;transform:scaleX(0);z-index:99;transition:transform .1s;}
+
+  .hero{margin-bottom:2.5rem;padding-bottom:2rem;border-bottom:1px solid var(--border);}
+  .hero-meta{display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;flex-wrap:wrap;}
+  .tag{font-family:'JetBrains Mono',monospace;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;}
+  .tag-mod{background:rgba(255,166,87,.1);color:var(--orange);border:1px solid rgba(255,166,87,.2);}
+  .tag-lang{background:rgba(63,185,80,.1);color:var(--green);border:1px solid rgba(63,185,80,.2);}
+  .tag-n{background:var(--bg3);color:var(--text2);border:1px solid var(--border);}
+  .hero h1{font-size:2.2rem;font-weight:800;line-height:1.2;letter-spacing:-.02em;margin-bottom:.75rem;}
+  .hero h1 span{color:var(--orange);}
+  .hero-desc{font-size:15.5px;color:var(--text2);max-width:640px;}
+
+  .objectives{background:rgba(255,166,87,.05);border:1px solid rgba(255,166,87,.15);border-radius:var(--radius2);padding:1.5rem;margin-bottom:2.5rem;}
+  .objectives-title{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--orange);text-transform:uppercase;margin-bottom:1rem;}
+  .objectives ul{list-style:none;display:flex;flex-direction:column;gap:.5rem;}
+  .objectives li{display:flex;align-items:flex-start;gap:.75rem;font-size:14px;color:var(--text2);}
+  .objectives li::before{content:'→';color:var(--orange);font-weight:700;flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+
+  .section{margin-bottom:3rem;}
+  h2.stitle{font-size:1.35rem;font-weight:700;color:var(--text);margin-bottom:1.5rem;padding-bottom:.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem;letter-spacing:-.01em;}
+  h2.stitle .num{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--orange);background:rgba(255,166,87,.12);padding:2px 8px;border-radius:4px;}
+  h3.sub{font-size:1.05rem;font-weight:600;color:var(--text);margin:2rem 0 .75rem;display:flex;align-items:center;gap:.5rem;}
+  h3.sub .dot{width:6px;height:6px;border-radius:50%;background:var(--orange);flex-shrink:0;}
+  h4.subsub{font-size:.95rem;font-weight:600;color:var(--text2);margin:1.5rem 0 .5rem;padding-left:.75rem;border-left:2px solid var(--border2);}
+
+  p{color:var(--text2);margin-bottom:.85rem;}
+  p:last-child{margin-bottom:0;}
+  strong{color:var(--text);font-weight:600;}
+  em{color:var(--orange);font-style:normal;font-weight:500;}
+  code{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--accent2);background:rgba(88,166,255,.08);padding:1px 6px;border-radius:4px;border:1px solid rgba(88,166,255,.12);}
+
+  .pattern-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;margin-bottom:2.5rem;}
+  .pattern-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1.25rem;}
+  .pattern-icon{font-size:2rem;flex-shrink:0;}
+  .pattern-name{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:.15rem;}
+  .pattern-intent{font-size:13px;color:var(--text2);line-height:1.5;}
+  .pattern-meta{display:flex;gap:.5rem;margin-top:.5rem;flex-wrap:wrap;}
+  .pattern-tag{font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;}
+  .pattern-tag.behavioral{background:rgba(63,185,80,.12);color:var(--green);}
+  .pattern-tag.gof{background:var(--bg4);color:var(--text3);border:1px solid var(--border);}
+  .pattern-tag.conceptual{background:rgba(188,140,255,.12);color:var(--purple);}
+  .pattern-body{padding:1.5rem;}
+
+  .example-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;margin:1.5rem 0;}
+  .example-header{padding:.6rem 1rem;background:var(--bg4);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.65rem;}
+  .example-num{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(255,166,87,.12);color:var(--orange);}
+  .example-title{font-size:13.5px;font-weight:600;color:var(--text);}
+  .example-body{padding:1rem 1.25rem;}
+
+  .code-block{background:#0d1117;border:1px solid var(--border);border-radius:var(--radius2);margin:1.25rem 0;overflow:hidden;}
+  .code-header{display:flex;align-items:center;justify-content:space-between;padding:.55rem 1rem;border-bottom:1px solid var(--border);background:var(--bg3);}
+  .code-fname{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2);display:flex;align-items:center;gap:.5rem;}
+  .code-fname .ok{color:var(--green);}
+  .code-fname .bad{color:var(--red);}
+  .code-lang-tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);background:var(--bg4);padding:2px 8px;border-radius:4px;}
+  pre{padding:1.25rem 1.5rem;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.65;}
+  pre::-webkit-scrollbar{height:4px;}
+  pre::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+  .kw{color:#ff7b72;}.tp{color:#79c0ff;}.ifc{color:#d2a8ff;}.mth{color:#d2a8ff;}
+  .str{color:#a5d6ff;}.num{color:#79c0ff;}.cmt{color:#6e7681;font-style:italic;}.prp{color:#e6edf3;}
+  .ann{color:#ffa657;}
+
+  .callout{border-radius:var(--radius);padding:1rem 1.25rem;margin:1.25rem 0;display:flex;gap:.85rem;align-items:flex-start;}
+  .callout-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
+  .callout-body{flex:1;}
+  .callout-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem;}
+  .callout p{font-size:13.5px;margin-bottom:0;}
+  .callout.info{background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.15);}
+  .callout.info .callout-title{color:var(--accent);}
+  .callout.warn{background:var(--yellow-bg);border:1px solid var(--yellow-border);}
+  .callout.warn .callout-title{color:var(--yellow);}
+  .callout.ok{background:var(--green-bg);border:1px solid var(--green-border);}
+  .callout.ok .callout-title{color:var(--green);}
+  .callout.danger{background:var(--red-bg);border:1px solid var(--red-border);}
+  .callout.danger .callout-title{color:var(--red);}
+  .callout.note{background:var(--purple-bg);border:1px solid var(--purple-border);}
+  .callout.note .callout-title{color:var(--purple);}
+
+  .when-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:1rem 0;}
+  .when-card{border-radius:var(--radius);padding:.85rem 1rem;font-size:13px;line-height:1.55;}
+  .when-card.use{background:var(--green-bg);border:1px solid var(--green-border);color:var(--text2);}
+  .when-card.avoid{background:var(--red-bg);border:1px solid var(--red-border);color:var(--text2);}
+  .when-card-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+  .when-card.use .when-card-title{color:var(--green);}
+  .when-card.avoid .when-card-title{color:var(--red);}
+  @media(max-width:600px){.when-grid{grid-template-columns:1fr;}}
+
+  .compare{display:flex;flex-direction:column;gap:1rem;margin:1.25rem 0;}
+  .compare-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:.35rem .75rem;border-radius:var(--radius) var(--radius) 0 0;display:flex;align-items:center;gap:.4rem;}
+  .compare-label.before{background:rgba(248,81,73,.12);color:var(--red);border:1px solid var(--red-border);border-bottom:none;}
+  .compare-label.after{background:rgba(63,185,80,.12);color:var(--green);border:1px solid var(--green-border);border-bottom:none;}
+  .compare-col .code-block{margin:0;border-radius:0 0 var(--radius2) var(--radius2);}
+  .compare-col.before .code-block{border-color:var(--red-border);}
+  .compare-col.after .code-block{border-color:var(--green-border);}
+  .cquote{border-left:3px solid var(--orange);padding:.75rem 1.25rem;background:rgba(255,166,87,.04);border-radius:0 var(--radius) var(--radius) 0;margin:1rem 0;font-size:15px;color:var(--text);line-height:1.6;}
+
+  .uml-wrap{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0 2rem;}
+  .uml-wrap.single{grid-template-columns:1fr;}
+  .uml-container{background:#161b22;border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;}
+  .uml-title{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);background:var(--bg3);border-bottom:1px solid var(--border);padding:.45rem 1rem;}
+  .uml-mermaid{padding:.75rem;overflow-x:auto;}
+  .uml-mermaid svg{max-width:100%;height:auto;display:block;}
+  @media(max-width:700px){.uml-wrap{grid-template-columns:1fr;}}
+
+  .patterns-overview{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:13.5px;}
+  .patterns-overview th{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);padding:.5rem 1rem;text-align:left;border-bottom:1px solid var(--border);}
+  .patterns-overview td{padding:.55rem 1rem;border-bottom:1px solid rgba(48,54,61,.4);vertical-align:top;color:var(--text2);}
+  .patterns-overview tr:last-child td{border-bottom:none;}
+  .patterns-overview tr:hover td{background:var(--bg2);}
+  .pat-name{font-family:'JetBrains Mono',monospace;color:var(--accent2);font-weight:600;}
+  .pat-done{color:var(--green);}
+  .pat-today{color:var(--orange);}
+  .pat-next{color:var(--text3);}
+
+  /* LAB */
+  .lab-box{background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius2);margin:2rem 0;}
+  .lab-header{background:rgba(63,185,80,.12);border-bottom:1px solid var(--green-border);padding:1rem 1.5rem;display:flex;align-items:center;gap:.75rem;}
+  .lab-header-icon{font-size:1.3rem;}
+  .lab-header-text h4{font-size:14px;font-weight:700;color:var(--green);margin-bottom:.1rem;}
+  .lab-header-text p{font-size:12px;color:var(--text2);margin:0;}
+  .lab-body{padding:1.25rem 1.25rem 1.5rem;}
+  .lab-body p{color:var(--text2);font-size:14px;}
+  .lab-section{margin-top:1.25rem;}
+  .lab-section-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:.6rem;}
+  .lab-req{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;margin:.75rem 0;}
+  .lab-req-header{padding:.6rem 1rem;background:var(--bg4);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.65rem;}
+  .lab-req-badge{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;flex-shrink:0;}
+  .lab-req-title{font-size:13.5px;font-weight:600;color:var(--text);}
+  .lab-req-body{padding:.9rem 1.1rem;overflow:hidden;}
+  .lab-req-body ul{list-style:none;display:block;margin:0;padding:0;}
+  .lab-req-body li{font-size:13px;color:var(--text2);line-height:1.6;padding-left:1.2rem;position:relative;overflow-wrap:break-word;margin-bottom:.45rem;}
+  .lab-req-body li:last-child{margin-bottom:0;}
+  .lab-req-body li::before{content:'▸';color:var(--green);font-size:11px;position:absolute;left:0;top:3px;}
+  .lab-deliverable{margin-top:1.25rem;padding:1rem;background:rgba(63,185,80,.06);border:1px solid rgba(63,185,80,.15);border-radius:var(--radius);}
+  .lab-deliverable-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green);margin-bottom:.5rem;}
+  .lab-deliverable p{font-size:13px;color:var(--text2);margin:0;}
+
+  /* STRUCTURE TREE */
+  .structure-tree{font-family:'JetBrains Mono',monospace;font-size:12.5px;background:#0d1117;border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;line-height:2;margin:.75rem 0;overflow-x:auto;white-space:pre;}
+  .st-folder{color:var(--accent2);}
+  .st-file{color:var(--text2);}
+  .st-comment{color:var(--text3);font-size:11.5px;}
+
+  /* STATE DIAGRAM — vizualizare HTML pentru lab */
+  .state-diagram{background:#0d1117;border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1rem;margin:.75rem 0;display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem 1rem;align-items:center;font-family:'Sora',sans-serif;}
+  .state-node{background:var(--bg3);border:2px solid var(--border2);border-radius:8px;padding:.7rem .9rem;text-align:center;position:relative;font-size:12.5px;font-weight:600;color:var(--text);}
+  .state-node.start{border-color:var(--accent);background:rgba(88,166,255,.1);}
+  .state-node.active{border-color:var(--orange);background:rgba(255,166,87,.1);}
+  .state-node.final{border-color:var(--green);background:rgba(63,185,80,.1);}
+  .state-node.cancelled{border-color:var(--red);background:rgba(248,81,73,.1);}
+  .state-node .nm{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;display:block;margin-top:.15rem;font-weight:500;}
+  .state-arrow{display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3);}
+  .state-arrow .lbl{font-family:'JetBrains Mono',monospace;background:var(--bg4);padding:2px 7px;border-radius:8px;border:1px solid var(--border);color:var(--accent2);}
+  .state-arrow.cancel .lbl{color:var(--red);border-color:var(--red-border);background:rgba(248,81,73,.08);}
+  .state-spacer{visibility:hidden;}
+  @media(max-width:600px){.state-diagram{grid-template-columns:1fr;}.state-arrow{transform:rotate(90deg);padding:.3rem 0;}}
+
+  /* CHAIN PIPELINE — vizualizare pipeline pentru lab */
+  .chain-pipe{background:#0d1117;border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1rem;margin:.75rem 0;display:flex;flex-direction:column;gap:.4rem;}
+  .chain-row{display:flex;align-items:stretch;gap:.5rem;}
+  .chain-box{flex:1;background:var(--bg3);border:1.5px solid var(--border2);border-radius:8px;padding:.65rem .8rem;display:flex;flex-direction:column;gap:.2rem;}
+  .chain-box .ttl{font-size:12.5px;font-weight:600;color:var(--text);}
+  .chain-box .dsc{font-size:10.5px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+  .chain-arrow{align-self:center;color:var(--green);font-weight:700;font-family:'JetBrains Mono',monospace;font-size:14px;flex-shrink:0;padding:0 .25rem;}
+  .chain-exit{margin-top:.4rem;padding:.5rem .8rem;background:rgba(248,81,73,.06);border:1px dashed var(--red-border);border-radius:6px;font-size:11.5px;color:var(--text2);text-align:center;}
+  .chain-exit strong{color:var(--red);font-family:'JetBrains Mono',monospace;}
+  @media(max-width:600px){.chain-row{flex-direction:column;}.chain-arrow{transform:rotate(90deg);align-self:center;}}
+
+  /* API PANEL — Swagger-style minimal */
+  .api-panel{background:#0d1117;border:1px solid var(--border);border-radius:var(--radius);padding:.85rem 1rem;margin:.75rem 0;font-family:'Sora',sans-serif;}
+  .api-row{display:flex;align-items:center;gap:.75rem;padding:.55rem .25rem;border-bottom:1px solid rgba(48,54,61,.5);}
+  .api-row:last-child{border-bottom:none;}
+  .api-verb{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:4px;min-width:50px;text-align:center;flex-shrink:0;}
+  .api-verb.post{background:rgba(63,185,80,.15);color:var(--green);}
+  .api-verb.get{background:rgba(88,166,255,.15);color:var(--accent2);}
+  .api-path{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--text);flex-shrink:0;}
+  .api-path .var{color:var(--orange);}
+  .api-desc{font-size:12px;color:var(--text2);flex:1;text-align:right;}
+
+  /* SPA MOCKUP — interfața lab-ului */
+  .spa-mockup{background:#0d1117;border:1px solid var(--border);border-radius:var(--radius);padding:.6rem;margin:.75rem 0;font-family:'Sora',sans-serif;}
+  .spa-mockup *{box-sizing:border-box;}
+  .spa-window{background:#161b22;border:1px solid var(--border2);border-radius:6px;overflow:hidden;display:flex;flex-direction:column;}
+  .spa-header{display:flex;align-items:center;justify-content:space-between;padding:.5rem .85rem;background:#1c2128;border-bottom:1px solid var(--border);}
+  .spa-title{font-size:12.5px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:.4rem;}
+  .spa-link{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--accent2);padding:3px 8px;background:rgba(88,166,255,.1);border:1px solid rgba(88,166,255,.2);border-radius:4px;}
+  .spa-body{display:grid;grid-template-columns:33% 67%;gap:1px;background:var(--border);}
+  .spa-col{background:#161b22;}
+  .spa-panel{padding:.7rem .85rem;border-bottom:1px solid var(--border);}
+  .spa-panel:last-child{border-bottom:none;}
+  .spa-panel-label{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:.55rem;display:flex;align-items:center;justify-content:space-between;}
+  .spa-panel-label .pl-count{font-weight:500;}
+
+  .spa-new-btn{display:block;width:100%;padding:.45rem;text-align:center;font-size:12px;font-weight:600;color:var(--green);background:rgba(63,185,80,.08);border:1px dashed var(--green-border);border-radius:5px;margin-bottom:.65rem;}
+
+  .spa-order-row{display:grid;grid-template-columns:14px 1fr auto;gap:.5rem;font-size:11.5px;color:var(--text2);padding:.32rem .3rem;border-radius:3px;align-items:center;}
+  .spa-order-row.active{background:rgba(255,166,87,.1);color:var(--text);}
+  .spa-order-row .marker{color:var(--orange);font-family:'JetBrains Mono',monospace;font-size:10px;}
+  .spa-order-row .oid{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--accent2);}
+  .spa-order-row .ost{font-family:'JetBrains Mono',monospace;font-size:9.5px;padding:1px 6px;border-radius:8px;font-weight:600;}
+  .spa-order-row .ost.pending{background:rgba(88,166,255,.12);color:var(--accent);}
+  .spa-order-row .ost.processing{background:rgba(255,166,87,.12);color:var(--orange);}
+  .spa-order-row .ost.delivered{background:rgba(63,185,80,.12);color:var(--green);}
+  .spa-order-row .ost.cancelled{background:rgba(248,81,73,.12);color:var(--red);}
+
+  .spa-detail-grid{display:grid;grid-template-columns:auto 1fr;gap:.25rem .85rem;font-size:12px;color:var(--text2);}
+  .spa-detail-grid dt{color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;}
+  .spa-detail-grid dd{color:var(--text);}
+  .spa-detail-grid dd.mono{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--accent2);}
+
+  .spa-mini-state{background:#0d1117;border:1px solid var(--border);border-radius:5px;padding:.55rem;display:flex;align-items:center;justify-content:space-between;gap:.4rem;margin-top:.4rem;flex-wrap:wrap;}
+  .spa-mini-node{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--text3);padding:3px 7px;border:1px solid var(--border);border-radius:4px;background:var(--bg3);}
+  .spa-mini-node.current{color:var(--orange);background:rgba(255,166,87,.12);border-color:var(--orange);font-weight:600;}
+  .spa-mini-node.done{color:var(--text3);opacity:.55;}
+  .spa-mini-arrow{color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:10px;}
+
+  .spa-actions{display:grid;grid-template-columns:repeat(5,1fr);gap:.35rem;margin-top:.45rem;}
+  .spa-action{font-family:'JetBrains Mono',monospace;font-size:10.5px;padding:5px 4px;text-align:center;border-radius:4px;font-weight:600;}
+  .spa-action.enabled{color:var(--green);background:rgba(63,185,80,.1);border:1px solid var(--green-border);}
+  .spa-action.disabled{color:var(--text3);background:var(--bg3);border:1px solid var(--border);opacity:.4;}
+  .spa-action.cancel{color:var(--red);background:rgba(248,81,73,.08);border:1px solid var(--red-border);}
+
+  .spa-history{display:flex;flex-direction:column;gap:.3rem;margin-top:.3rem;}
+  .spa-history-row{display:flex;align-items:center;gap:.5rem;font-size:11px;color:var(--text2);}
+  .spa-history-row .dot-h{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;}
+  .spa-history-row .trn{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text);flex:1;}
+  .spa-history-row .ts{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);}
+
+  .spa-toast{margin-top:1px;padding:.5rem .85rem;background:rgba(63,185,80,.08);border-top:1px solid var(--green-border);display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:var(--text2);}
+  .spa-toast .msg{color:var(--green);}
+  .spa-toast .msg::before{content:'✓ ';font-weight:700;}
+  .spa-toast.error{background:rgba(248,81,73,.08);border-top-color:var(--red-border);}
+  .spa-toast.error .msg{color:var(--red);}
+  .spa-toast.error .msg::before{content:'✗ ';}
+  .spa-toast .close{color:var(--text3);font-size:10px;cursor:default;}
+
+  @media(max-width:600px){.spa-body{grid-template-columns:1fr;}.spa-actions{grid-template-columns:repeat(2,1fr);}}
+
+  /* QUESTIONS & RESOURCES */
+  .questions-box{background:var(--purple-bg);border:1px solid var(--purple-border);border-radius:var(--radius2);padding:1.5rem;margin-top:2rem;}
+  .questions-title{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--purple);text-transform:uppercase;margin-bottom:1rem;}
+  .questions-box ol{padding-left:1.5rem;display:flex;flex-direction:column;gap:.6rem;}
+  .questions-box li{color:var(--text2);font-size:14px;}
+  .resources{border-top:1px solid var(--border);padding-top:1.5rem;margin-top:2rem;}
+  .resources-title{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:1rem;}
+  .resource-list{display:flex;flex-direction:column;gap:.5rem;}
+  .resource-item{display:flex;align-items:center;gap:.75rem;font-size:13px;color:var(--text2);}
+  .resource-item::before{content:'📖';font-size:14px;}
+
+  .progress-bar{height:3px;background:linear-gradient(90deg,var(--accent3),var(--orange),var(--purple));border-radius:2px;margin-bottom:2.5rem;width:calc(9/14*100%);opacity:.8;}
+
+  @media(max-width:900px){.sidebar{display:none;}.main{padding:2rem 1.5rem 4rem;}}
+</style>
+</head>
+<body>
+<div id="scroll-prog"></div>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="course-badge">MAP</span>
+    <span class="course-title-nav">Metode Avansate de Programare</span>
+  </div>
+  <div class="topbar-right">
+    <a href="curs8_patterns_behavioral1.html" class="nav-pill">← Curs 8</a>
+    <a href="curs10_clean_architecture.html"  class="nav-pill">Curs 10 →</a>
+  </div>
+</div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div>
+    <div class="sidebar-heading">Conținut</div>
+    <a href="#intro"      class="sidebar-link active"><span class="sidebar-num">01</span>Context</a>
+    <a href="#template"   class="sidebar-link"><span class="sidebar-num">02</span>Template Method</a>
+    <a href="#chain"      class="sidebar-link"><span class="sidebar-num">03</span>Chain of Responsibility</a>
+    <a href="#state"      class="sidebar-link"><span class="sidebar-num">04</span>State</a>
+    <a href="#mediator"   class="sidebar-link"><span class="sidebar-num">05</span>Mediator</a>
+    <a href="#comparatie" class="sidebar-link"><span class="sidebar-num">06</span>Comparație</a>
+    <a href="#lab"        class="sidebar-link"><span class="sidebar-num">07</span>Laborator 4</a>
+  </div>
+  <hr class="sidebar-divider">
+  <div>
+    <div class="sidebar-heading">Cursurile MAP</div>
+    <a href="curs1_oop.html"                  class="sidebar-link"><span class="sidebar-num">01</span>Recapitulare OOP</a>
+    <a href="curs2_uml.html"                  class="sidebar-link"><span class="sidebar-num">02</span>UML</a>
+    <a href="curs3_solid1.html"               class="sidebar-link"><span class="sidebar-num">03</span>SOLID I</a>
+    <a href="curs4_solid2.html"               class="sidebar-link"><span class="sidebar-num">04</span>SOLID II</a>
+    <a href="curs5_patterns_creational.html"  class="sidebar-link"><span class="sidebar-num">05</span>Patterns Creaționale</a>
+    <a href="curs6_patterns_structural1.html" class="sidebar-link"><span class="sidebar-num">06</span>Patterns Structurale I</a>
+    <a href="curs7_patterns_structural2.html" class="sidebar-link"><span class="sidebar-num">07</span>Patterns Structurale II</a>
+    <a href="curs8_patterns_behavioral1.html" class="sidebar-link"><span class="sidebar-num">08</span>Patterns Comportamentale I</a>
+    <a href="curs9_patterns_behavioral2.html" class="sidebar-link active"><span class="sidebar-num">09</span>Patterns Comportamentale II</a>
+    <a href="#" class="sidebar-link" style="opacity:.4;pointer-events:none"><span class="sidebar-num">10</span>Clean Architecture</a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="progress-bar"></div>
+
+  <header class="hero">
+    <div class="hero-meta">
+      <span class="tag tag-mod">Modul: Design Patterns</span>
+      <span class="tag tag-lang">C#</span>
+      <span class="tag tag-n">Curs 9 din 14</span>
+    </div>
+    <h1>Design Patterns <span>Comportamentale</span> — Partea II</h1>
+    <p class="hero-desc">Patru pattern-uri comportamentale care decuplează <em>cum se desfășoară procesul</em>: <em>Template Method</em> — schelet de algoritm cu pași variabili în subclase; <em>Chain of Responsibility</em> — lanț de handler-i care procesează cererea pe rând; <em>State</em> — comportament dependent de stare cu tranziții explicite; <em>Mediator</em> — coordonare centralizată între obiecte care altfel ar interacționa direct.</p>
+  </header>
+
+  <div class="objectives">
+    <div class="objectives-title">Obiective</div>
+    <ul>
+      <li>Aplicați Template Method pentru algoritmi cu structură fixă și pași variabili; înțelegeți compromisurile moștenire vs. compoziție față de Strategy</li>
+      <li>Construiți pipeline-uri de procesare cu Chain of Responsibility; recunoașteți pattern-ul în ASP.NET Core Middleware</li>
+      <li>Eliminați lanțurile de if/switch pe enum cu State Pattern, gestionând tranzițiile invalide cu excepții explicite</li>
+      <li>Identificați rolul Mediator în decuplarea unei rețele de obiecte și legătura cu MediatR / CQRS</li>
+    </ul>
+  </div>
+
+  <!-- ── SECTION 1: INTRO ── -->
+  <section class="section" id="intro">
+    <h2 class="stitle"><span class="num">01</span>Context — continuarea pattern-urilor comportamentale</h2>
+
+    <p>În cursul 8 am studiat patru pattern-uri comportamentale care decuplează <em>cine vorbește cu cine</em>: Observer (publish/subscribe), Strategy (algoritm interschimbabil), Command (operația ca obiect) și Iterator (parcurgere uniformă). Tema centrală era <strong>decuplarea responsabilităților între obiecte</strong>.</p>
+
+    <p>Partea II abordează o întrebare diferită: <strong>cum decuplăm modul în care se desfășoară un proces</strong>? Cum încapsulăm un algoritm cu pași variabili (Template Method)? Cum construim un lanț de procesare extensibil (Chain of Responsibility)? Cum modelăm un obiect care își schimbă comportamentul în funcție de starea internă (State)? Cum coordonăm o rețea de obiecte fără a crea legături directe (Mediator)?</p>
+
+    <table class="patterns-overview">
+      <thead>
+        <tr><th>Pattern</th><th>Problema rezolvată</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="pat-name">Observer</span></td><td>Notifică automat dependenți la schimbări de stare</td><td class="pat-done">✓ curs 8</td></tr>
+        <tr><td><span class="pat-name">Strategy</span></td><td>Schimbă algoritmul la runtime fără a modifica clientul</td><td class="pat-done">✓ curs 8</td></tr>
+        <tr><td><span class="pat-name">Command</span></td><td>Încapsulează o cerere ca obiect — undo, queue, log</td><td class="pat-done">✓ curs 8</td></tr>
+        <tr><td><span class="pat-name">Iterator</span></td><td>Parcurge o colecție fără a expune structura internă</td><td class="pat-done">✓ curs 8</td></tr>
+        <tr><td><span class="pat-name">Template Method</span></td><td>Definește scheletul unui algoritm cu pași variabili</td><td class="pat-today">← astăzi</td></tr>
+        <tr><td><span class="pat-name">Chain of Responsibility</span></td><td>Pasează cererea printr-un lanț de handler-i</td><td class="pat-today">← astăzi</td></tr>
+        <tr><td><span class="pat-name">State</span></td><td>Schimbă comportamentul în funcție de starea internă</td><td class="pat-today">← astăzi</td></tr>
+        <tr><td><span class="pat-name">Mediator</span></td><td>Coordonare centrală a interacțiunilor între obiecte</td><td class="pat-today">← astăzi</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── SECTION 2: TEMPLATE METHOD ── -->
+  <section class="section" id="template">
+    <h2 class="stitle"><span class="num">02</span>Template Method</h2>
+
+    <div class="pattern-card">
+      <div class="pattern-header">
+        <span class="pattern-icon">📐</span>
+        <div>
+          <div class="pattern-name">Template Method</div>
+          <div class="pattern-intent">Definește scheletul unui algoritm într-o metodă, lăsând unii pași subclaselor. Subclasele pot redefini anumiți pași fără a schimba structura algoritmului.</div>
+          <div class="pattern-meta">
+            <span class="pattern-tag behavioral">Comportamental</span>
+            <span class="pattern-tag gof">GoF</span>
+          </div>
+        </div>
+      </div>
+      <div class="pattern-body">
+
+        <p>Template Method codifică o regulă pe care o întâlnim frecvent: <strong>algoritmul este același peste tot, dar câțiva pași variază</strong>. Procesul de generare a unui raport e mereu același — încarci date, le filtrezi, le formatezi, le exportezi — dar fiecare tip de raport încarcă din altă sursă și formatează diferit. În loc să copiezi structura algoritmului în fiecare subclasă (cu riscul ca pașii să se dezsincronizeze), o definești o singură dată în clasa de bază și lași subclasele să umple golurile.</p>
+
+        <h3 class="sub"><span class="dot"></span>Structura generică (GoF)</h3>
+
+        <div class="uml-wrap">
+          <div class="uml-container">
+            <div class="uml-title">Diagramă de clase</div>
+            <div class="mermaid uml-mermaid">
+classDiagram
+    class AbstractClass {
+        &lt;&lt;abstract&gt;&gt;
+        +templateMethod()
+        +primitiveOp1() abstract
+        +primitiveOp2() abstract
+        +hook() virtual
+    }
+    class ConcreteA {
+        +primitiveOp1()
+        +primitiveOp2()
+    }
+    class ConcreteB {
+        +primitiveOp1()
+        +primitiveOp2()
+        +hook()
+    }
+    AbstractClass <|-- ConcreteA
+    AbstractClass <|-- ConcreteB
+            </div>
+          </div>
+          <div class="uml-container">
+            <div class="uml-title">Diagramă de secvență</div>
+            <div class="mermaid uml-mermaid">
+sequenceDiagram
+    participant C as Client
+    participant Cn as ConcreteA
+    participant Ab as AbstractClass
+    C->>Cn: templateMethod()
+    Note over Cn,Ab: metoda template e in clasa de baza
+    Cn->>Ab: templateMethod()
+    Ab->>Cn: primitiveOp1()
+    Cn-->>Ab: rezultat
+    Ab->>Cn: primitiveOp2()
+    Cn-->>Ab: rezultat
+    Ab->>Ab: hook()
+    Ab-->>C: rezultat final
+            </div>
+          </div>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Structura C# — schelet de algoritm</h3>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname">Template Method — structura canonică</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="kw">public abstract class</span> <span class="tp">DataExporter</span>
+{
+    <span class="cmt">// Template method — sealed pentru ca subclasele să NU îl rescrie</span>
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">Export</span>()
+    {
+        <span class="kw">var</span> data       = <span class="mth">LoadData</span>();          <span class="cmt">// pas abstract</span>
+        <span class="kw">var</span> filtered   = <span class="mth">FilterData</span>(data);    <span class="cmt">// pas cu default</span>
+        <span class="kw">var</span> formatted  = <span class="mth">FormatData</span>(filtered); <span class="cmt">// pas abstract</span>
+        <span class="mth">OnBeforeWrite</span>(formatted);              <span class="cmt">// hook opțional</span>
+        <span class="kw">return</span> <span class="mth">WriteOutput</span>(formatted);          <span class="cmt">// pas abstract</span>
+    }
+
+    <span class="cmt">// Pași obligatorii — fiecare subclasă TREBUIE să-i implementeze</span>
+    <span class="kw">protected abstract</span> <span class="tp">IEnumerable</span>&lt;<span class="tp">Record</span>&gt; <span class="mth">LoadData</span>();
+    <span class="kw">protected abstract</span> <span class="tp">string</span> <span class="mth">FormatData</span>(<span class="tp">IEnumerable</span>&lt;<span class="tp">Record</span>&gt; data);
+    <span class="kw">protected abstract</span> <span class="tp">string</span> <span class="mth">WriteOutput</span>(<span class="tp">string</span> content);
+
+    <span class="cmt">// Pas cu default — subclasele POT să-l rescrie</span>
+    <span class="kw">protected virtual</span> <span class="tp">IEnumerable</span>&lt;<span class="tp">Record</span>&gt; <span class="mth">FilterData</span>(<span class="tp">IEnumerable</span>&lt;<span class="tp">Record</span>&gt; data)
+        => data.<span class="mth">Where</span>(r =&gt; !r.IsDeleted); <span class="cmt">// implicit: exclude șterse</span>
+
+    <span class="cmt">// Hook — gol implicit; subclasele decid dacă suprascriu</span>
+    <span class="kw">protected virtual void</span> <span class="mth">OnBeforeWrite</span>(<span class="tp">string</span> content) { }
+}</pre>
+        </div>
+
+        <p>Trei tipuri de pași într-un template method:</p>
+        <ul style="list-style:none;padding:0;margin:.5rem 0 1.5rem;display:flex;flex-direction:column;gap:.5rem;">
+          <li style="display:flex;gap:.75rem;font-size:13.5px;color:var(--text2);"><span style="color:var(--red);font-weight:700;font-family:'JetBrains Mono',monospace;min-width:84px;">abstract</span><span>obligatoriu — subclasa <strong>trebuie</strong> să-l implementeze, altfel codul nu compilează</span></li>
+          <li style="display:flex;gap:.75rem;font-size:13.5px;color:var(--text2);"><span style="color:var(--orange);font-weight:700;font-family:'JetBrains Mono',monospace;min-width:84px;">virtual</span><span>are implementare implicită; subclasa <strong>poate</strong> să o rescrie</span></li>
+          <li style="display:flex;gap:.75rem;font-size:13.5px;color:var(--text2);"><span style="color:var(--green);font-weight:700;font-family:'JetBrains Mono',monospace;min-width:84px;">hook</span><span>metodă virtuală goală; punct de extensie opțional — implicit nu face nimic</span></li>
+        </ul>
+
+        <!-- EXAMPLE: REPORT PROCESSOR -->
+        <div class="example-box">
+          <div class="example-header">
+            <span class="example-num">Exemplul 1</span>
+            <span class="example-title">Rapoarte de business — același schelet, surse diferite</span>
+          </div>
+          <div class="example-body">
+            <p>Aplicația trebuie să exporte trei tipuri de rapoarte: vânzări (din baza de date), inventar (din ERP-ul extern), audit (din log-uri). Algoritmul de export este identic; doar sursa și formatul diferă.</p>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-fname">ReportProcessor.cs</span>
+                <span class="code-lang-tag">C#</span>
+              </div>
+              <pre><span class="kw">public abstract class</span> <span class="tp">ReportProcessor</span>
+{
+    <span class="kw">public</span> <span class="tp">string</span> <span class="mth">GenerateReport</span>(<span class="tp">DateRange</span> period)
+    {
+        <span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">$"[{GetType().Name}] Început raport pentru {period}"</span>);
+        <span class="kw">var</span> data      = <span class="mth">LoadData</span>(period);
+        <span class="kw">var</span> filtered  = <span class="mth">FilterData</span>(data);
+        <span class="kw">var</span> formatted = <span class="mth">FormatData</span>(filtered);
+        <span class="kw">var</span> path      = <span class="mth">WriteToFile</span>(formatted);
+        <span class="mth">OnReportGenerated</span>(path); <span class="cmt">// hook</span>
+        <span class="kw">return</span> path;
+    }
+
+    <span class="kw">protected abstract</span> <span class="tp">IEnumerable</span>&lt;<span class="tp">Record</span>&gt; <span class="mth">LoadData</span>(<span class="tp">DateRange</span> period);
+    <span class="kw">protected abstract</span> <span class="tp">string</span> <span class="mth">FormatData</span>(<span class="tp">IEnumerable</span>&lt;<span class="tp">Record</span>&gt; data);
+
+    <span class="kw">protected virtual</span> <span class="tp">IEnumerable</span>&lt;<span class="tp">Record</span>&gt; <span class="mth">FilterData</span>(<span class="tp">IEnumerable</span>&lt;<span class="tp">Record</span>&gt; data)
+        => data.<span class="mth">Where</span>(r =&gt; r.IsValid);
+
+    <span class="kw">protected virtual</span> <span class="tp">string</span> <span class="mth">WriteToFile</span>(<span class="tp">string</span> content)
+    {
+        <span class="kw">var</span> path = <span class="tp">Path</span>.<span class="mth">Combine</span>(<span class="tp">Path</span>.<span class="mth">GetTempPath</span>(), <span class="str">$"report-{Guid.NewGuid():N}.txt"</span>);
+        <span class="tp">File</span>.<span class="mth">WriteAllText</span>(path, content);
+        <span class="kw">return</span> path;
+    }
+
+    <span class="kw">protected virtual void</span> <span class="mth">OnReportGenerated</span>(<span class="tp">string</span> path) { } <span class="cmt">// hook gol</span>
+}
+
+<span class="cmt">// ConcreteClass 1 — raport vânzări din SQL</span>
+<span class="kw">public class</span> <span class="tp">SalesReportProcessor</span> : <span class="tp">ReportProcessor</span>
+{
+    <span class="kw">private readonly</span> <span class="tp">ISalesRepository</span> _repo;
+    <span class="kw">public</span> <span class="mth">SalesReportProcessor</span>(<span class="tp">ISalesRepository</span> repo) => _repo = repo;
+
+    <span class="kw">protected override</span> <span class="tp">IEnumerable</span>&lt;<span class="tp">Record</span>&gt; <span class="mth">LoadData</span>(<span class="tp">DateRange</span> p)
+        => _repo.<span class="mth">QuerySales</span>(p.Start, p.End).<span class="mth">Select</span>(s =&gt; <span class="kw">new</span> <span class="tp">Record</span>(s));
+
+    <span class="kw">protected override</span> <span class="tp">string</span> <span class="mth">FormatData</span>(<span class="tp">IEnumerable</span>&lt;<span class="tp">Record</span>&gt; data)
+        => <span class="str">"=== VÂNZĂRI ===\n"</span> + <span class="tp">string</span>.<span class="mth">Join</span>(<span class="str">"\n"</span>, data.<span class="mth">Select</span>(d =&gt; d.<span class="mth">AsRow</span>()));
+
+    <span class="cmt">// Hook suprascris — trimitem email când raportul e gata</span>
+    <span class="kw">protected override void</span> <span class="mth">OnReportGenerated</span>(<span class="tp">string</span> path)
+        => <span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">$"📧 Trimit email cu raport către sales@..."</span>);
+}
+
+<span class="cmt">// ConcreteClass 2 — raport audit din log-uri; nu filtrăm (toate intrările contează)</span>
+<span class="kw">public class</span> <span class="tp">AuditReportProcessor</span> : <span class="tp">ReportProcessor</span>
+{
+    <span class="kw">protected override</span> <span class="tp">IEnumerable</span>&lt;<span class="tp">Record</span>&gt; <span class="mth">LoadData</span>(<span class="tp">DateRange</span> p)
+        => <span class="tp">File</span>.<span class="mth">ReadAllLines</span>(<span class="str">"audit.log"</span>).<span class="mth">Select</span>(line =&gt; <span class="tp">Record</span>.<span class="mth">Parse</span>(line));
+
+    <span class="kw">protected override</span> <span class="tp">string</span> <span class="mth">FormatData</span>(<span class="tp">IEnumerable</span>&lt;<span class="tp">Record</span>&gt; data)
+        => <span class="tp">JsonSerializer</span>.<span class="mth">Serialize</span>(data, <span class="kw">new</span> <span class="tp">JsonSerializerOptions</span> { WriteIndented = <span class="kw">true</span> });
+
+    <span class="cmt">// Audit-ul include TOATE intrările — suprascriem filtrul implicit</span>
+    <span class="kw">protected override</span> <span class="tp">IEnumerable</span>&lt;<span class="tp">Record</span>&gt; <span class="mth">FilterData</span>(<span class="tp">IEnumerable</span>&lt;<span class="tp">Record</span>&gt; data) => data;
+}
+
+<span class="kw">var</span> sales = <span class="kw">new</span> <span class="tp">SalesReportProcessor</span>(repo);
+sales.<span class="mth">GenerateReport</span>(<span class="kw">new</span> <span class="tp">DateRange</span>(<span class="tp">DateTime</span>.Today.<span class="mth">AddDays</span>(-<span class="num">30</span>), <span class="tp">DateTime</span>.Today));
+<span class="cmt">// [SalesReportProcessor] Început raport pentru ...
+// 📧 Trimit email cu raport către sales@...</span></pre>
+            </div>
+            <div class="callout info">
+              <span class="callout-icon">💡</span>
+              <div class="callout-body">
+                <div class="callout-title">Principiul Hollywood</div>
+                <p>Template Method ilustrează „Hollywood Principle": <em>nu ne suna noi, te sunăm noi</em>. Clientul apelează <code>GenerateReport()</code> pe clasa de bază; clasa de bază apelează metodele subclasei. Inversiunea fluxului de control este miezul pattern-ului — subclasa nu definește algoritmul, doar îl completează.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Template Method vs. Strategy</h3>
+
+        <p>Ambele rezolvă o problemă similară — variabilitatea unui algoritm — dar prin mecanisme fundamental diferite. Template Method folosește <strong>moștenire</strong>; Strategy folosește <strong>compoziție</strong>. Alegerea greșită produce cod fragil.</p>
+
+        <div class="compare">
+          <div class="compare-col before">
+            <div class="compare-label before">Template Method — moștenire</div>
+            <div class="code-block">
+              <pre><span class="kw">public abstract class</span> <span class="tp">PaymentProcessor</span>
+{
+    <span class="kw">public void</span> <span class="mth">Process</span>(<span class="tp">Order</span> o)
+    {
+        <span class="mth">Validate</span>(o);
+        <span class="mth">Charge</span>(o);     <span class="cmt">// abstract</span>
+        <span class="mth">Confirm</span>(o);
+    }
+    <span class="kw">protected abstract void</span> <span class="mth">Charge</span>(<span class="tp">Order</span> o);
+}
+
+<span class="kw">public class</span> <span class="tp">CardPayment</span> : <span class="tp">PaymentProcessor</span>
+{
+    <span class="kw">protected override void</span> <span class="mth">Charge</span>(<span class="tp">Order</span> o)
+        => stripe.<span class="mth">Charge</span>(o);
+}
+
+<span class="cmt">// Algoritmul e fix; doar Charge variază.
+// Schimbarea = clasă nouă derivată.</span></pre>
+            </div>
+          </div>
+          <div class="compare-col after">
+            <div class="compare-label after">Strategy — compoziție</div>
+            <div class="code-block">
+              <pre><span class="kw">public class</span> <span class="tp">PaymentProcessor</span>
+{
+    <span class="kw">private readonly</span> <span class="ifc">IChargeStrategy</span> _strategy;
+
+    <span class="kw">public</span> <span class="mth">PaymentProcessor</span>(<span class="ifc">IChargeStrategy</span> s)
+        => _strategy = s;
+
+    <span class="kw">public void</span> <span class="mth">Process</span>(<span class="tp">Order</span> o)
+    {
+        <span class="mth">Validate</span>(o);
+        _strategy.<span class="mth">Charge</span>(o); <span class="cmt">// delegat</span>
+        <span class="mth">Confirm</span>(o);
+    }
+}
+
+<span class="cmt">// Strategia poate fi schimbată la runtime.
+// Testabil cu mock.</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="cquote">
+          Regula practică: dacă <em>structura algoritmului</em> este stabilă și doar pașii variază, Template Method e potrivit. Dacă <em>alegerea algoritmului</em> trebuie să fie dinamică sau testabilă în izolare, preferă Strategy. În C# modern, Strategy câștigă mai des — moștenirea fixează relații care injecția de dependențe le ține flexibile.
+        </div>
+
+        <div class="when-grid">
+          <div class="when-card use">
+            <div class="when-card-title">✓ Când se potrivește</div>
+            Algoritmul are o structură fixă pe care vrei să o protejezi de modificări accidentale. Mai multe subclase duplică același flux, doar cu pași diferiți. Cerințele lasă loc subclaselor să extindă comportamentul, dar nu să rearanjeze pașii. Framework-uri și clase de bază reutilizabile (ASP.NET <code>Controller</code>, EF <code>DbContext.OnModelCreating</code>).
+          </div>
+          <div class="when-card avoid">
+            <div class="when-card-title">✗ Când nu se potrivește</div>
+            Vrei să schimbi algoritmul la runtime (alegere dinamică) — Strategy e mai potrivit. Ierarhia de moștenire ar deveni profundă sau ar trebui să combini comportamente — compoziția scapă din această capcană. Există o singură subclasă reală — moștenirea adaugă ceremonie fără beneficii.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 3: CHAIN OF RESPONSIBILITY ── -->
+  <section class="section" id="chain">
+    <h2 class="stitle"><span class="num">03</span>Chain of Responsibility</h2>
+
+    <div class="pattern-card">
+      <div class="pattern-header">
+        <span class="pattern-icon">🔗</span>
+        <div>
+          <div class="pattern-name">Chain of Responsibility</div>
+          <div class="pattern-intent">Evită cuplarea sender-ului cu receiver-ul, dând mai multor obiecte șansa de a procesa cererea. Obiectele sunt înlănțuite; fiecare decide dacă procesează sau pasează cererea mai departe.</div>
+          <div class="pattern-meta">
+            <span class="pattern-tag behavioral">Comportamental</span>
+            <span class="pattern-tag gof">GoF</span>
+          </div>
+        </div>
+      </div>
+      <div class="pattern-body">
+
+        <p>Imaginează-ți validarea unei comenzi: trebuie să verifici stocul, prețurile, frauda, vârsta clientului. Soluția naivă — o singură metodă cu cinci if-uri în șir — funcționează, dar e rigidă: ordinea e fixă, adăugarea unei verificări noi cere modificarea metodei, iar dezactivarea condiționată a unei verificări (ex. în staging) cere flag-uri suplimentare. Chain of Responsibility împarte responsabilitatea: fiecare verificare devine un <strong>handler independent</strong>, iar lanțul lor se construiește explicit, ca o conductă prin care trece cererea.</p>
+
+        <h3 class="sub"><span class="dot"></span>Structura generică (GoF)</h3>
+
+        <div class="uml-wrap">
+          <div class="uml-container">
+            <div class="uml-title">Diagramă de clase</div>
+            <div class="mermaid uml-mermaid">
+classDiagram
+    class Handler {
+        &lt;&lt;interface&gt;&gt;
+        +setNext(Handler) Handler
+        +handle(request)
+    }
+    class BaseHandler {
+        -next Handler
+        +setNext(Handler)
+        +handle(request)
+    }
+    class ConcreteA {
+        +handle(request)
+    }
+    class ConcreteB {
+        +handle(request)
+    }
+    Handler <|.. BaseHandler
+    BaseHandler <|-- ConcreteA
+    BaseHandler <|-- ConcreteB
+    BaseHandler --> Handler : next
+            </div>
+          </div>
+          <div class="uml-container">
+            <div class="uml-title">Diagramă de secvență</div>
+            <div class="mermaid uml-mermaid">
+sequenceDiagram
+    participant C as Client
+    participant H1 as HandlerA
+    participant H2 as HandlerB
+    participant H3 as HandlerC
+    C->>H1: handle(req)
+    Note over H1: nu pot procesa
+    H1->>H2: handle(req)
+    Note over H2: pot procesa
+    H2-->>H1: rezultat
+    H1-->>C: rezultat
+    Note over H3: nu a fost apelat
+            </div>
+          </div>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Structura C# — handler de bază reutilizabil</h3>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname">Chain of Responsibility — handler bază</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="cmt">// Interfața — toți handler-ii respectă același contract</span>
+<span class="kw">public interface</span> <span class="ifc">IHandler</span>&lt;<span class="tp">TRequest</span>, <span class="tp">TResult</span>&gt;
+{
+    <span class="ifc">IHandler</span>&lt;<span class="tp">TRequest</span>, <span class="tp">TResult</span>&gt; <span class="mth">SetNext</span>(<span class="ifc">IHandler</span>&lt;<span class="tp">TRequest</span>, <span class="tp">TResult</span>&gt; next);
+    <span class="tp">TResult</span> <span class="mth">Handle</span>(<span class="tp">TRequest</span> request);
+}
+
+<span class="cmt">// Bază abstractă — captează tot codul comun (next, fluent SetNext)</span>
+<span class="kw">public abstract class</span> <span class="tp">BaseHandler</span>&lt;<span class="tp">TRequest</span>, <span class="tp">TResult</span>&gt; : <span class="ifc">IHandler</span>&lt;<span class="tp">TRequest</span>, <span class="tp">TResult</span>&gt;
+{
+    <span class="kw">protected</span> <span class="ifc">IHandler</span>&lt;<span class="tp">TRequest</span>, <span class="tp">TResult</span>&gt;? Next { <span class="kw">get</span>; <span class="kw">private set</span>; }
+
+    <span class="cmt">// Returnează handler-ul primit pentru a permite înlănțuire fluent</span>
+    <span class="kw">public</span> <span class="ifc">IHandler</span>&lt;<span class="tp">TRequest</span>, <span class="tp">TResult</span>&gt; <span class="mth">SetNext</span>(<span class="ifc">IHandler</span>&lt;<span class="tp">TRequest</span>, <span class="tp">TResult</span>&gt; next)
+    {
+        Next = next;
+        <span class="kw">return</span> next;
+    }
+
+    <span class="kw">public abstract</span> <span class="tp">TResult</span> <span class="mth">Handle</span>(<span class="tp">TRequest</span> request);
+}</pre>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Două variante fundamentale</h3>
+
+        <p>Chain of Responsibility apare în două variante esențial diferite, după ce face un handler care a procesat cererea:</p>
+
+        <div class="example-box">
+          <div class="example-header">
+            <span class="example-num">Varianta A</span>
+            <span class="example-title">Short-circuit — primul handler care răspunde oprește lanțul</span>
+          </div>
+          <div class="example-body">
+            <p>Tipic pentru <strong>validare</strong> sau <strong>autorizare</strong>: prima problemă găsită determină răspunsul; nu mai are sens să continui. Folosit și pentru routing — primul handler care recunoaște cererea o servește.</p>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-fname">OrderValidationChain.cs — short-circuit la primul eșec</span>
+                <span class="code-lang-tag">C#</span>
+              </div>
+              <pre><span class="kw">public record</span> <span class="tp">ValidationResult</span>(<span class="tp">bool</span> IsValid, <span class="tp">string</span>? Error);
+
+<span class="kw">public abstract class</span> <span class="tp">OrderValidator</span> : <span class="tp">BaseHandler</span>&lt;<span class="tp">Order</span>, <span class="tp">ValidationResult</span>&gt;
+{
+    <span class="kw">public override</span> <span class="tp">ValidationResult</span> <span class="mth">Handle</span>(<span class="tp">Order</span> order)
+    {
+        <span class="kw">var</span> localResult = <span class="mth">Validate</span>(order);
+        <span class="kw">if</span> (!localResult.IsValid) <span class="kw">return</span> localResult; <span class="cmt">// STOP — prima eroare</span>
+        <span class="kw">return</span> Next?.<span class="mth">Handle</span>(order) ?? <span class="kw">new</span>(<span class="kw">true</span>, <span class="kw">null</span>);
+    }
+    <span class="kw">protected abstract</span> <span class="tp">ValidationResult</span> <span class="mth">Validate</span>(<span class="tp">Order</span> order);
+}
+
+<span class="kw">public class</span> <span class="tp">StockValidator</span> : <span class="tp">OrderValidator</span>
+{
+    <span class="kw">protected override</span> <span class="tp">ValidationResult</span> <span class="mth">Validate</span>(<span class="tp">Order</span> o)
+        => o.Items.<span class="mth">All</span>(i =&gt; i.InStock)
+            ? <span class="kw">new</span>(<span class="kw">true</span>, <span class="kw">null</span>)
+            : <span class="kw">new</span>(<span class="kw">false</span>, <span class="str">"Stoc insuficient pentru unul sau mai multe produse"</span>);
+}
+
+<span class="kw">public class</span> <span class="tp">PriceValidator</span> : <span class="tp">OrderValidator</span>
+{
+    <span class="kw">protected override</span> <span class="tp">ValidationResult</span> <span class="mth">Validate</span>(<span class="tp">Order</span> o)
+        => o.Total &gt; <span class="num">0</span>
+            ? <span class="kw">new</span>(<span class="kw">true</span>, <span class="kw">null</span>)
+            : <span class="kw">new</span>(<span class="kw">false</span>, <span class="str">"Totalul comenzii trebuie să fie pozitiv"</span>);
+}
+
+<span class="kw">public class</span> <span class="tp">FraudValidator</span> : <span class="tp">OrderValidator</span>
+{
+    <span class="kw">protected override</span> <span class="tp">ValidationResult</span> <span class="mth">Validate</span>(<span class="tp">Order</span> o)
+        => o.Total &lt; <span class="num">10_000m</span> || o.Customer.IsTrusted
+            ? <span class="kw">new</span>(<span class="kw">true</span>, <span class="kw">null</span>)
+            : <span class="kw">new</span>(<span class="kw">false</span>, <span class="str">"Comandă suspectă — necesită verificare manuală"</span>);
+}
+
+<span class="cmt">// Construirea lanțului — Builder fluent prin SetNext care returnează next</span>
+<span class="kw">var</span> chain = <span class="kw">new</span> <span class="tp">StockValidator</span>();
+chain
+    .<span class="mth">SetNext</span>(<span class="kw">new</span> <span class="tp">PriceValidator</span>())
+    .<span class="mth">SetNext</span>(<span class="kw">new</span> <span class="tp">FraudValidator</span>());
+
+<span class="kw">var</span> result = chain.<span class="mth">Handle</span>(order);
+<span class="kw">if</span> (!result.IsValid)
+    <span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">$"❌ {result.Error}"</span>);
+<span class="cmt">// Dacă stoc OK, dar preț = 0 → "Totalul comenzii trebuie să fie pozitiv"
+// FraudValidator nu mai e apelat — short-circuit.</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <div class="example-header">
+            <span class="example-num">Varianta B</span>
+            <span class="example-title">Pass-through — toți handler-ii rulează, fiecare contribuie</span>
+          </div>
+          <div class="example-body">
+            <p>Tipic pentru <strong>pipeline-uri de transformare</strong>: fiecare handler modifică sau îmbogățește cererea, apoi o pasează la următorul. Lanțul rulează până la capăt indiferent ce face fiecare verigă. ASP.NET Core Middleware funcționează exact așa — fiecare middleware are șansa să modifice cererea înainte și răspunsul după.</p>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-fname">LoggingPipeline.cs — pass-through</span>
+                <span class="code-lang-tag">C#</span>
+              </div>
+              <pre><span class="kw">public abstract class</span> <span class="tp">RequestEnricher</span> : <span class="tp">BaseHandler</span>&lt;<span class="tp">HttpRequest</span>, <span class="tp">HttpRequest</span>&gt;
+{
+    <span class="kw">public override</span> <span class="tp">HttpRequest</span> <span class="mth">Handle</span>(<span class="tp">HttpRequest</span> request)
+    {
+        <span class="kw">var</span> enriched = <span class="mth">Enrich</span>(request); <span class="cmt">// fiecare handler contribuie</span>
+        <span class="kw">return</span> Next?.<span class="mth">Handle</span>(enriched) ?? enriched; <span class="cmt">// CONTINUĂ</span>
+    }
+    <span class="kw">protected abstract</span> <span class="tp">HttpRequest</span> <span class="mth">Enrich</span>(<span class="tp">HttpRequest</span> request);
+}
+
+<span class="kw">public class</span> <span class="tp">AddCorrelationId</span> : <span class="tp">RequestEnricher</span>
+{
+    <span class="kw">protected override</span> <span class="tp">HttpRequest</span> <span class="mth">Enrich</span>(<span class="tp">HttpRequest</span> r)
+        => r.<span class="mth">With</span>(<span class="str">"X-Correlation-Id"</span>, <span class="tp">Guid</span>.<span class="mth">NewGuid</span>().<span class="mth">ToString</span>());
+}
+
+<span class="kw">public class</span> <span class="tp">AddUserContext</span> : <span class="tp">RequestEnricher</span>
+{
+    <span class="kw">protected override</span> <span class="tp">HttpRequest</span> <span class="mth">Enrich</span>(<span class="tp">HttpRequest</span> r)
+        => r.<span class="mth">With</span>(<span class="str">"X-User"</span>, <span class="mth">GetCurrentUser</span>().Id);
+}
+
+<span class="kw">public class</span> <span class="tp">LogTimestamp</span> : <span class="tp">RequestEnricher</span>
+{
+    <span class="kw">protected override</span> <span class="tp">HttpRequest</span> <span class="mth">Enrich</span>(<span class="tp">HttpRequest</span> r)
+    {
+        <span class="tp">Console</span>.<span class="mth">WriteLine</span>(<span class="str">$"[{DateTime.UtcNow:O}] {r.Path}"</span>);
+        <span class="kw">return</span> r; <span class="cmt">// nu modifică, doar observă</span>
+    }
+}
+
+<span class="kw">var</span> pipeline = <span class="kw">new</span> <span class="tp">AddCorrelationId</span>();
+pipeline
+    .<span class="mth">SetNext</span>(<span class="kw">new</span> <span class="tp">AddUserContext</span>())
+    .<span class="mth">SetNext</span>(<span class="kw">new</span> <span class="tp">LogTimestamp</span>());
+
+<span class="kw">var</span> finalRequest = pipeline.<span class="mth">Handle</span>(incoming);
+<span class="cmt">// Toate cele trei rulează indiferent — request-ul a fost îmbogățit cu trei header-e</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout note">
+          <span class="callout-icon">🧭</span>
+          <div class="callout-body">
+            <div class="callout-title">Chain of Responsibility în .NET — ASP.NET Core Middleware</div>
+            <p>Întreaga conductă HTTP din ASP.NET Core este Chain of Responsibility varianta pass-through. <code>app.UseAuthentication(); app.UseAuthorization(); app.UseRouting();</code> construiește un lanț unde fiecare middleware decide să cheme sau nu <code>await next()</code>. Dacă apelează <code>next()</code> — pass-through; dacă răspunde direct fără să cheme <code>next()</code> — short-circuit. Pattern-ul nu cunoaște alegerea în avans; o face fiecare middleware concret.</p>
+          </div>
+        </div>
+
+        <div class="when-grid">
+          <div class="when-card use">
+            <div class="when-card-title">✓ Când se potrivește</div>
+            Pipeline-uri de validare, autorizare, logging, transformare. Lista de pași poate crește în timp și ordinea contează. Pași pot fi activați/dezactivați condiționat (configurare, mediu). Nu se știe în avans cine va răspunde — handler-ul potrivit decide singur.
+          </div>
+          <div class="when-card avoid">
+            <div class="when-card-title">✗ Când nu se potrivește</div>
+            Există un destinatar fix și cunoscut — un apel direct e mai simplu. Toți pașii trebuie să ruleze obligatoriu indiferent — o secvență de metode într-o clasă e mai clară. Lanțul devine prea lung sau dependențele dintre handler-i sunt implicite — debugging-ul fluxului devine dificil.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 4: STATE ── -->
+  <section class="section" id="state">
+    <h2 class="stitle"><span class="num">04</span>State</h2>
+
+    <div class="pattern-card">
+      <div class="pattern-header">
+        <span class="pattern-icon">🔄</span>
+        <div>
+          <div class="pattern-name">State</div>
+          <div class="pattern-intent">Permite unui obiect să-și schimbe comportamentul când starea sa internă se schimbă. Obiectul pare că își schimbă clasa. Tranzițiile între stări sunt explicite și gestionate de stările concrete.</div>
+          <div class="pattern-meta">
+            <span class="pattern-tag behavioral">Comportamental</span>
+            <span class="pattern-tag gof">GoF</span>
+          </div>
+        </div>
+      </div>
+      <div class="pattern-body">
+
+        <p>State Pattern rezolvă o problemă pe care toată lumea o întâlnește în obiecte cu ciclu de viață: o comandă trece prin <em>Pending → Confirmed → Processing → Shipped → Delivered</em>; un document prin <em>Draft → Review → Published</em>; un transfer bancar prin <em>Initiated → Authorized → Settled</em>. Soluția naivă — un enum și switch-uri în fiecare metodă — funcționează pentru două-trei stări, dar devine rapid neîntreținut.</p>
+
+        <h3 class="sub"><span class="dot"></span>Problema fără State</h3>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname"><span class="bad">✗</span> OrderWithoutState.cs — un singur enum, switch peste tot</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="kw">public enum</span> <span class="tp">OrderStatus</span> { Pending, Confirmed, Processing, Shipped, Delivered, Cancelled }
+
+<span class="kw">public class</span> <span class="tp">Order</span>
+{
+    <span class="kw">public</span> <span class="tp">OrderStatus</span> <span class="prp">Status</span> { <span class="kw">get</span>; <span class="kw">private set</span>; } = <span class="tp">OrderStatus</span>.Pending;
+
+    <span class="kw">public void</span> <span class="mth">Pay</span>()
+    {
+        <span class="kw">switch</span> (<span class="prp">Status</span>)
+        {
+            <span class="kw">case</span> <span class="tp">OrderStatus</span>.Pending:    <span class="prp">Status</span> = <span class="tp">OrderStatus</span>.Confirmed; <span class="kw">break</span>;
+            <span class="kw">case</span> <span class="tp">OrderStatus</span>.Cancelled:  <span class="kw">throw new</span> <span class="tp">InvalidOperationException</span>(<span class="str">"Anulată"</span>);
+            <span class="kw">default</span>: <span class="kw">throw new</span> <span class="tp">InvalidOperationException</span>(<span class="str">$"Nu pot plăti în starea {Status}"</span>);
+        }
+    }
+
+    <span class="kw">public void</span> <span class="mth">Ship</span>()
+    {
+        <span class="kw">switch</span> (<span class="prp">Status</span>) { <span class="cmt">/* alt switch identic ca structură */</span> }
+    }
+
+    <span class="kw">public void</span> <span class="mth">Cancel</span>()
+    {
+        <span class="kw">switch</span> (<span class="prp">Status</span>) { <span class="cmt">/* iar un switch — replicarea cunoașterii despre stări */</span> }
+    }
+
+    <span class="cmt">// Problemă: o stare nouă (ex. Returning) cere modificarea fiecărui switch.
+    // Tranzițiile valide sunt împrăștiate în întreaga clasă.
+    // Adăugarea unei metode noi multiplică switch-urile.</span>
+}</pre>
+        </div>
+
+        <p>Trei probleme clare apar din această abordare: cunoașterea despre tranziții este <em>împrăștiată</em>, fiecare schimbare cere modificări în multiple locuri (OCP violat), iar testarea cere acoperirea tuturor combinațiilor stare × metodă.</p>
+
+        <h3 class="sub"><span class="dot"></span>Structura generică (GoF)</h3>
+
+        <div class="uml-wrap">
+          <div class="uml-container">
+            <div class="uml-title">Diagramă de clase</div>
+            <div class="mermaid uml-mermaid">
+classDiagram
+    class Context {
+        -state State
+        +request1()
+        +request2()
+        +setState(State)
+    }
+    class State {
+        &lt;&lt;interface&gt;&gt;
+        +handle1(Context)
+        +handle2(Context)
+    }
+    class StateA {
+        +handle1(Context)
+        +handle2(Context)
+    }
+    class StateB {
+        +handle1(Context)
+        +handle2(Context)
+    }
+    Context o--> State
+    State <|.. StateA
+    State <|.. StateB
+            </div>
+          </div>
+          <div class="uml-container">
+            <div class="uml-title">Diagramă de secvență — tranziție</div>
+            <div class="mermaid uml-mermaid">
+sequenceDiagram
+    participant C as Client
+    participant Ctx as Context
+    participant A as StateA
+    participant B as StateB
+    C->>Ctx: request1()
+    Ctx->>A: handle1(this)
+    Note over A: starea A decide tranzitia
+    A->>Ctx: setState(StateB)
+    A-->>Ctx: ok
+    Ctx-->>C: ok
+    C->>Ctx: request2()
+    Ctx->>B: handle2(this)
+    B-->>Ctx: ok
+            </div>
+          </div>
+        </div>
+
+        <!-- EXAMPLE: ORDER STATE MACHINE -->
+        <div class="example-box">
+          <div class="example-header">
+            <span class="example-num">Exemplul 1</span>
+            <span class="example-title">Order state machine — refactorizare completă</span>
+          </div>
+          <div class="example-body">
+            <p>Trecem aceeași comandă printr-un model bazat pe State. Fiecare stare concretă știe exact ce tranziții permite și pe care le respinge — cunoașterea e <em>localizată</em>.</p>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-fname">OrderState.cs</span>
+                <span class="code-lang-tag">C#</span>
+              </div>
+              <pre><span class="cmt">// Interfața — toate tranzițiile permise în domeniu</span>
+<span class="kw">public interface</span> <span class="ifc">IOrderState</span>
+{
+    <span class="tp">string</span> <span class="prp">Name</span> { <span class="kw">get</span>; }
+    <span class="kw">void</span> <span class="mth">Pay</span>(<span class="tp">Order</span> order);
+    <span class="kw">void</span> <span class="mth">Process</span>(<span class="tp">Order</span> order);
+    <span class="kw">void</span> <span class="mth">Ship</span>(<span class="tp">Order</span> order);
+    <span class="kw">void</span> <span class="mth">Deliver</span>(<span class="tp">Order</span> order);
+    <span class="kw">void</span> <span class="mth">Cancel</span>(<span class="tp">Order</span> order);
+}
+
+<span class="cmt">// Excepție pentru tranziții invalide — clară, expresivă</span>
+<span class="kw">public class</span> <span class="tp">InvalidOrderTransitionException</span> : <span class="tp">InvalidOperationException</span>
+{
+    <span class="kw">public</span> <span class="mth">InvalidOrderTransitionException</span>(<span class="tp">string</span> from, <span class="tp">string</span> action)
+        : <span class="kw">base</span>(<span class="str">$"Nu pot executa '{action}' în starea '{from}'"</span>) { }
+}
+
+<span class="cmt">// Context — Order deleghează la starea curentă</span>
+<span class="kw">public class</span> <span class="tp">Order</span>
+{
+    <span class="kw">internal</span> <span class="ifc">IOrderState</span> <span class="prp">CurrentState</span> { <span class="kw">get</span>; <span class="kw">set</span>; } = <span class="kw">new</span> <span class="tp">PendingState</span>();
+    <span class="kw">public</span> <span class="tp">string</span> <span class="prp">Status</span> => <span class="prp">CurrentState</span>.<span class="prp">Name</span>;
+
+    <span class="kw">public void</span> <span class="mth">Pay</span>()     => <span class="prp">CurrentState</span>.<span class="mth">Pay</span>(<span class="kw">this</span>);
+    <span class="kw">public void</span> <span class="mth">Process</span>() => <span class="prp">CurrentState</span>.<span class="mth">Process</span>(<span class="kw">this</span>);
+    <span class="kw">public void</span> <span class="mth">Ship</span>()    => <span class="prp">CurrentState</span>.<span class="mth">Ship</span>(<span class="kw">this</span>);
+    <span class="kw">public void</span> <span class="mth">Deliver</span>() => <span class="prp">CurrentState</span>.<span class="mth">Deliver</span>(<span class="kw">this</span>);
+    <span class="kw">public void</span> <span class="mth">Cancel</span>()  => <span class="prp">CurrentState</span>.<span class="mth">Cancel</span>(<span class="kw">this</span>);
+}
+
+<span class="cmt">// Starea Pending — comandă creată, neplătită</span>
+<span class="kw">public class</span> <span class="tp">PendingState</span> : <span class="ifc">IOrderState</span>
+{
+    <span class="kw">public</span> <span class="tp">string</span> <span class="prp">Name</span> => <span class="str">"Pending"</span>;
+    <span class="kw">public void</span> <span class="mth">Pay</span>(<span class="tp">Order</span> o)     =&gt; o.<span class="prp">CurrentState</span> = <span class="kw">new</span> <span class="tp">ConfirmedState</span>();
+    <span class="kw">public void</span> <span class="mth">Cancel</span>(<span class="tp">Order</span> o)  =&gt; o.<span class="prp">CurrentState</span> = <span class="kw">new</span> <span class="tp">CancelledState</span>();
+    <span class="kw">public void</span> <span class="mth">Process</span>(<span class="tp">Order</span> o) =&gt; <span class="kw">throw new</span> <span class="tp">InvalidOrderTransitionException</span>(<span class="prp">Name</span>, <span class="str">"Process"</span>);
+    <span class="kw">public void</span> <span class="mth">Ship</span>(<span class="tp">Order</span> o)    =&gt; <span class="kw">throw new</span> <span class="tp">InvalidOrderTransitionException</span>(<span class="prp">Name</span>, <span class="str">"Ship"</span>);
+    <span class="kw">public void</span> <span class="mth">Deliver</span>(<span class="tp">Order</span> o) =&gt; <span class="kw">throw new</span> <span class="tp">InvalidOrderTransitionException</span>(<span class="prp">Name</span>, <span class="str">"Deliver"</span>);
+}
+
+<span class="kw">public class</span> <span class="tp">ConfirmedState</span> : <span class="ifc">IOrderState</span>
+{
+    <span class="kw">public</span> <span class="tp">string</span> <span class="prp">Name</span> => <span class="str">"Confirmed"</span>;
+    <span class="kw">public void</span> <span class="mth">Process</span>(<span class="tp">Order</span> o) =&gt; o.<span class="prp">CurrentState</span> = <span class="kw">new</span> <span class="tp">ProcessingState</span>();
+    <span class="kw">public void</span> <span class="mth">Cancel</span>(<span class="tp">Order</span> o)  =&gt; o.<span class="prp">CurrentState</span> = <span class="kw">new</span> <span class="tp">CancelledState</span>();
+    <span class="kw">public void</span> <span class="mth">Pay</span>(<span class="tp">Order</span> o)     =&gt; <span class="kw">throw new</span> <span class="tp">InvalidOrderTransitionException</span>(<span class="prp">Name</span>, <span class="str">"Pay"</span>);
+    <span class="kw">public void</span> <span class="mth">Ship</span>(<span class="tp">Order</span> o)    =&gt; <span class="kw">throw new</span> <span class="tp">InvalidOrderTransitionException</span>(<span class="prp">Name</span>, <span class="str">"Ship"</span>);
+    <span class="kw">public void</span> <span class="mth">Deliver</span>(<span class="tp">Order</span> o) =&gt; <span class="kw">throw new</span> <span class="tp">InvalidOrderTransitionException</span>(<span class="prp">Name</span>, <span class="str">"Deliver"</span>);
+}
+
+<span class="kw">public class</span> <span class="tp">ShippedState</span> : <span class="ifc">IOrderState</span>
+{
+    <span class="kw">public</span> <span class="tp">string</span> <span class="prp">Name</span> => <span class="str">"Shipped"</span>;
+    <span class="kw">public void</span> <span class="mth">Deliver</span>(<span class="tp">Order</span> o) =&gt; o.<span class="prp">CurrentState</span> = <span class="kw">new</span> <span class="tp">DeliveredState</span>();
+    <span class="cmt">// Atenție: Shipped NU mai poate fi anulat — Cancel aruncă excepție</span>
+    <span class="kw">public void</span> <span class="mth">Cancel</span>(<span class="tp">Order</span> o)  =&gt; <span class="kw">throw new</span> <span class="tp">InvalidOrderTransitionException</span>(<span class="prp">Name</span>, <span class="str">"Cancel"</span>);
+    <span class="kw">public void</span> <span class="mth">Pay</span>(<span class="tp">Order</span> o)     =&gt; <span class="kw">throw new</span> <span class="tp">InvalidOrderTransitionException</span>(<span class="prp">Name</span>, <span class="str">"Pay"</span>);
+    <span class="kw">public void</span> <span class="mth">Process</span>(<span class="tp">Order</span> o) =&gt; <span class="kw">throw new</span> <span class="tp">InvalidOrderTransitionException</span>(<span class="prp">Name</span>, <span class="str">"Process"</span>);
+    <span class="kw">public void</span> <span class="mth">Ship</span>(<span class="tp">Order</span> o)    =&gt; <span class="kw">throw new</span> <span class="tp">InvalidOrderTransitionException</span>(<span class="prp">Name</span>, <span class="str">"Ship"</span>);
+}
+
+<span class="cmt">// Stările terminale — nicio tranziție</span>
+<span class="kw">public class</span> <span class="tp">DeliveredState</span> : <span class="ifc">IOrderState</span> { <span class="cmt">/* toate metodele aruncă */</span> }
+<span class="kw">public class</span> <span class="tp">CancelledState</span> : <span class="ifc">IOrderState</span> { <span class="cmt">/* toate metodele aruncă */</span> }
+
+<span class="kw">var</span> order = <span class="kw">new</span> <span class="tp">Order</span>();
+<span class="tp">Console</span>.<span class="mth">WriteLine</span>(order.<span class="prp">Status</span>); <span class="cmt">// Pending</span>
+order.<span class="mth">Pay</span>();                       <span class="cmt">// → Confirmed</span>
+order.<span class="mth">Process</span>();                   <span class="cmt">// → Processing</span>
+order.<span class="mth">Ship</span>();                      <span class="cmt">// → Shipped</span>
+order.<span class="mth">Cancel</span>();                    <span class="cmt">// 💥 InvalidOrderTransitionException</span></pre>
+            </div>
+            <div class="callout ok">
+              <span class="callout-icon">✓</span>
+              <div class="callout-body">
+                <div class="callout-title">Câștigul concret</div>
+                <p>O stare nouă (ex. <code>Returning</code>) = o singură clasă nouă. Cunoașterea despre <em>ce e permis</em> trăiește într-un singur loc per stare. Testele unitare devin granulare: testezi <code>PendingState.Pay()</code> izolat, nu un switch de 100 de linii cu zeci de combinații.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Diagrama de stări — vizualizare obligatorie</h3>
+
+        <p>Înainte de a scrie cod cu State Pattern, desenează diagrama de stări. Te forțează să identifici stările terminale, să răspunzi explicit ce se întâmplă pentru fiecare combinație stare × acțiune și să descoperi tranziții lipsă.</p>
+
+        <div class="uml-wrap single">
+          <div class="uml-container">
+            <div class="uml-title">Diagramă de stări — Order</div>
+            <div class="mermaid uml-mermaid">
+stateDiagram-v2
+    [*] --> Pending
+    Pending --> Confirmed: Pay()
+    Pending --> Cancelled: Cancel()
+    Confirmed --> Processing: Process()
+    Confirmed --> Cancelled: Cancel()
+    Processing --> Shipped: Ship()
+    Processing --> Cancelled: Cancel()
+    Shipped --> Delivered: Deliver()
+    Delivered --> [*]
+    Cancelled --> [*]
+            </div>
+          </div>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Cine decide tranzițiile?</h3>
+
+        <p>Există două abordări de a încredința tranzițiile:</p>
+
+        <ul style="list-style:none;padding:0;margin:.5rem 0 1.25rem;display:flex;flex-direction:column;gap:.65rem;">
+          <li style="display:flex;gap:.75rem;font-size:13.5px;color:var(--text2);"><span style="color:var(--green);font-weight:700;font-family:'JetBrains Mono',monospace;min-width:108px;">decentralizat</span><span><strong>Starea concretă decide</strong> tranziția — <code>PendingState.Pay()</code> setează singură <code>CurrentState = new ConfirmedState()</code>. Avantaj: cunoașterea e localizată. Dezavantaj: stările trebuie să cunoască celelalte stări (cuplare slabă, dar prezentă).</span></li>
+          <li style="display:flex;gap:.75rem;font-size:13.5px;color:var(--text2);"><span style="color:var(--orange);font-weight:700;font-family:'JetBrains Mono',monospace;min-width:108px;">centralizat</span><span><strong>Context-ul decide</strong> tranziția pe baza unui dicționar sau a unei state-table. Stările conțin doar comportament; tabela definește grafu de tranziții. Avantaj: graful e vizibil într-un singur loc. Dezavantaj: mai puțin „OO", mai mult „data-driven".</span></li>
+        </ul>
+
+        <p>Pentru un număr mic de stări (5-10) și tranziții relativ simple, varianta descentralizată este mai naturală în C# și ușor de citit. Pentru sisteme cu zeci de stări sau workflow-uri configurabile, considerați biblioteca <strong>Stateless</strong> — o bibliotecă .NET dedicată state machines.</p>
+
+        <h3 class="sub"><span class="dot"></span>State vs. Strategy</h3>
+
+        <p>Ambele pattern-uri folosesc compoziție pentru a delega comportament unui obiect intercambiabil. Diferența nu este structurală, ci <em>semantică</em>:</p>
+
+        <table class="patterns-overview">
+          <thead>
+            <tr><th>Aspect</th><th><span class="pat-name">Strategy</span></th><th><span class="pat-name">State</span></th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Cine alege obiectul?</td><td>Clientul, în mod explicit</td><td>Obiectul însuși, prin tranziții</td></tr>
+            <tr><td>Cunoaște alte instanțe similare?</td><td>Nu — strategiile sunt independente</td><td>Da — stările trec una în alta</td></tr>
+            <tr><td>Există ordine între ele?</td><td>Nu — pot fi alese în orice secvență</td><td>Da — graf de tranziții</td></tr>
+            <tr><td>Schimbare la runtime?</td><td>La cererea clientului</td><td>Ca efect al unei acțiuni interne</td></tr>
+            <tr><td>Exemplu tipic</td><td>Algoritm de sortare, calcul preț, format export</td><td>Workflow, life cycle, protocol</td></tr>
+          </tbody>
+        </table>
+
+        <div class="when-grid">
+          <div class="when-card use">
+            <div class="when-card-title">✓ Când se potrivește</div>
+            Obiectul are un ciclu de viață cu reguli clare despre ce e permis în fiecare stare. Soluția actuală e plină de switch-uri pe enum status. Tranzițiile invalide trebuie semnalate explicit, nu ignorate tăcut. Workflow-uri, protocoale, automate finite.
+          </div>
+          <div class="when-card avoid">
+            <div class="when-card-title">✗ Când nu se potrivește</div>
+            Există doar 2 stări binare și o singură tranziție (on/off). Diferențele între stări sunt doar de date, nu de comportament — un câmp simplu e suficient. Tranzițiile sunt arbitrare și foarte numeroase — o bibliotecă specializată (Stateless) e mai potrivită.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 5: MEDIATOR ── -->
+  <section class="section" id="mediator">
+    <h2 class="stitle"><span class="num">05</span>Mediator</h2>
+
+    <div class="pattern-card">
+      <div class="pattern-header">
+        <span class="pattern-icon">🎭</span>
+        <div>
+          <div class="pattern-name">Mediator</div>
+          <div class="pattern-intent">Definește un obiect care încapsulează modul în care un set de obiecte interacționează. Promovează cuplarea slabă prin împiedicarea obiectelor să se refere explicit unele la altele, dându-le posibilitatea să-și varieze interacțiunile independent.</div>
+          <div class="pattern-meta">
+            <span class="pattern-tag behavioral">Comportamental</span>
+            <span class="pattern-tag gof">GoF</span>
+            <span class="pattern-tag conceptual">Conceptual</span>
+          </div>
+        </div>
+      </div>
+      <div class="pattern-body">
+
+        <p>Problema rezolvată de Mediator: într-un sistem cu N componente care comunică direct între ele, numărul de legături potențiale este N×(N-1)/2 — graf complet, dezastruos pentru întreținere. Mediator înlocuiește acest <strong>graf N×N</strong> cu o <strong>stea N×1</strong> — toate componentele vorbesc doar cu mediatorul, iar mediatorul coordonează cine vorbește cu cine.</p>
+
+        <h3 class="sub"><span class="dot"></span>Structura</h3>
+
+        <div class="uml-wrap single">
+          <div class="uml-container">
+            <div class="uml-title">Diagramă de clase</div>
+            <div class="mermaid uml-mermaid">
+classDiagram
+    class Mediator {
+        &lt;&lt;interface&gt;&gt;
+        +notify(sender, event)
+    }
+    class ConcreteMediator {
+        -componentA
+        -componentB
+        +notify(sender, event)
+    }
+    class Component {
+        -mediator Mediator
+    }
+    class ComponentA
+    class ComponentB
+    Mediator <|.. ConcreteMediator
+    Component <|-- ComponentA
+    Component <|-- ComponentB
+    ConcreteMediator o--> ComponentA
+    ConcreteMediator o--> ComponentB
+    Component --> Mediator
+            </div>
+          </div>
+        </div>
+
+        <!-- EXAMPLE: FORM MEDIATOR -->
+        <div class="example-box">
+          <div class="example-header">
+            <span class="example-num">Exemplul 1</span>
+            <span class="example-title">Formular cu controale interdependente</span>
+          </div>
+          <div class="example-body">
+            <p>Un formular de înregistrare are: un dropdown <code>Country</code>, un text-box <code>City</code> și un checkbox <code>SubscribeNewsletter</code>. Reguli: schimbarea țării resetează orașul; bifarea newsletter cere obligatoriu un email valid. Fără Mediator, fiecare control trebuie să cunoască celelalte. Cu Mediator, controalele anunță doar evenimentul; mediatorul aplică regulile.</p>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-fname">RegistrationFormMediator.cs</span>
+                <span class="code-lang-tag">C#</span>
+              </div>
+              <pre><span class="kw">public interface</span> <span class="ifc">IFormMediator</span>
+{
+    <span class="kw">void</span> <span class="mth">Notify</span>(<span class="tp">object</span> sender, <span class="tp">string</span> @event);
+}
+
+<span class="kw">public class</span> <span class="tp">RegistrationFormMediator</span> : <span class="ifc">IFormMediator</span>
+{
+    <span class="kw">public</span> <span class="tp">CountryDropdown</span>   Country  { <span class="kw">get</span>; <span class="kw">set</span>; } = <span class="kw">null</span>!;
+    <span class="kw">public</span> <span class="tp">CityTextBox</span>       City     { <span class="kw">get</span>; <span class="kw">set</span>; } = <span class="kw">null</span>!;
+    <span class="kw">public</span> <span class="tp">NewsletterCheckbox</span> News    { <span class="kw">get</span>; <span class="kw">set</span>; } = <span class="kw">null</span>!;
+    <span class="kw">public</span> <span class="tp">EmailTextBox</span>      Email    { <span class="kw">get</span>; <span class="kw">set</span>; } = <span class="kw">null</span>!;
+
+    <span class="kw">public void</span> <span class="mth">Notify</span>(<span class="tp">object</span> sender, <span class="tp">string</span> @event)
+    {
+        <span class="kw">switch</span> ((sender, @event))
+        {
+            <span class="kw">case</span> (<span class="tp">CountryDropdown</span>, <span class="str">"changed"</span>):
+                City.<span class="mth">Clear</span>();
+                City.<span class="mth">LoadCitiesFor</span>(Country.Value);
+                <span class="kw">break</span>;
+
+            <span class="kw">case</span> (<span class="tp">NewsletterCheckbox</span>, <span class="str">"checked"</span>):
+                Email.IsRequired = <span class="kw">true</span>;
+                Email.<span class="mth">Focus</span>();
+                <span class="kw">break</span>;
+
+            <span class="kw">case</span> (<span class="tp">NewsletterCheckbox</span>, <span class="str">"unchecked"</span>):
+                Email.IsRequired = <span class="kw">false</span>;
+                <span class="kw">break</span>;
+        }
+    }
+}
+
+<span class="cmt">// Componentele NU se cunosc între ele — știu doar de mediator</span>
+<span class="kw">public abstract class</span> <span class="tp">FormControl</span>
+{
+    <span class="kw">protected readonly</span> <span class="ifc">IFormMediator</span> _mediator;
+    <span class="kw">protected</span> <span class="mth">FormControl</span>(<span class="ifc">IFormMediator</span> m) => _mediator = m;
+}
+
+<span class="kw">public class</span> <span class="tp">CountryDropdown</span> : <span class="tp">FormControl</span>
+{
+    <span class="kw">private</span> <span class="tp">string</span> _value = <span class="str">""</span>;
+    <span class="kw">public</span> <span class="tp">string</span> Value
+    {
+        <span class="kw">get</span> => _value;
+        <span class="kw">set</span> { _value = value; _mediator.<span class="mth">Notify</span>(<span class="kw">this</span>, <span class="str">"changed"</span>); }
+    }
+    <span class="kw">public</span> <span class="mth">CountryDropdown</span>(<span class="ifc">IFormMediator</span> m) : <span class="kw">base</span>(m) { }
+}</pre>
+            </div>
+            <p>Componentele <code>CountryDropdown</code> și <code>CityTextBox</code> nu au nicio referință una la alta. Toată logica de coordonare e în mediator — adăugarea unei reguli noi (ex. „dacă newsletter e bifat, ascunde câmpul de telefon") schimbă doar mediatorul.</p>
+          </div>
+        </div>
+
+        <h3 class="sub"><span class="dot"></span>Mediator în .NET — MediatR și CQRS</h3>
+
+        <p>În ecosistemul .NET, biblioteca <strong>MediatR</strong> este implementarea cea mai populară a Mediator, la nivel de aplicație. Acolo unde Mediator clasic conectează controale UI, MediatR conectează <em>cereri</em> (Commands și Queries) cu <em>handler-e</em>:</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-fname">MediatR — Command + Handler</span>
+            <span class="code-lang-tag">C#</span>
+          </div>
+          <pre><span class="cmt">// Request — comandă (cerere de scriere)</span>
+<span class="kw">public record</span> <span class="tp">CreateOrderCommand</span>(<span class="tp">Guid</span> CustomerId, <span class="tp">List</span>&lt;<span class="tp">OrderItem</span>&gt; Items) : <span class="ifc">IRequest</span>&lt;<span class="tp">Guid</span>&gt;;
+
+<span class="cmt">// Handler — răspunde la cererea de tip specific</span>
+<span class="kw">public class</span> <span class="tp">CreateOrderHandler</span> : <span class="ifc">IRequestHandler</span>&lt;<span class="tp">CreateOrderCommand</span>, <span class="tp">Guid</span>&gt;
+{
+    <span class="kw">private readonly</span> <span class="ifc">IOrderRepository</span> _repo;
+    <span class="kw">public</span> <span class="mth">CreateOrderHandler</span>(<span class="ifc">IOrderRepository</span> repo) => _repo = repo;
+
+    <span class="kw">public async</span> <span class="tp">Task</span>&lt;<span class="tp">Guid</span>&gt; <span class="mth">Handle</span>(<span class="tp">CreateOrderCommand</span> cmd, <span class="tp">CancellationToken</span> ct)
+    {
+        <span class="kw">var</span> order = <span class="tp">Order</span>.<span class="mth">Create</span>(cmd.CustomerId, cmd.Items);
+        <span class="kw">await</span> _repo.<span class="mth">SaveAsync</span>(order, ct);
+        <span class="kw">return</span> order.Id;
+    }
+}
+
+<span class="cmt">// Controller-ul nu cunoaște handler-ul — doar mediatorul</span>
+<span class="kw">public class</span> <span class="tp">OrdersController</span> : <span class="tp">ControllerBase</span>
+{
+    <span class="kw">private readonly</span> <span class="ifc">IMediator</span> _mediator;
+    <span class="kw">public</span> <span class="mth">OrdersController</span>(<span class="ifc">IMediator</span> m) => _mediator = m;
+
+    [<span class="ann">HttpPost</span>]
+    <span class="kw">public async</span> <span class="tp">Task</span>&lt;<span class="tp">IActionResult</span>&gt; <span class="mth">Create</span>([<span class="ann">FromBody</span>] <span class="tp">CreateOrderCommand</span> cmd)
+    {
+        <span class="kw">var</span> id = <span class="kw">await</span> _mediator.<span class="mth">Send</span>(cmd); <span class="cmt">// mediatorul rutează la handler</span>
+        <span class="kw">return</span> <span class="mth">CreatedAtAction</span>(<span class="kw">nameof</span>(<span class="mth">Get</span>), <span class="kw">new</span> { id }, id);
+    }
+}</pre>
+        </div>
+
+        <div class="callout note">
+          <span class="callout-icon">🧭</span>
+          <div class="callout-body">
+            <div class="callout-title">Pregătire pentru cursul 12</div>
+            <p>MediatR este coloana vertebrală a multor implementări de <strong>CQRS</strong> (Command Query Responsibility Segregation) în .NET — pattern arhitectural pe care îl vom studia în cursul 12. Atunci veți vedea cum aceeași idee de mediator se extinde la separarea operațiilor de scriere (Commands) de cele de citire (Queries) și la integrarea cu evenimente de domeniu.</p>
+          </div>
+        </div>
+
+        <div class="when-grid">
+          <div class="when-card use">
+            <div class="when-card-title">✓ Când se potrivește</div>
+            Rețea de obiecte care interacționează în multiple moduri (UI controls, microservicii intra-process). Logica de coordonare merită propriul obiect, separat de componente. Vrei să adaugi/elimini participanți fără a modifica ceilalți. Integrare cu CQRS / Clean Architecture (handler-e per request).
+          </div>
+          <div class="when-card avoid">
+            <div class="when-card-title">✗ Când nu se potrivește</div>
+            Doar 2-3 obiecte care interacționează — un apel direct e mai clar. Mediatorul ar deveni un God Object cu logica coordonării prea complexă. Componentele oricum trebuie să cunoască multă structură comună — Mediator nu mai aduce decuplare.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 6: COMPARATIE ── -->
+  <section class="section" id="comparatie">
+    <h2 class="stitle"><span class="num">06</span>Comparație — cele 4 pattern-uri de astăzi</h2>
+
+    <table class="patterns-overview">
+      <thead>
+        <tr><th>Pattern</th><th>Problema rezolvată</th><th>Mecanism principal</th><th>Alternativă modernă</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="pat-name">Template Method</span></td>
+          <td>Algoritm cu structură fixă, pași variabili</td>
+          <td>moștenire + metode abstracte</td>
+          <td>Strategy + compoziție</td>
+        </tr>
+        <tr>
+          <td><span class="pat-name">Chain of Resp.</span></td>
+          <td>Lanț de pași de procesare</td>
+          <td>linked list de handler-i</td>
+          <td>ASP.NET Core Middleware</td>
+        </tr>
+        <tr>
+          <td><span class="pat-name">State</span></td>
+          <td>Obiect cu comportament dependent de stare</td>
+          <td>delegare la state object</td>
+          <td>biblioteca Stateless</td>
+        </tr>
+        <tr>
+          <td><span class="pat-name">Mediator</span></td>
+          <td>Coordonare între obiecte interconectate</td>
+          <td>obiect central de mesaje</td>
+          <td>MediatR (CQRS)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="cquote">
+      Dacă pattern-urile din Partea I (Observer/Strategy/Command/Iterator) au decuplat <em>cine vorbește cu cine</em>, cele din Partea II decuplează <em>cum se desfășoară procesul</em>: Template Method protejează scheletul unui algoritm; Chain of Responsibility transformă un lanț de if-uri într-o conductă extensibilă; State elimină switch-urile pe enum; Mediator înlocuiește graful N×N cu o stea.
+    </div>
+
+    <h3 class="sub"><span class="dot"></span>Decision tree — ce pattern aleg?</h3>
+
+    <ul style="list-style:none;padding:0;margin:1rem 0;display:flex;flex-direction:column;gap:.65rem;">
+      <li style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;font-size:13.5px;color:var(--text2);"><strong style="color:var(--orange);">Ai un switch / if-else lanț pe un enum status?</strong> → State Pattern</li>
+      <li style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;font-size:13.5px;color:var(--text2);"><strong style="color:var(--orange);">Ai un lanț de verificări / validări / transformări?</strong> → Chain of Responsibility</li>
+      <li style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;font-size:13.5px;color:var(--text2);"><strong style="color:var(--orange);">Ai mai multe clase cu același flux dar pași diferiți?</strong> → Template Method (sau Strategy)</li>
+      <li style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;font-size:13.5px;color:var(--text2);"><strong style="color:var(--orange);">Ai o rețea de obiecte care comunică direct între ele?</strong> → Mediator</li>
+    </ul>
+  </section>
+
+  <!-- ── SECTION 7: LAB ── -->
+  <section class="section" id="lab">
+    <h2 class="stitle"><span class="num">07</span>Laborator 4</h2>
+
+    <p>Un sistem de procesare comenzi complet — <strong>OrderProcessing</strong> — cu backend ASP.NET Core Web API și front-end SPA vanilla JavaScript. Integrează cele două pattern-uri studiate astăzi în rolurile lor naturale: <em>Chain of Responsibility</em> pentru validarea cererilor de creare comandă și <em>State</em> pentru gestionarea ciclului de viață. Studentul construiește un sistem end-to-end: utilizatorul creează comenzi din UI, vede tranzițiile permise vizual (butoanele de acțiune se activează/dezactivează în funcție de starea curentă), iar tranzițiile invalide produc toast-uri de eroare cu mesajele venite de la <code>InvalidOrderTransitionException</code>.</p>
+
+    <div class="lab-box">
+      <div class="lab-header">
+        <span class="lab-header-icon">🔬</span>
+        <div class="lab-header-text">
+          <h4>OrderProcessing — Web API cu workflow complet</h4>
+          <p>Laborator 4 — Chain of Responsibility + State pe o aplicație .NET 8 Minimal API</p>
+        </div>
+      </div>
+      <div class="lab-body">
+
+        <p>Stack tehnologic: <code>C# 12 / .NET 8</code> și <code>ASP.NET Core Minimal API</code> pentru backend; <code>HTML + CSS + JavaScript pur</code> pentru SPA (fără React/Vue/framework — totul cu <code>fetch</code>, <code>async/await</code> și manipulare DOM directă). Persistență in-memory pentru simplitate. Studentul construiește backend-ul complet (domain, chain, state machine, endpoint-uri REST) și SPA-ul care îl consumă — aproximativ 200-250 linii de JavaScript pentru întreaga interfață.</p>
+
+        <h3 class="sub"><span class="dot"></span>Mapping pattern → rol în aplicație</h3>
+
+        <table class="patterns-overview">
+          <thead>
+            <tr><th>Pattern</th><th>Rol concret</th><th>Realizare practică</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="pat-name">Chain of Resp.</span></td>
+              <td>Validează cererea de creare comandă; primul handler care detectează problemă oprește chain-ul</td>
+              <td><code>IOrderValidationHandler</code> + 4 handler-i concreți, short-circuit la primul eșec</td>
+            </tr>
+            <tr>
+              <td><span class="pat-name">State</span></td>
+              <td>Gestionează ciclul de viață al comenzii cu tranziții explicite și excepții pentru tranziții invalide</td>
+              <td><code>IOrderState</code> + 6 stări concrete, tranziții decentralizate (starea decide)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="lab-section">
+          <div class="lab-section-title">Cerințe</div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge" style="background:rgba(255,166,87,.12);color:var(--orange);">DOMAIN</span>
+              <span class="lab-req-title">Cerința 1 — Modelul de domeniu</span>
+            </div>
+            <div class="lab-req-body">
+              <ul>
+                <li><code>Order</code> — Aggregate Root, conține lista de items, customer, adresa de livrare, total calculat, starea curentă</li>
+                <li><code>OrderItem</code> — record cu <code>ProductId</code>, <code>ProductName</code>, <code>Quantity</code>, <code>UnitPrice</code>, <code>HasAgeRestriction</code></li>
+                <li><code>Customer</code> — record cu <code>Id</code>, <code>Name</code>, <code>Email</code>, <code>Age</code>, <code>IsTrusted</code></li>
+                <li>Value Objects: <code>Money</code> (sumă + valută), <code>Address</code> (stradă, oraș, codPoștal, țară), <code>OrderId</code> (wrap peste Guid)</li>
+                <li><code>Order.CurrentState</code> este expus prin proprietate read-only spre exterior; doar metodele de tranziție (<code>Pay</code>, <code>Process</code>, <code>Ship</code>, <code>Deliver</code>, <code>Cancel</code>) îl pot schimba</li>
+                <li><code>Order.History</code> — listă de tranziții <code>(string FromState, string ToState, DateTime At)</code> populată automat la fiecare schimbare</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge" style="background:rgba(63,185,80,.12);color:var(--green);">CHAIN</span>
+              <span class="lab-req-title">Cerința 2 — Chain of Responsibility: pipeline de validare</span>
+            </div>
+            <div class="lab-req-body">
+              <ul>
+                <li>Interfața <code>IOrderValidationHandler</code> cu <code>SetNext(handler)</code> și <code>Handle(ValidationContext)</code>; returnează <code>ValidationResult</code></li>
+                <li><code>BaseValidationHandler</code> — clasă abstractă cu metoda <code>Handle</code> implementată conform variantei <strong>short-circuit</strong> (oprește la primul eșec) și metoda abstractă <code>Validate(context)</code> pe care subclasele o implementează</li>
+                <li><strong>StockValidationHandler</strong> — verifică că toate produsele din comandă sunt în stoc; folosește un repository in-memory de produse (suficient un <code>Dictionary&lt;Guid, int&gt;</code> hardcodat)</li>
+                <li><strong>PriceValidationHandler</strong> — verifică că prețurile sunt pozitive și că totalul calculat coincide cu suma <code>Quantity × UnitPrice</code> pentru fiecare item</li>
+                <li><strong>FraudDetectionHandler</strong> — refuză comenzile peste 10.000 RON dacă <code>Customer.IsTrusted == false</code>; refuză și mai mult de 50 de items distincte într-o singură comandă</li>
+                <li><strong>AgeVerificationHandler</strong> — dacă vreun <code>OrderItem.HasAgeRestriction == true</code>, customer-ul trebuie să aibă <code>Age &gt;= 18</code></li>
+                <li>Chain-ul se construiește prin <code>SetNext()</code> fluent (vezi exemplul din curs); ordinea: Stock → Price → Fraud → Age</li>
+                <li><code>ValidationResult</code> este un record cu <code>IsValid</code> (bool) și <code>Errors</code> (listă) — pe short-circuit returnează un singur error, restul handler-ilor nu rulează</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge" style="background:rgba(188,140,255,.12);color:var(--purple);">STATE</span>
+              <span class="lab-req-title">Cerința 3 — State: ciclul de viață al comenzii</span>
+            </div>
+            <div class="lab-req-body">
+              <ul>
+                <li>Interfața <code>IOrderState</code> cu metodele: <code>Pay(order)</code>, <code>Process(order)</code>, <code>Ship(order)</code>, <code>Deliver(order)</code>, <code>Cancel(order)</code> + proprietate <code>Name</code></li>
+                <li>6 stări concrete: <code>PendingState</code> (initial), <code>ConfirmedState</code>, <code>ProcessingState</code>, <code>ShippedState</code>, <code>DeliveredState</code> (terminal), <code>CancelledState</code> (terminal alternativ)</li>
+                <li>Tranziții permise (decentralizate — fiecare stare decide):
+                  <ul style="margin-top:.3rem;">
+                    <li><code>Pending</code> → <code>Confirmed</code> prin <code>Pay()</code>; → <code>Cancelled</code> prin <code>Cancel()</code></li>
+                    <li><code>Confirmed</code> → <code>Processing</code> prin <code>Process()</code>; → <code>Cancelled</code> prin <code>Cancel()</code></li>
+                    <li><code>Processing</code> → <code>Shipped</code> prin <code>Ship()</code>; → <code>Cancelled</code> prin <code>Cancel()</code></li>
+                    <li><code>Shipped</code> → <code>Delivered</code> prin <code>Deliver()</code>; <strong>Cancel() NU este permis după Shipped</strong></li>
+                    <li><code>Delivered</code> și <code>Cancelled</code> — terminale, nicio tranziție nu este permisă</li>
+                  </ul>
+                </li>
+                <li>Tranzițiile invalide aruncă <code>InvalidOrderTransitionException</code> cu mesaj clar despre starea curentă și acțiunea încercată</li>
+                <li><code>Order</code> deleghează toate metodele către <code>CurrentState</code>; NU conține switch pe starea curentă — toată cunoașterea e în stările concrete</li>
+                <li>Fiecare tranziție reușită adaugă o intrare în <code>Order.History</code></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge" style="background:rgba(255,166,87,.12);color:var(--orange);">SERVICE</span>
+              <span class="lab-req-title">Cerința 4 — OrderService: punct de intrare</span>
+            </div>
+            <div class="lab-req-body">
+              <ul>
+                <li><code>OrderService</code> este orchestratorul; primește prin DI: <code>IOrderRepository</code> (in-memory) și chain-ul de validare (construit la pornire)</li>
+                <li>Metodă <code>CreateOrder(CreateOrderRequest)</code>: rulează chain-ul de validare; dacă valid, creează <code>Order</code> și o salvează; returnează <code>Order</code> sau erorile de validare</li>
+                <li>Metode pentru tranziții: <code>PayOrder(id)</code>, <code>ProcessOrder(id)</code>, <code>ShipOrder(id)</code>, <code>DeliverOrder(id)</code>, <code>CancelOrder(id)</code> — fiecare apelează metoda corespunzătoare pe <code>Order</code> și salvează modificarea</li>
+                <li>Metode de query: <code>GetOrder(id)</code> returnează <code>Order</code> sau <code>null</code>; <code>GetAllOrders()</code> returnează lista completă</li>
+                <li>Excepțiile <code>InvalidOrderTransitionException</code> NU sunt prinse aici — trec până la nivel de endpoint, unde se convertesc în răspuns HTTP 409</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge" style="background:rgba(88,166,255,.15);color:var(--accent2);">API</span>
+              <span class="lab-req-title">Cerința 5 — Endpoint-uri Web API minimale</span>
+            </div>
+            <div class="lab-req-body">
+              <p style="margin:0 0 .65rem;">Folosiți <code>WebApplication.Create</code> și mapping direct (Minimal API stil), nu Controllers. Endpoint-uri:</p>
+              <div class="api-panel">
+                <div class="api-row"><span class="api-verb post">POST</span><span class="api-path">/orders</span><span class="api-desc">creează comandă; rulează chain validare</span></div>
+                <div class="api-row"><span class="api-verb post">POST</span><span class="api-path">/orders/<span class="var">{id}</span>/pay</span><span class="api-desc">Pending → Confirmed</span></div>
+                <div class="api-row"><span class="api-verb post">POST</span><span class="api-path">/orders/<span class="var">{id}</span>/process</span><span class="api-desc">Confirmed → Processing</span></div>
+                <div class="api-row"><span class="api-verb post">POST</span><span class="api-path">/orders/<span class="var">{id}</span>/ship</span><span class="api-desc">Processing → Shipped</span></div>
+                <div class="api-row"><span class="api-verb post">POST</span><span class="api-path">/orders/<span class="var">{id}</span>/deliver</span><span class="api-desc">Shipped → Delivered</span></div>
+                <div class="api-row"><span class="api-verb post">POST</span><span class="api-path">/orders/<span class="var">{id}</span>/cancel</span><span class="api-desc">→ Cancelled (dacă starea permite)</span></div>
+                <div class="api-row"><span class="api-verb get">GET</span><span class="api-path">/orders/<span class="var">{id}</span></span><span class="api-desc">detalii comandă + istoricul de stări</span></div>
+                <div class="api-row"><span class="api-verb get">GET</span><span class="api-path">/orders</span><span class="api-desc">listă toate comenzile</span></div>
+              </div>
+              <ul style="margin-top:.5rem;">
+                <li>Coduri HTTP corecte: <code>201 Created</code> la POST /orders cu succes; <code>400 Bad Request</code> la validare eșuată (body conține lista de erori din <code>ValidationResult</code>); <code>409 Conflict</code> la tranziție invalidă de stare (body conține mesajul din <code>InvalidOrderTransitionException</code>); <code>404 Not Found</code> la id inexistent; <code>200 OK</code> la celelalte succesuri</li>
+                <li>Activați Swagger / OpenAPI (built-in în .NET 8 prin <code>app.MapOpenApi()</code> sau Swashbuckle) pentru testare interactivă</li>
+                <li>Toate endpoint-urile de tranziție (Pay/Process/Ship/Deliver/Cancel) returnează în body <strong>obiectul Order complet</strong>, inclusiv noua stare și istoricul actualizat — SPA-ul folosește răspunsul direct fără a face un GET suplimentar</li>
+                <li><code>GET /orders/{id}</code> returnează: <code>id</code>, <code>status</code>, <code>customer</code>, <code>items</code>, <code>address</code>, <code>total</code>, <code>history</code> (array de tranziții cu timestamp)</li>
+                <li>Răspunsurile sunt JSON cu camelCase (implicit în ASP.NET Core); nu este nevoie de CORS dacă SPA-ul e servit de același host prin <code>UseStaticFiles()</code></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge" style="background:rgba(248,81,73,.1);color:var(--red);">UI</span>
+              <span class="lab-req-title">Cerința 6 — SPA funcțional cu apeluri la API</span>
+            </div>
+            <div class="lab-req-body">
+              <p style="margin:0 0 .65rem;">O aplicație single-page completă în <code>wwwroot/</code> (HTML + CSS + JavaScript pur, fără framework, zero dependențe). Pagina servește ca front-end real pentru API — utilizatorul poate crea comenzi, le poate trece prin stări și vede instant efectele pattern-urilor State și Chain of Responsibility. Servită prin <code>app.UseStaticFiles()</code> și <code>app.MapFallbackToFile("index.html")</code>.</p>
+              <ul>
+                <li><strong>Fișiere</strong>: <code>wwwroot/index.html</code> (structura), <code>wwwroot/styles.css</code> (paletă dark, consistentă cu mock-up-ul), <code>wwwroot/app.js</code> (toată logica)</li>
+                <li><strong>Layout în 2 coloane</strong>:
+                  <ul style="margin-top:.3rem;">
+                    <li>Stânga (~33%): listă cu toate comenzile + buton „+ Comandă nouă" sus</li>
+                    <li>Dreapta (~67%): detalii comandă selectată, state diagram cu starea curentă evidențiată, butoane de acțiune contextuale, history timeline</li>
+                  </ul>
+                </li>
+                <li><strong>Listă comenzi</strong> — populată prin <code>GET /orders</code> la încărcarea paginii și după fiecare acțiune; fiecare rând afișează ID-ul scurt, status badge colorat după stare (albastru=Pending, portocaliu=Processing, verde=Delivered, roșu=Cancelled); click pe rând → selectează comanda</li>
+                <li><strong>Modal „Comandă nouă"</strong> — formular cu: nume customer, vârstă, isTrusted (checkbox), listă dinamică de items (produs din dropdown, cantitate, preț, ageRestriction); submit → <code>POST /orders</code>; la succes închide modal și refresh listă; la 400 afișează erorile de validare returnate de chain</li>
+                <li><strong>Panel detalii comandă</strong> — populat prin <code>GET /orders/{id}</code>; afișează: ID complet, status curent, nume customer, adresă, listă items cu cantități și prețuri, total comandă</li>
+                <li><strong>State diagram inline</strong> — reprezentare compactă (Pending → Confirmed → Processing → Shipped → Delivered, plus Cancelled deviat) cu starea curentă evidențiată portocaliu, stările anterioare gri-șterse</li>
+                <li><strong>5 butoane de acțiune</strong> (Pay, Process, Ship, Deliver, Cancel) — sub state diagram; <strong>butoanele active sunt doar cele permise în starea curentă</strong> (verde, clickable); restul sunt vizibile dar disabled (gri, opacity redusă); click → <code>POST /orders/{id}/{action}</code> → la succes refresh detalii + listă, la 409 afișează toast de eroare cu mesajul de la server</li>
+                <li><strong>History timeline</strong> — listă cronologică a tranzițiilor: „Pending → Confirmed   14:32:15", fiecare cu timestamp; folosește <code>Order.History</code> din răspunsul GET</li>
+                <li><strong>Toast notifications</strong> jos: succes verde pentru tranziții reușite, eroare roșu pentru validare eșuată / tranziție invalidă; afișează exact mesajul primit de la API; dispar automat după 4 secunde sau la click pe X</li>
+                <li><strong>JavaScript</strong>: funcții <code>async fetchOrders()</code>, <code>async fetchOrder(id)</code>, <code>async createOrder(data)</code>, <code>async triggerAction(id, action)</code>; toate folosesc <code>fetch</code> cu <code>async/await</code> și <code>try/catch</code> pentru gestionarea erorilor; render prin <code>innerHTML</code> pe zonele relevante (nu virtual DOM); state local minim — obiect <code>{ orders: [], selectedId: null }</code></li>
+                <li><strong>NU se folosește framework</strong> (React/Vue/Angular). Codul JS rămâne sub 250 linii. Scopul este să demonstreze că pattern-urile backend produc efecte vizibile în UI fără magie de framework</li>
+              </ul>
+              <p style="margin:.65rem 0 .25rem;font-size:13px;color:var(--text2);">Mock-up al SPA-ului — așa trebuie să arate aplicația finală:</p>
+              <div class="spa-mockup">
+                <div class="spa-window">
+                  <div class="spa-header">
+                    <div class="spa-title">📦 OrderProcessing — Lab 4</div>
+                    <span class="spa-link">Swagger ↗</span>
+                  </div>
+                  <div class="spa-body">
+                    <!-- Coloana stângă: listă comenzi -->
+                    <div class="spa-col">
+                      <div class="spa-panel">
+                        <div class="spa-new-btn">+ Comandă nouă</div>
+                        <div class="spa-panel-label">Orders <span class="pl-count">· 3</span></div>
+                        <div class="spa-order-row active">
+                          <span class="marker">▶</span>
+                          <span class="oid">#abc-123</span>
+                          <span class="ost processing">Processing</span>
+                        </div>
+                        <div class="spa-order-row">
+                          <span class="marker"></span>
+                          <span class="oid">#def-456</span>
+                          <span class="ost pending">Pending</span>
+                        </div>
+                        <div class="spa-order-row">
+                          <span class="marker"></span>
+                          <span class="oid">#ghi-789</span>
+                          <span class="ost cancelled">Cancelled</span>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Coloana dreaptă: detalii + acțiuni -->
+                    <div class="spa-col">
+                      <div class="spa-panel">
+                        <div class="spa-panel-label">Order Details</div>
+                        <dl class="spa-detail-grid">
+                          <dt>ID</dt>          <dd class="mono">abc-123-456-789</dd>
+                          <dt>Status</dt>     <dd>Processing</dd>
+                          <dt>Customer</dt>   <dd>John Doe (32 ani)</dd>
+                          <dt>Items</dt>      <dd>3 produse · 1.245 RON</dd>
+                          <dt>Address</dt>    <dd>Str. Exemplu 12, București</dd>
+                        </dl>
+                      </div>
+                      <div class="spa-panel">
+                        <div class="spa-panel-label">State Diagram</div>
+                        <div class="spa-mini-state">
+                          <span class="spa-mini-node done">Pending</span>
+                          <span class="spa-mini-arrow">→</span>
+                          <span class="spa-mini-node done">Confirmed</span>
+                          <span class="spa-mini-arrow">→</span>
+                          <span class="spa-mini-node current">Processing</span>
+                          <span class="spa-mini-arrow">→</span>
+                          <span class="spa-mini-node">Shipped</span>
+                          <span class="spa-mini-arrow">→</span>
+                          <span class="spa-mini-node">Delivered</span>
+                        </div>
+                      </div>
+                      <div class="spa-panel">
+                        <div class="spa-panel-label">Actions <span class="pl-count" style="color:var(--text3);">tranziții permise din starea curentă</span></div>
+                        <div class="spa-actions">
+                          <span class="spa-action disabled">Pay</span>
+                          <span class="spa-action disabled">Process</span>
+                          <span class="spa-action enabled">Ship</span>
+                          <span class="spa-action disabled">Deliver</span>
+                          <span class="spa-action cancel">Cancel</span>
+                        </div>
+                      </div>
+                      <div class="spa-panel">
+                        <div class="spa-panel-label">History</div>
+                        <div class="spa-history">
+                          <div class="spa-history-row">
+                            <span class="dot-h"></span>
+                            <span class="trn">Pending → Confirmed</span>
+                            <span class="ts">14:32:15</span>
+                          </div>
+                          <div class="spa-history-row">
+                            <span class="dot-h"></span>
+                            <span class="trn">Confirmed → Processing</span>
+                            <span class="ts">14:35:48</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="spa-toast">
+                    <span class="msg">Comandă creată cu succes #abc-123</span>
+                    <span class="close">close ✕</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lab-req">
+            <div class="lab-req-header">
+              <span class="lab-req-badge" style="background:rgba(188,140,255,.12);color:var(--purple);">DOCS</span>
+              <span class="lab-req-title">Cerința 7 — Documentație în README cu diagrame și screenshot-uri</span>
+            </div>
+            <div class="lab-req-body">
+              <p style="margin:0 0 .65rem;"><strong>Diagrame Mermaid</strong>, incluse direct în <code>README.md</code>:</p>
+              <ul>
+                <li><strong>State diagram</strong> — toate cele 6 stări și tranzițiile permise (sintaxa Mermaid <code>stateDiagram-v2</code>); pune-o în secțiunea „Order Lifecycle"</li>
+                <li><strong>Diagrama de secvență</strong> — fluxul complet de la <code>POST /orders</code> până la <code>POST /orders/{id}/deliver</code>: endpoint → OrderService → chain validare → fiecare handler → Order creată cu PendingState → tranziții succesive Pay → Process → Ship → Deliver, fiecare = delegare către stare + actualizare istoric</li>
+                <li><strong>Diagrama de clase</strong> — modelul de domeniu cu pattern-urile vizibile (Order + 6 stări implementând <code>IOrderState</code>, chain-ul cu 4 handler-i implementând <code>IOrderValidationHandler</code>)</li>
+              </ul>
+              <p style="margin:.65rem 0 .65rem;"><strong>Screenshot-uri ale SPA-ului în funcțiune</strong> (folder <code>docs/screenshots/</code>, referite în README):</p>
+              <ul>
+                <li><strong>Screenshot 1 — „Comandă proaspăt creată"</strong>: SPA cu modalul de creare deschis, formular completat valid; sau imediat după creare, cu noua comandă în listă în starea Pending și butoanele Pay + Cancel active, restul disabled</li>
+                <li><strong>Screenshot 2 — „Comandă cu butoane contextuale"</strong>: o comandă în starea Shipped; doar butoanele Deliver (verde, enabled) și Cancel (vizibil dar disabled — pentru că Shipped nu permite Cancel) sunt afișate corect; butoanele Pay/Process/Ship sunt disabled</li>
+                <li><strong>Screenshot 3 — „Eroare la tranziție invalidă"</strong>: încercare de Cancel pe o comandă Delivered; toast roșu jos cu mesajul exact returnat de <code>InvalidOrderTransitionException</code> („Nu pot executa 'Cancel' în starea 'Delivered'"); demonstrează că State Pattern previne tranzițiile invalide vizual</li>
+                <li><strong>Screenshot 4 — „Validare eșuată la creare"</strong>: încercare de creare comandă cu un produs care nu e în stoc; toast roșu cu mesajul de la <code>StockValidationHandler</code>; demonstrează că Chain of Responsibility a oprit pipeline-ul la primul eșec</li>
+              </ul>
+              <p style="margin:.65rem 0 0;font-size:13px;color:var(--text2);">Bonus opțional: screen recording scurt (gif/mp4 de 20-30 sec) cu fluxul complet — creare comandă, plată, procesare, expediere, livrare — încărcat ca asset în repo.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="lab-section">
+          <div class="lab-section-title">Vizualizare — Chain of Responsibility</div>
+          <p style="margin:0 0 .65rem;font-size:13.5px;">Pipeline-ul de validare la <code>POST /orders</code>; primul handler care detectează problemă oprește lanțul:</p>
+          <div class="chain-pipe">
+            <div class="chain-row">
+              <div class="chain-box">
+                <div class="ttl">StockValidation</div>
+                <div class="dsc">toate produsele în stoc?</div>
+              </div>
+              <span class="chain-arrow">→</span>
+              <div class="chain-box">
+                <div class="ttl">PriceValidation</div>
+                <div class="dsc">prețuri &gt; 0, total corect?</div>
+              </div>
+              <span class="chain-arrow">→</span>
+              <div class="chain-box">
+                <div class="ttl">FraudDetection</div>
+                <div class="dsc">comandă mare / customer ne-trusted?</div>
+              </div>
+              <span class="chain-arrow">→</span>
+              <div class="chain-box">
+                <div class="ttl">AgeVerification</div>
+                <div class="dsc">restricții vârstă respectate?</div>
+              </div>
+            </div>
+            <div class="chain-exit">primul handler care detectează problemă întoarce <strong>ValidationResult.Failed</strong> — restul nu mai rulează</div>
+          </div>
+        </div>
+
+        <div class="lab-section">
+          <div class="lab-section-title">Vizualizare — State Machine</div>
+          <p style="margin:0 0 .65rem;font-size:13.5px;">Cele 6 stări ale unei comenzi și tranzițiile permise; <code>Delivered</code> și <code>Cancelled</code> sunt terminale:</p>
+          <div class="state-diagram">
+            <div class="state-node start">Pending<span class="nm">initial</span></div>
+            <div class="state-arrow"><span class="lbl">Pay()</span></div>
+            <div class="state-node">Confirmed<span class="nm">paid</span></div>
+
+            <div class="state-spacer"></div>
+            <div class="state-spacer"></div>
+            <div class="state-arrow"><span class="lbl">Process()</span></div>
+
+            <div class="state-node final">Delivered<span class="nm">terminal ✓</span></div>
+            <div class="state-arrow"><span class="lbl">Deliver()</span></div>
+            <div class="state-node">Processing<span class="nm">in pregatire</span></div>
+
+            <div class="state-spacer"></div>
+            <div class="state-spacer"></div>
+            <div class="state-arrow"><span class="lbl">Ship()</span></div>
+
+            <div class="state-node cancelled">Cancelled<span class="nm">terminal ✗</span></div>
+            <div class="state-arrow cancel"><span class="lbl">Cancel()</span></div>
+            <div class="state-node active">Shipped<span class="nm">in tranzit</span></div>
+          </div>
+          <p style="font-size:12px;color:var(--text3);margin-top:.5rem;"><code>Cancel()</code> e permis din <code>Pending</code>, <code>Confirmed</code>, <code>Processing</code> — dar NU și din <code>Shipped</code> sau <code>Delivered</code> (comanda a părăsit deja depozitul).</p>
+        </div>
+
+        <div class="lab-section">
+          <div class="lab-section-title">Structura soluției</div>
+          <div class="structure-tree">
+<span class="st-folder">OrderProcessing.sln</span>
+└── <span class="st-folder">src/</span>
+    └── <span class="st-folder">OrderProcessing.Api/</span>
+        ├── <span class="st-folder">Domain/</span>
+        │   ├── <span class="st-file">Order.cs</span>                <span class="st-comment">← Aggregate Root</span>
+        │   ├── <span class="st-file">OrderItem.cs</span>
+        │   ├── <span class="st-file">Customer.cs</span>
+        │   ├── <span class="st-file">Money.cs</span>
+        │   ├── <span class="st-file">Address.cs</span>
+        │   └── <span class="st-file">OrderId.cs</span>
+        ├── <span class="st-folder">States/</span>                  <span class="st-comment">← State Pattern</span>
+        │   ├── <span class="st-file">IOrderState.cs</span>
+        │   ├── <span class="st-file">PendingState.cs</span>
+        │   ├── <span class="st-file">ConfirmedState.cs</span>
+        │   ├── <span class="st-file">ProcessingState.cs</span>
+        │   ├── <span class="st-file">ShippedState.cs</span>
+        │   ├── <span class="st-file">DeliveredState.cs</span>
+        │   ├── <span class="st-file">CancelledState.cs</span>
+        │   └── <span class="st-file">InvalidOrderTransitionException.cs</span>
+        ├── <span class="st-folder">Validation/</span>              <span class="st-comment">← Chain of Responsibility</span>
+        │   ├── <span class="st-file">IOrderValidationHandler.cs</span>
+        │   ├── <span class="st-file">BaseValidationHandler.cs</span>
+        │   ├── <span class="st-file">StockValidationHandler.cs</span>
+        │   ├── <span class="st-file">PriceValidationHandler.cs</span>
+        │   ├── <span class="st-file">FraudDetectionHandler.cs</span>
+        │   ├── <span class="st-file">AgeVerificationHandler.cs</span>
+        │   └── <span class="st-file">ValidationResult.cs</span>
+        ├── <span class="st-folder">Services/</span>
+        │   ├── <span class="st-file">OrderService.cs</span>         <span class="st-comment">← orchestrator</span>
+        │   └── <span class="st-file">InMemoryOrderRepository.cs</span>
+        ├── <span class="st-folder">Endpoints/</span>
+        │   └── <span class="st-file">OrderEndpoints.cs</span>       <span class="st-comment">← Minimal API mapping</span>
+        ├── <span class="st-folder">wwwroot/</span>                  <span class="st-comment">← SPA vanilla (HTML+CSS+JS)</span>
+        │   ├── <span class="st-file">index.html</span>              <span class="st-comment">← layout 2 coloane + modal</span>
+        │   ├── <span class="st-file">styles.css</span>              <span class="st-comment">← dark theme</span>
+        │   └── <span class="st-file">app.js</span>                  <span class="st-comment">← fetch + render</span>
+        ├── <span class="st-folder">docs/</span>
+        │   ├── <span class="st-folder">screenshots/</span>            <span class="st-comment">← screenshot-uri SPA</span>
+        │   └── <span class="st-file">requests.http</span>           <span class="st-comment">← teste pentru endpoint-uri</span>
+        ├── <span class="st-file">Program.cs</span>                  <span class="st-comment">← DI + builder + Run</span>
+        └── <span class="st-file">OrderProcessing.Api.csproj</span>
+          </div>
+        </div>
+
+        <div class="lab-deliverable">
+          <div class="lab-deliverable-title">📦 Livrabil</div>
+          <p>Repository GitHub — <code>map-lab4-orderprocessing-&lt;nume&gt;</code>. <strong>Backend</strong>: Web API .NET 8 cu domain, chain de validare, state machine și endpoint-urile specificate. <strong>Frontend</strong>: SPA în <code>wwwroot/</code> (HTML + CSS + JavaScript pur, fără framework, sub 250 linii de JS) care apelează API-ul prin <code>fetch</code> și permite crearea comenzilor + tranziții cu butoane contextuale + history timeline + toast notifications. <strong>Documentație</strong>: <code>README.md</code> cu state diagram, diagrama de secvență, diagrama de clase (toate Mermaid), instrucțiuni de rulare (<code>dotnet run</code> + URL aplicație + URL Swagger), minim 4 screenshot-uri ale SPA-ului în diverse stări. <strong>Testare</strong>: fișier <code>docs/requests.http</code> sau colecție Postman cu cereri pentru toate scenariile (creare validă, creare cu validare eșuată per fiecare handler, tranziții valide, tranziții invalide). La <code>dotnet run</code> aplicația trebuie să fie accesibilă la <code>http://localhost:5000</code> (SPA) și la <code>http://localhost:5000/swagger</code> (testare API directă).</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- QUESTIONS -->
+  <div class="questions-box">
+    <div class="questions-title">💬 Teme de Discuție</div>
+    <ol>
+      <li>Template Method folosește moștenire, Strategy folosește compoziție. Există situații în care moștenirea oferă claritate suplimentară pe care compoziția o pierde? Argumentați cu un exemplu concret.</li>
+      <li>Chain of Responsibility cu short-circuit (oprire la primul răspuns) vs. pass-through (toți handler-ii rulează) — cum decideți care variantă se potrivește problemei? Există cazuri în care vă trebuie un comportament hibrid?</li>
+      <li>State Pattern descentralizat (starea decide tranziția) vs. centralizat (context-ul are tabelul de tranziții). Pentru o aplicație cu 20+ stări și workflow configurabil de admin, care abordare alegeți și de ce?</li>
+      <li>Mediator poate deveni un God Object dacă concentrează prea multă logică de coordonare. Care sunt semnele că ați depășit zona sănătoasă și ar trebui să descompuneți mediatorul în mai mulți mediatori specializați?</li>
+    </ol>
+  </div>
+
+  <!-- RESOURCES -->
+  <div class="resources">
+    <div class="resources-title">Resurse</div>
+    <div class="resource-list">
+      <div class="resource-item">Design Patterns: Elements of Reusable Object-Oriented Software — GoF, cap. Behavioral Patterns</div>
+      <div class="resource-item">refactoring.guru/design-patterns/template-method — Template Method cu exemple C#</div>
+      <div class="resource-item">refactoring.guru/design-patterns/chain-of-responsibility — Chain of Responsibility ilustrat</div>
+      <div class="resource-item">refactoring.guru/design-patterns/state — State Pattern cu diagrame interactive</div>
+      <div class="resource-item">refactoring.guru/design-patterns/mediator — Mediator cu exemple practice</div>
+      <div class="resource-item">docs.microsoft.com/aspnet/core/fundamentals/middleware — ASP.NET Core Middleware (Chain of Responsibility în practică)</div>
+      <div class="resource-item">github.com/dotnet-state-machine/stateless — biblioteca Stateless pentru state machines complexe</div>
+      <div class="resource-item">github.com/jbogard/MediatR — MediatR, implementarea Mediator pentru CQRS în .NET</div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const el = document.documentElement;
+    document.getElementById('scroll-prog').style.transform =
+      'scaleX(' + (el.scrollTop / (el.scrollHeight - el.clientHeight)) + ')';
+  });
+  const sections = document.querySelectorAll('section[id]');
+  const links    = document.querySelectorAll('.sidebar-link[href^="#"]');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector('.sidebar-link[href="#' + e.target.id + '"]');
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        background: '#161b22',
+        primaryColor: '#1c2128',
+        primaryTextColor: '#e6edf3',
+        primaryBorderColor: '#3d4450',
+        lineColor: '#8b949e',
+        secondaryColor: '#0d1117',
+        actorBkg: '#1c2128',
+        actorBorder: '#3d4450',
+        actorTextColor: '#e6edf3',
+        signalColor: '#79c0ff',
+        signalTextColor: '#e6edf3',
+        labelBoxBkgColor: '#1c2128',
+        labelBoxBorderColor: '#3d4450',
+        labelTextColor: '#e6edf3',
+        noteBkgColor: '#2a1f0a',
+        noteBorderColor: '#4a3400',
+        noteTextColor: '#ffa657',
+        classText: '#e6edf3',
+        edgeLabelBackground: '#161b22',
+      },
+      sequence: { actorFontSize: 13, messageFontSize: 12, mirrorActors: false },
+      classDiagram: { fontSize: 13 }
+    });
+  });
+</script>
+</body>
+</html>
